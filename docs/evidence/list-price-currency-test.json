@@ -1,0 +1,9 @@
+{
+  "fullForm": "PASS：UPC、SKU、0值尺寸、颜色、包装单位、数量先清空再FBA和固定属性。\n库存数量清空、配送渠道FBA、Parent SKU、UPC、制造商、品牌、Model Number、Model Name、Price、List Price Currency：GBP(英镑)、List Price、Color、商品尺寸:长（cm）、包装长度、商品尺寸:宽（cm）、包装宽度、商品尺寸:高（cm）、包装高度、包装重量、原产地China、电池No、危险商品规管不适用",
+  "missingField": "PASS：List Price Currency不存在时跳过",
+  "choices": [
+    "USD(美元)",
+    "EUR(欧元)",
+    "GBP(英镑)"
+  ]
+}

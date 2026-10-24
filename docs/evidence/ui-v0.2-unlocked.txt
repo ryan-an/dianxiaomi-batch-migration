@@ -1,0 +1,8 @@
+Browser tab: 7, Title: "本地页面锁定验证", URL: "http://127.0.0.1:8765/tests/lock.html".
+1 AXWebArea 本地页面锁定验证, URL: 127.0.0.1:8765/tests/lock.html
+	2 heading 本地页面锁定验证, Value: 2
+		3 text 本地页面锁定验证
+	4 button 页面普通按钮, ID: under
+	5 text 点击次数：1
+
+The focused UI element is 4 button 页面普通按钮, ID: under

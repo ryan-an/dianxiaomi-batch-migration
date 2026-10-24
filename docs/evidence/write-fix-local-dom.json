@@ -1,0 +1,18 @@
+[
+  {
+    "test": "完整表单及FBA",
+    "result": "PASS：UPC、SKU、0值尺寸、颜色、包装单位、数量先清空再FBA和固定属性。\n库存数量清空、配送渠道FBA、Parent SKU、UPC、制造商、品牌、Model Number、Model Name、Price、List Price、Color、商品尺寸:长（cm）、包装长度、商品尺寸:宽（cm）、包装宽度、商品尺寸:高（cm）、包装高度、包装重量、原产地China、电池No、危险商品规管不适用"
+  },
+  {
+    "test": "来源不匹配",
+    "result": "PASS：来源不匹配，已阻止写入。"
+  },
+  {
+    "test": "产品ID不匹配",
+    "result": "PASS：产品ID不匹配时在任何写入前停止。"
+  },
+  {
+    "test": "等待目标来源加载",
+    "result": "PASS：URL相同但表单仍是旧来源时持续等待，目标来源加载后才就绪。"
+  }
+]

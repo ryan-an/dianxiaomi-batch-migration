@@ -1,0 +1,39 @@
+Browser tab: 7, Title: "产品迁移控制台 · 店小秘", URL: "http://127.0.0.1:8765/tests/popup-preview.html?state=done".
+1 AXWebArea 产品迁移控制台 · 店小秘, URL: 127.0.0.1:8765/tests/popup-preview.html?state=done
+	2 container
+		3 text 店小秘自动迁移 表格仅在本地解析
+		4 heading 产品迁移控制台, Value: 1
+			5 text 产品迁移控制台
+		6 text 导入表格，核对店铺与范围，再开始迁移。
+		7 container 执行控制
+			8 button 开始执行 1 条, ID: start
+				47 text 开始执行 1 条
+			10 button (disabled) 停止, ID: stop
+				48 text 停止
+			12 button 下载结果, ID: download
+			49 text 已提交发布，1 条等待平台确认
+			50 text 核对下方店铺与范围，点击开始后按顺序执行。
+		15 button (collapsed) 表格与执行设置 第 2 条起 · 本轮 1 条, ID: settingsToggle, Secondary Actions: Expand
+			16 text 表格与执行设置
+			51 text 第 2 条起 · 本轮 1 条
+		18 container 本轮进度, ID: execution
+			19 heading 本轮进度, Value: 2, ID: executionHeading
+				20 text 本轮进度
+			52 text 已处理 1 / 1 条
+			22 progress indicator Description: 本轮产品处理进度, Value: 100, ID: progressBar
+			53 text 0
+			24 text 已上线
+			54 text 1
+			26 text 待平台确认
+			55 text 0
+			28 text 失败 / 数据问题
+			56 text “已上线”以店小秘在线列表核对为准；待平台确认的产品会单独记录。
+		30 button (collapsed) 查看本轮产品明细（10 条）, ID: recordsLabel, Secondary Actions: Expand
+			31 text 查看本轮产品明细（10 条）
+		32 button (collapsed) 执行日志 6 条记录, Secondary Actions: Expand
+			33 text 执行日志
+			34 text 6 条记录
+		35 text 关闭控制窗口不会中断执行，再次点击插件图标即可查看进度。
+	46 text 本地导出检查：迁移结果_2026-10-23.xlsx；10 条产品；23560 字节；采集 ID 与产品 ID 保持完整文本。此预览仅验证 XLSX 内容，不启动浏览器下载。
+
+The focused UI element is 12 button 下载结果, ID: download

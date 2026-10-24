@@ -1,0 +1,8 @@
+{
+  "tests": [
+    "没有Model Number仍就绪，缺少型号/颜色/尺寸/包装/容量/原产地/电池/危险规管字段记录跳过且UPC价格继续填写：PASS",
+    "完整表单既有字段和FBA/数量规则：PASS",
+    "PASS：存在但禁用的字段仍记录真实错误。"
+  ],
+  "liveProductsModified": false
+}

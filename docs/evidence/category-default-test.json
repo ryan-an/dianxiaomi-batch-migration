@@ -1,0 +1,10 @@
+{
+  "result": "PASS：已有分类保留；空分类识别；唯一推荐确认；多项优先平台默认项；无默认时第一条；记录推荐类型与路径。",
+  "liveResult": {
+    "type": "DISHWARE_PLATE",
+    "category": "板(Plates)",
+    "attributes": 139,
+    "saved": false,
+    "published": false
+  }
+}

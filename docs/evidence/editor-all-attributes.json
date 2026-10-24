@@ -1,0 +1,1368 @@
+[
+  {
+    "controls": [
+      {
+        "id": "form_item_merchant_suggested_asin.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Merchant Suggested ASIN(商家建议的 ASIN)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_package_level.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Package Level(包装级别)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_package_contains_sku.0.quantity",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Package Contains SKU Quantity(包裹包含 SKU 数量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_package_contains_sku.0.sku",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Package Contains SKU Identifier(包裹包含 SKU 编码)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_model_number.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": "/01"
+      }
+    ],
+    "label": "Model Number(型号)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_model_name.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Model Name(型号名称)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_handmade_classification.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Handmade Classification(手工制作分类)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_style.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Style(樣式)"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "placeholder": "搜索",
+        "role": null,
+        "value": ""
+      },
+      {
+        "id": "",
+        "placeholder": "",
+        "role": null,
+        "value": "Our S-shaped hooks are made of sturdy brass with a smooth finish, ensuring durability and preventing scratches or hand injuries while securely holding your items"
+      },
+      {
+        "id": "",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Material(材料)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_number_of_items.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Number of Items(产品数量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_quantity.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Item Package Quantity(成套产品数量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_color.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": "Gold"
+      }
+    ],
+    "label": "Colour(颜色)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_size.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": "1PCS"
+      }
+    ],
+    "label": "Size(尺码)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_number_of_pieces.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Number of Pieces(件数)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_part_number.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Part Number(零件编号)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_shape.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Item Shape(商品形状)"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "placeholder": "搜索",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Language(语言)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_lens.0.color.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Lens Colour(镜片颜色)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_number_of_hooks.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Number of Hooks(挂钩数)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_orientation.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Orientation(方向)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_pattern.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Pattern(图案)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_mounting_type.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Mounting Type(安装类型)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_finish_type.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Finish Type(表面處理)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_unit_count.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": "1"
+      }
+    ],
+    "label": "Unit Count(单位计数)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_unit_count.0.type.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Unit Count Type(单位计数类型)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_product_site_launch_date.0.value",
+        "placeholder": "请选择日期",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Product Site Launch Date(产品网站发布日期)"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "placeholder": "",
+        "role": null,
+        "value": "no"
+      },
+      {
+        "id": "",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Included Components(所包含组件)"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "placeholder": "搜索",
+        "role": null,
+        "value": ""
+      },
+      {
+        "id": "",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Recommended Uses For Product(建议用法)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_thickness.0.decimal_value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Item Thickness Decimal Value(商品厚度十进制数值)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_thickness.0.string_value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Item Thickness(商品厚度字符串数值)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_thickness.0.unit",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Item Thickness Unit(商品厚度单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_maximum_weight_recommendation.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Maximum Weight Recommendation(最大可取重量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_maximum_weight_recommendation.0.unit",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Maximum Weight Recommendation Unit(最大可取重量单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_length.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Item Length(商品长度)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_length.0.unit",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Item Length Unit(商品长度单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_number_of_packs.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Number of Packs(内包装数量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_set_name.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Set Name(集合名称)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_letter_character.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Letter Character(字母字符)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_wood_type.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Wood Type(木材类型)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_weight.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Item Weight(商品重量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_weight.0.unit",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Item Weight Unit(商品重量单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_skip_offer.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Skip Offer(跳过报价)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_fulfillment_availability.0.restock_date",
+        "placeholder": "请选择日期",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Restock Date(重新库存日期)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_fulfillment_availability.0.is_inventory_available",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Inventory Always Available(始终有货)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_map_policy.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Minimum Advertised Price Display(最低广告价格显示)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_purchasable_offer.0.map_price.0.schedule.0.value_with_tax",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Minimum Advertised Price(最低广告价格)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_purchasable_offer.0.minimum_seller_allowed_price.0.schedule.0.value_with_tax",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Minimum Seller Allowed Price(卖方允许的最低价格)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_purchasable_offer.0.maximum_seller_allowed_price.0.schedule.0.value_with_tax",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Maximum Seller Allowed Price(卖方允许的最高价格)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_purchasable_offer.0.start_at.value",
+        "placeholder": "请选择日期",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Offering Release Date(提供发布日期)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_purchasable_offer.0.end_at.value",
+        "placeholder": "请选择日期",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Stop Selling Date(停售日期)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_purchasable_offer.0.audience",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Audience(受众)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_list_price.0.currency",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "List Price Currency(价目表货币)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_list_price.0.value_with_tax",
+        "placeholder": "",
+        "role": null,
+        "value": "23.99"
+      }
+    ],
+    "label": "List Price with Tax(含税价目表)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_product_tax_code.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Product Tax Code(产品税码)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_merchant_release_date.0.value",
+        "placeholder": "请选择日期",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Release Date(发售日期)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_max_order_quantity.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Maximum Order Quantity(最大订单数量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_gift_options.0.can_be_messaged",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Offering Can Be Gift Messaged(可以提供礼品信息)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_gift_options.0.can_be_wrapped",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Is Gift Wrap Available(表示礼品包装可用)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_main_offer_image_locator.0.media_location",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Main Image Location(主图片的地址)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_other_offer_image_locator_1.0.media_location",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Other Image Location(其他图片的地址)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_other_offer_image_locator_2.0.media_location",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Other Image Location(其他图片的地址)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_other_offer_image_locator_3.0.media_location",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Other Image Location(其他图片的地址)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_other_offer_image_locator_4.0.media_location",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Other Image Location(其他图片的地址)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_other_offer_image_locator_5.0.media_location",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Other Image Location(其他图片的地址)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_supplemental_condition_information.0.accessories",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Accessories(配件)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_supplemental_condition_information.0.battery_life_percentage",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Battery Life Percentage(电池电量百分比)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_supplemental_condition_information.0.cosmetic",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Cosmetic(化妆品)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_supplemental_condition_information.0.functional_condition",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Functional Condition(功能状况)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_supplemental_condition_information.0.packaging",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Packaging(包装)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_supplemental_condition_information.0.renewed_grade",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Renewed Grade(翻新等级)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_supplemental_condition_information.0.source_type",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Source Type(来源类型)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_dimensions.0.length.value",
+        "placeholder": "",
+        "role": null,
+        "value": "0"
+      }
+    ],
+    "label": "Item Length(商品长度)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_dimensions.0.length.unit",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Item Length Unit(商品长度单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_dimensions.0.width.value",
+        "placeholder": "",
+        "role": null,
+        "value": "0"
+      }
+    ],
+    "label": "Item Width(商品宽度)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_dimensions.0.width.unit",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Item Width Unit(商品宽度单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_dimensions.0.height.value",
+        "placeholder": "",
+        "role": null,
+        "value": "8.8"
+      }
+    ],
+    "label": "Item Height(商品高度)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_dimensions.0.height.unit",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Item Height Unit(商品高度单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_dimensions.0.length.value",
+        "placeholder": "",
+        "role": null,
+        "value": "3"
+      }
+    ],
+    "label": "Item Package Length(包装长度)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_dimensions.0.length.unit",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Package Length Unit(包装长度单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_dimensions.0.width.value",
+        "placeholder": "",
+        "role": null,
+        "value": "2"
+      }
+    ],
+    "label": "Item Package Width(包装宽度)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_dimensions.0.width.unit",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Package Width Unit(包装宽度单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_dimensions.0.height.value",
+        "placeholder": "",
+        "role": null,
+        "value": "0.1"
+      }
+    ],
+    "label": "Item Package Height(包装高度)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_dimensions.0.height.unit",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Package Height Unit(包装高度单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_weight.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": "0.1"
+      }
+    ],
+    "label": "Item Package Weight(包装重量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_weight.0.unit",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Item Package Weight Unit(包装重量单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_master_pack_layers_per_pallet_quantity.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Master Pack Layers per Pallet Quantity(每托盘主包装层数)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_master_packs_per_layer_quantity.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Master Packs Per Layer Quantity(每层主包装数量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_country_of_origin.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Country of Origin(原产地)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_batteries_required.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Are batteries required?(需要电池吗？)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_batteries_included.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Are batteries included?(是否附带电池)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_battery.0.cell_composition.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Battery Cell Composition(电池成分)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_battery.0.cell_composition_other_than_listed.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Battery Cell Composition Other Than Listed(未列明的电池单元成分)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_battery.0.iec_code.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Battery IEC Code(电池IEC代码)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_battery.0.weight.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Battery Weight(电池重量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_battery.0.weight.0.unit",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Battery Weight Unit(电池重量单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Number of Batteries(电池数量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_number_of_lithium_metal_cells.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Number of Lithium Metal Cells(锂金属电池单元数量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_number_of_lithium_ion_cells.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Number of Lithium-ion Cells(锂离子电池单元数量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_lithium_battery.0.energy_content.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Lithium Battery Energy Content(锂电池电量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_lithium_battery.0.energy_content.0.unit",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Lithium Battery Energy Content Unit(锂电池电量单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_lithium_battery.0.packaging.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Lithium Battery Packaging(锂电池包装)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_lithium_battery.0.weight.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Lithium Battery Weight(锂电池重量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_lithium_battery.0.weight.0.unit",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Lithium Battery Weight Unit(锂电池重量单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_hazmat.0.aspect",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Hazmat Aspect(危险品方面)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_hazmat.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Hazmat Information(危险品)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_safety_data_sheet_url.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Safety Data Sheet (SDS or MSDS) URL(安全数据表（SDS 或 MSDS）URL)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_is_this_product_subject_to_buyer_age_restrictions.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Is This Product Subject To Buyer Age Restrictions(该产品是否有买家年龄限制)"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "EPR Product Packaging Granular Material Weight Value(EPR 产品包装颗粒材料重量值)"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Percentage of Recycled Content of Granular Material of EPR Product Packaging(EPR 产品包装中颗粒材料的回收物含量百分比)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_has_multiple_battery_powered_components.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Has Multiple Battery Powered Components(具有多个电池供电组件)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_ships_globally.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Ships Globally(全球发货)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_contains_battery_or_cell.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Contains Battery or Cell(包含电池或电池组)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_battery_contains_free_unabsorbed_liquid.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Battery Contains free Unabsorbed Liquid(电池含有游离液体)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_is_battery_non_spillable.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Is Battery Non Spillable(电池是否不易溢出)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_non_lithium_battery_packaging.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Non-Lithium Battery Packaging(非锂电池包装)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_has_replaceable_battery.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Has Replaceable Battery(有可更换电池)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_non_lithium_battery_energy_content.0.value",
+        "placeholder": "",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "Non-Lithium Battery Energy Content(非锂电池能量含量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_non_lithium_battery_energy_content.0.unit",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Non-Lithium Battery Energy Content Unit(非锂电池能量含量单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_has_less_than_30_percent_state_of_charge.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Has Less than 30 Percent State of Charge(电量低于30-::-)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_battery_installation_device_type.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Battery Installation Device Type(电池安装设备类型)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_is_oem_sourced_product.0.value",
+        "placeholder": "",
+        "role": "combobox",
+        "value": ""
+      }
+    ],
+    "label": "Is OEM Sourced Product(是否OEM采购产品)"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "placeholder": "搜索",
+        "role": null,
+        "value": ""
+      }
+    ],
+    "label": "GHS Chemical H Code(GHS 化学 H 代码)"
+  }
+]

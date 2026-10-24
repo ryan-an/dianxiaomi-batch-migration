@@ -1,0 +1,12 @@
+{
+  "errors": [
+    "Parent SKU重复，请重新输入",
+    "请输入型号",
+    "请输入型号名称",
+    "请输入含税价目表"
+  ],
+  "links": [
+    "<a data-v-4ff5788e=\"\" class=\"btn\" href=\"/web/amazon/pageList/offline\">待发布</a>"
+  ],
+  "url": "https://www.dianxiaomi.com/web/amazon/edit?id=184807703384729919"
+}

@@ -1,0 +1,2831 @@
+[
+  {
+    "label": "店铺账号",
+    "values": [
+      {
+        "checked": false,
+        "id": "rc_select_1",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "站点选择",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_site",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": " 产品标题 ",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "10 PCS Gold S Hooks, Brass S Hooks for Hanging, 3.54 Inch"
+      }
+    ]
+  },
+  {
+    "label": " 商品亮点 ",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_titleDifferentiation",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "产品分类",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_category",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "售卖形式",
+    "values": [
+      {
+        "checked": true,
+        "id": "",
+        "value": "0"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "label": "UPC豁免",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "1"
+      },
+      {
+        "checked": true,
+        "id": "",
+        "value": "0"
+      }
+    ]
+  },
+  {
+    "label": "店小秘分类",
+    "values": []
+  },
+  {
+    "label": "来源URL",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "https://www.amazon.com/dp/B0FMXZ1XHX"
+      }
+    ]
+  },
+  {
+    "label": " Parent SKU ",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "NYJ-44C-AQOR"
+      }
+    ]
+  },
+  {
+    "label": " 产品ID ",
+    "values": [
+      {
+        "checked": false,
+        "id": "rc_select_7",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "780715899310"
+      }
+    ]
+  },
+  {
+    "label": " 品牌 ",
+    "values": [
+      {
+        "checked": false,
+        "id": "rc_select_8",
+        "value": "Preocea"
+      }
+    ]
+  },
+  {
+    "label": " 制造商 ",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "Preocea"
+      }
+    ]
+  },
+  {
+    "label": "Merchant Suggested ASIN(商家建议的 ASIN)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_merchant_suggested_asin.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Package Level(包装级别)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_package_level.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Package Contains SKU Quantity(包裹包含 SKU 数量)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_package_contains_sku.0.quantity",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Package Contains SKU Identifier(包裹包含 SKU 编码)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_package_contains_sku.0.sku",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Model Number(型号)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_model_number.0.value",
+        "value": "/01"
+      }
+    ]
+  },
+  {
+    "label": "Model Name(型号名称)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_model_name.0.value",
+        "value": "/01"
+      }
+    ]
+  },
+  {
+    "label": "Handmade Classification(手工制作分类)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_handmade_classification.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Style(樣式)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_style.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Material(材料)",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Acrylic"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Acrylonitrile Butadiene Styrene (ABS)"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Alloy Steel"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Aluminium"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Brass"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Bronze"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Cast Iron"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Ceramic"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Copper"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Engineered Wood"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Faux Leather"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Iron"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Leather"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Marble"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Metal"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Nickel"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Nylon"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Pine Wood"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Plastic"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Polycarbonate (PC)"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Polypropylene (PP)"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Polyvinyl Chloride (PVC)"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Resin"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Silicone"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Stainless Steel"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Tin"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Vinyl"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Wood"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Wrought Iron"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Zinc"
+      },
+      {
+        "checked": true,
+        "id": "",
+        "value": "custom_option_31"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Our S-shaped hooks are made of sturdy brass with a smooth finish, ensuring durability and preventing scratches or hand injuries while securely holding your items"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Number of Items(产品数量)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_number_of_items.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Item Package Quantity(成套产品数量)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_package_quantity.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Colour(颜色)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_color.0.value",
+        "value": "Gold"
+      }
+    ]
+  },
+  {
+    "label": "Size(尺码)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_size.0.value",
+        "value": "1PCS"
+      }
+    ]
+  },
+  {
+    "label": "Number of Pieces(件数)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_number_of_pieces.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Part Number(零件编号)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_part_number.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Item Shape(商品形状)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_shape.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Language Type(语言类型)",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "audio_description"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "dictionary"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "dubbed"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "ingredients"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "manual"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "menu"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "original"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "parallel"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "published"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "spoken"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "subtitled"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "subtitles_for_dubbed"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "subtitles_for_hearing_impaired"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "translation"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "unknown"
+      }
+    ]
+  },
+  {
+    "label": "Language(语言)",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "abkhazian"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "achinese"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "acoli"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "adangme"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "adygei"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "afar"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "afghan_pashtu"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "afrihili"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "afrikaans"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "afro_asiatic_languages"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "ainu"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "akan"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "akkadian"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "albanian"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "aleut"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "algonquian_languages"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "alsatian"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "altaic_languages"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "american_sign_language"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "sign_language"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "amharic"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "ancient_greek"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "angika"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "apache_languages"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "arabic"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "aragonese"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "aramaic"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "arapaho"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "arawak"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "armenian"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "aromanian"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "artificial_languages"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "assamese"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "assyrian"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "asturian"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "athapascan_languages"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "australian_languages"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "austronesian"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "avaric"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "avestan"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "awadhi"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "aymara"
+      }
+    ]
+  },
+  {
+    "label": "Lens Colour(镜片颜色)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_lens.0.color.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Number of Hooks(挂钩数)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_number_of_hooks.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Orientation(方向)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_orientation.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Pattern(图案)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_pattern.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Mounting Type(安装类型)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_mounting_type.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Finish Type(表面處理)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_finish_type.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Unit Count(单位计数)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_unit_count.0.value",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "label": "Unit Count Type(单位计数类型)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_unit_count.0.type.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Product Site Launch Date(产品网站发布日期)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_product_site_launch_date.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Included Components(所包含组件)",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "Accessories"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Care Guide"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Mounting Hardware"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "User Manual"
+      },
+      {
+        "checked": true,
+        "id": "",
+        "value": "custom_option_16"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "no"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Recommended Uses For Product(建议用法)",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Bins"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Cabinet"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Cane"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Ceiling"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Cello"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Closet"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Coat"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Cup And Mug"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Decoration"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Desk Tools"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Door"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Drawers"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Food"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Foyers"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Front Door"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Garage"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Garment"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Guitar"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Hall Trees"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Hangers"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Hat"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Holder"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Indoor"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Key Hanger"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Key Holder"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Kitchen"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Ladder"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Laundry"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Lockers"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Offices"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Outdoor"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Pantries"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Pegboard"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Picture"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Purse"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Rack"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Robe"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Rod Extenders"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Screw Hooks"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Shelf"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Shoe Organizers"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "Shower"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Item Thickness Decimal Value(商品厚度十进制数值)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_thickness.0.decimal_value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Item Thickness(商品厚度字符串数值)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_thickness.0.string_value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Item Thickness Unit(商品厚度单位)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_thickness.0.unit",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Maximum Weight Recommendation(最大可取重量)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_maximum_weight_recommendation.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Maximum Weight Recommendation Unit(最大可取重量单位)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_maximum_weight_recommendation.0.unit",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Item Length(商品长度)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_length.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Item Length Unit(商品长度单位)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_length.0.unit",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Number of Packs(内包装数量)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_number_of_packs.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Set Name(集合名称)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_set_name.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Letter Character(字母字符)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_letter_character.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Wood Type(木材类型)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_wood_type.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Item Weight(商品重量)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_weight.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Item Weight Unit(商品重量单位)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_weight.0.unit",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Skip Offer(跳过报价)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_skip_offer.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Restock Date(重新库存日期)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_fulfillment_availability.0.restock_date",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Inventory Always Available(始终有货)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_fulfillment_availability.0.is_inventory_available",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Minimum Advertised Price Display(最低广告价格显示)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_map_policy.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Minimum Advertised Price(最低广告价格)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_purchasable_offer.0.map_price.0.schedule.0.value_with_tax",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Minimum Seller Allowed Price(卖方允许的最低价格)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_purchasable_offer.0.minimum_seller_allowed_price.0.schedule.0.value_with_tax",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Maximum Seller Allowed Price(卖方允许的最高价格)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_purchasable_offer.0.maximum_seller_allowed_price.0.schedule.0.value_with_tax",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Offering Release Date(提供发布日期)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_purchasable_offer.0.start_at.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Stop Selling Date(停售日期)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_purchasable_offer.0.end_at.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Audience(受众)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_purchasable_offer.0.audience",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "List Price Currency(价目表货币)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_list_price.0.currency",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "List Price with Tax(含税价目表)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_list_price.0.value_with_tax",
+        "value": "23.99"
+      }
+    ]
+  },
+  {
+    "label": "Product Tax Code(产品税码)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_product_tax_code.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Release Date(发售日期)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_merchant_release_date.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Maximum Order Quantity(最大订单数量)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_max_order_quantity.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Offering Can Be Gift Messaged(可以提供礼品信息)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_gift_options.0.can_be_messaged",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Is Gift Wrap Available(表示礼品包装可用)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_gift_options.0.can_be_wrapped",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Main Image Location(主图片的地址)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_main_offer_image_locator.0.media_location",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Other Image Location(其他图片的地址)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_other_offer_image_locator_1.0.media_location",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Other Image Location(其他图片的地址)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_other_offer_image_locator_2.0.media_location",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Other Image Location(其他图片的地址)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_other_offer_image_locator_3.0.media_location",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Other Image Location(其他图片的地址)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_other_offer_image_locator_4.0.media_location",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Other Image Location(其他图片的地址)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_other_offer_image_locator_5.0.media_location",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Accessories(配件)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_supplemental_condition_information.0.accessories",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Battery Life Percentage(电池电量百分比)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_supplemental_condition_information.0.battery_life_percentage",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Cosmetic(化妆品)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_supplemental_condition_information.0.cosmetic",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Features(功能)",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "green_refurbishment"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "parts_inspected"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "parts_replaced"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "with_tags"
+      }
+    ]
+  },
+  {
+    "label": "Functional Condition(功能状况)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_supplemental_condition_information.0.functional_condition",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Packaging(包装)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_supplemental_condition_information.0.packaging",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Renewed Grade(翻新等级)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_supplemental_condition_information.0.renewed_grade",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Source Type(来源类型)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_supplemental_condition_information.0.source_type",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Item Length(商品长度)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_dimensions.0.length.value",
+        "value": "0"
+      }
+    ]
+  },
+  {
+    "label": "Item Length Unit(商品长度单位)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_dimensions.0.length.unit",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Item Width(商品宽度)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_dimensions.0.width.value",
+        "value": "0"
+      }
+    ]
+  },
+  {
+    "label": "Item Width Unit(商品宽度单位)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_dimensions.0.width.unit",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Item Height(商品高度)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_dimensions.0.height.value",
+        "value": "8.8"
+      }
+    ]
+  },
+  {
+    "label": "Item Height Unit(商品高度单位)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_dimensions.0.height.unit",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Item Package Length(包装长度)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_package_dimensions.0.length.value",
+        "value": "3"
+      }
+    ]
+  },
+  {
+    "label": "Package Length Unit(包装长度单位)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_package_dimensions.0.length.unit",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Item Package Width(包装宽度)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_package_dimensions.0.width.value",
+        "value": "2"
+      }
+    ]
+  },
+  {
+    "label": "Package Width Unit(包装宽度单位)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_package_dimensions.0.width.unit",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Item Package Height(包装高度)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_package_dimensions.0.height.value",
+        "value": "0.1"
+      }
+    ]
+  },
+  {
+    "label": "Package Height Unit(包装高度单位)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_package_dimensions.0.height.unit",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Item Package Weight(包装重量)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_package_weight.0.value",
+        "value": "0.1"
+      }
+    ]
+  },
+  {
+    "label": "Item Package Weight Unit(包装重量单位)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_item_package_weight.0.unit",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Master Pack Layers per Pallet Quantity(每托盘主包装层数)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_master_pack_layers_per_pallet_quantity.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Master Packs Per Layer Quantity(每层主包装数量)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_master_packs_per_layer_quantity.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Country of Origin(原产地)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_country_of_origin.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Are batteries required?(需要电池吗？)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_batteries_required.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Are batteries included?(是否附带电池)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_batteries_included.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Battery Cell Composition(电池成分)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_battery.0.cell_composition.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Battery Cell Composition Other Than Listed(未列明的电池单元成分)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_battery.0.cell_composition_other_than_listed.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Battery IEC Code(电池IEC代码)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_battery.0.iec_code.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Battery Weight(电池重量)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_battery.0.weight.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Battery Weight Unit(电池重量单位)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_battery.0.weight.0.unit",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Number of Batteries(电池数量)",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Battery Type(电池类型)",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "12v"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "9v"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "a"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "aa"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "aaa"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "aaaa"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "c"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "d"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "nonstandard_battery"
+      }
+    ]
+  },
+  {
+    "label": "Number of Lithium Metal Cells(锂金属电池单元数量)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_number_of_lithium_metal_cells.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Number of Lithium-ion Cells(锂离子电池单元数量)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_number_of_lithium_ion_cells.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Lithium Battery Energy Content(锂电池电量)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_lithium_battery.0.energy_content.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Lithium Battery Energy Content Unit(锂电池电量单位)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_lithium_battery.0.energy_content.0.unit",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Lithium Battery Packaging(锂电池包装)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_lithium_battery.0.packaging.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Lithium Battery Weight(锂电池重量)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_lithium_battery.0.weight.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Lithium Battery Weight Unit(锂电池重量单位)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_lithium_battery.0.weight.0.unit",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Dangerous Goods Regulations(危险商品规管)",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "ghs"
+      },
+      {
+        "checked": true,
+        "id": "",
+        "value": "not_applicable"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "unknown"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "other"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "storage"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "transportation"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "waste"
+      }
+    ]
+  },
+  {
+    "label": "GHS Class(GHS 分类)",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "amzn_specific_no_label_with_warning"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "compressed_gas"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "corrosive"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "environmentally_damaging"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "explosive"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "flammable"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "health_hazard"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "irritant"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "oxidizing"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "toxic"
+      }
+    ]
+  },
+  {
+    "label": "Hazmat Aspect(危险品方面)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_hazmat.0.aspect",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Hazmat Information(危险品)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_hazmat.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Safety Data Sheet (SDS or MSDS) URL(安全数据表（SDS 或 MSDS）URL)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_safety_data_sheet_url.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Is This Product Subject To Buyer Age Restrictions(该产品是否有买家年龄限制)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_is_this_product_subject_to_buyer_age_restrictions.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "EPR Product Packaging Main Material(EPR产品包装主要材料)",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "ceramic"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "glass"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "metal"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "paper"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "plastic"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "textile"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "wood"
+      }
+    ]
+  },
+  {
+    "label": "EPR Product Packaging Granular Material(EPR产品包装颗粒材料)",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "porcelain"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "pottery"
+      }
+    ]
+  },
+  {
+    "label": "EPR Product Packaging Granular Material Weight Value(EPR 产品包装颗粒材料重量值)",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "EPR Product Packaging Granular Material Weight Unit(EPR 产品包装颗粒材料重量单位)",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "grams"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "hundredths_pounds"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "kilograms"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "milligrams"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "ounces"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "pounds"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "tons"
+      }
+    ]
+  },
+  {
+    "label": "Percentage of Recycled Content of Granular Material of EPR Product Packaging(EPR 产品包装中颗粒材料的回收物含量百分比)",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Has Multiple Battery Powered Components(具有多个电池供电组件)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_has_multiple_battery_powered_components.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Ships Globally(全球发货)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_ships_globally.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Contains Battery or Cell(包含电池或电池组)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_contains_battery_or_cell.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Battery Contains free Unabsorbed Liquid(电池含有游离液体)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_battery_contains_free_unabsorbed_liquid.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Is Battery Non Spillable(电池是否不易溢出)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_is_battery_non_spillable.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Non-Lithium Battery Packaging(非锂电池包装)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_non_lithium_battery_packaging.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Has Replaceable Battery(有可更换电池)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_has_replaceable_battery.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Non-Lithium Battery Energy Content(非锂电池能量含量)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_non_lithium_battery_energy_content.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Non-Lithium Battery Energy Content Unit(非锂电池能量含量单位)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_non_lithium_battery_energy_content.0.unit",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Has Less than 30 Percent State of Charge(电量低于30-::-)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_has_less_than_30_percent_state_of_charge.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Battery Installation Device Type(电池安装设备类型)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_battery_installation_device_type.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Is OEM Sourced Product(是否OEM采购产品)",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_is_oem_sourced_product.0.value",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "GHS Chemical H Code(GHS 化学 H 代码)",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH014"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH018"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH019"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH029"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH031"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH032"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH044"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH066"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH070"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH071"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH201"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH201A"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH202"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH203"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH204"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH205"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH206"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH207"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH208"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH209"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH209A"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH210"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH211"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH212"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH380"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH381"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH401"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH430"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH431"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH440"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH441"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH450"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "EUH451"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "H200"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "H201"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "H202"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "H203"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "H204"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "H205"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "H220"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "H221"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "H222"
+      }
+    ]
+  },
+  {
+    "label": " 价格 ",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "23.99"
+      }
+    ]
+  },
+  {
+    "label": " 促销价 ",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "促销开始时间",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "促销结束时间",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "物品状况",
+    "values": [
+      {
+        "checked": false,
+        "id": "rc_select_0",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "状况描述",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "产品图片",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "on"
+      },
+      {
+        "checked": false,
+        "id": "",
+        "value": "on"
+      }
+    ]
+  },
+  {
+    "label": "产品描述",
+    "values": [
+      {
+        "checked": false,
+        "id": "ckeditor14",
+        "value": "Product descriptionRAIHOMKIT 10 PCS Brass S Hooks, Gold S Hooks for Hanging Coat Clothes, Heavy Duty S Shaped Hook for Kitchen Pots Pans Cups<br /> Our sturdy brass S-shaped hooks feature a smooth finish and versatile design, perfect for securely hanging pots, coats and more around the home.<br /> These elegant gold S-shaped hooks are durable, stylish, and can be easily hung on existing rods or racks without any installation.<br /> Specifications:<br /> Color: Gold<br /> Material: Brass<br /> Size: 3.54 inch/9 cm in length<br /> 3.5 mm in thickness<br /> Packaging Includes:<br /> 10 PCS Brass S Hooks<br /> Note:<br /> 1.Please confirm the size before buying.<br /> 2.Please allow slight errors on size due to manual measurement."
+      }
+    ]
+  },
+  {
+    "label": "* Bullet Point：  AI生成 ",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_bulletPoints_0",
+        "value": "Package Includes: You will receive 10pcs gold S-shaped hooks measuring 3.54 inches (9 cm) in length, 0.14 inches (3.5 mm) in thickness, with a 1.2-inch (3 cm) opening, perfect for securely hanging various items around your home."
+      }
+    ]
+  },
+  {
+    "label": "",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_bulletPoints_1",
+        "value": "Material: Our S-shaped hooks are made of sturdy brass with a smooth finish, ensuring durability and preventing scratches or hand injuries while securely holding your items."
+      }
+    ]
+  },
+  {
+    "label": "",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_bulletPoints_2",
+        "value": "S Shape Design: These well-crafted S-shaped hooks feature an elegant design and can be easily hung on existing rods or racks without installation, screws, or nails."
+      }
+    ]
+  },
+  {
+    "label": "",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_bulletPoints_3",
+        "value": "Gold S Hook: These gold S-shaped hooks are not only durable but also stylish, featuring an elegant golden finish that complements various décor styles and fits perfectly in any room."
+      }
+    ]
+  },
+  {
+    "label": "",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_bulletPoints_4",
+        "value": "Wide Application: These S-shaped hooks are versatile and perfect for use in kitchens, closets, bathrooms, and more. They can be used to hang pots, pans, cups, towels, coats, clothes, keys, and other household items."
+      }
+    ]
+  },
+  {
+    "label": "",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_bulletPoints_5",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_bulletPoints_6",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_bulletPoints_7",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_bulletPoints_8",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "",
+    "values": [
+      {
+        "checked": false,
+        "id": "form_item_bulletPoints_9",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "制造商邮箱",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "欧盟责任人邮箱",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "合规文件",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": "1"
+      },
+      {
+        "checked": true,
+        "id": "",
+        "value": "0"
+      }
+    ]
+  },
+  {
+    "label": "处理时间",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "配送渠道",
+    "values": [
+      {
+        "checked": false,
+        "id": "rc_select_5",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "运费模板",
+    "values": [
+      {
+        "checked": false,
+        "id": "rc_select_6",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "定价规则",
+    "values": [
+      {
+        "checked": false,
+        "id": "rc_select_20",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "label": "Search Terms",
+    "values": [
+      {
+        "checked": false,
+        "id": "",
+        "value": ""
+      }
+    ]
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "completedAt": "2026-10-23T11:25:47.303Z",
+  "authorization": "用户确认删除两处共20条记录",
+  "deleted": {
+    "claimed": 10,
+    "offlineProducts": 10
+  },
+  "claimedAfter": 274,
+  "draft": 0,
+  "onlineUntouched": true,
+  "sources": [
+    "https://www.amazon.com/dp/B0FK1TJ5G4",
+    "https://www.amazon.com/dp/B0FS1G59PL",
+    "https://www.amazon.com/dp/B0FNJMLLWP",
+    "https://www.amazon.com/dp/B0FQBPY8G1",
+    "https://www.amazon.com/dp/B0FK1SRCM5",
+    "https://www.amazon.com/dp/B0FSK17ZBR",
+    "https://www.amazon.com/dp/B0FQ9T1HT6",
+    "https://www.amazon.com/dp/B0FQ2CHL41",
+    "https://www.amazon.com/dp/B0F9FKQWBW",
+    "https://www.amazon.com/dp/B0FMXZ1XHX"
+  ],
+  "result": "页面提示已成功删除10个产品；已认领删除成功，284→274"
+}

@@ -1,0 +1,6 @@
+# Preserve the existing file bytes, including source data, on initial import.
+* -text
+*.xls binary
+*.xlsx binary
+*.zip binary
+*.png binary

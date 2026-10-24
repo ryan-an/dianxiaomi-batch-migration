@@ -1,0 +1,25 @@
+Browser tab: 10, Title: "店小秘迁移助手", URL: "http://127.0.0.1:8765/tests/popup-preview.html?state=done&v=0.3.0".
+1 AXWebArea 店小秘迁移助手, URL: 127.0.0.1:8765/tests/popup-preview.html?state=done&v=0.3.0
+	2 container
+		3 heading 店小秘迁移助手, Value: 1
+			4 text 店小秘迁移助手
+		5 container dropzone
+			22 text 迁移数据.xls
+			23 text 已识别 10 条产品
+			8 button 更换, ID: chooseFile
+			9 button Description: 上传迁移表格, ID: file
+		10 button 开始执行, ID: start
+			24 text 开始执行
+		12 button 下载结果, ID: download
+		25 text 已提交发布，1 条等待平台确认
+		14 container Description: 执行进度, ID: progress
+			15 progress indicator Description: 产品处理进度, Value: 100, ID: progressBar
+			26 text 已处理 1 / 1 条
+			27 text 上线 0 · 待确认 1 · 需处理 0
+		18 button (collapsed) 执行日志 6 条, Secondary Actions: Expand
+			19 text 执行日志
+			20 text 6 条
+		21 text 关闭弹窗后，任务继续执行。
+	28 text 本地导出检查：迁移结果_2026-10-23.xlsx；10 条产品；23560 字节；采集 ID 与产品 ID 保持完整文本。此预览仅验证 XLSX 内容，不启动浏览器下载。
+
+The focused UI element is 12 button 下载结果, ID: download

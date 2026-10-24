@@ -1,0 +1,85 @@
+{
+  "offline": [
+    {
+      "id": "184807703384260069",
+      "source": "https://www.amazon.com/dp/B0FQBPY8G1",
+      "title": "12 Pack Gingham Tablecloth, 54x108 in Plastic Tablecloth, Red White"
+    }
+  ],
+  "draft": [],
+  "claimed": [
+    {
+      "edit": "/web/productCrawl/edit?id=184527809329324769",
+      "rowId": "row_371",
+      "source": "https://www.amazon.com/dp/B0FQBPY8G1",
+      "title": "12 Pack Gingham Tablecloth, 54x108 in Plastic Tablecloth, Red White"
+    },
+    {
+      "edit": "/web/productCrawl/edit?id=184527809329326351",
+      "rowId": "row_372",
+      "source": "https://www.amazon.com/dp/B0FK1TJ5G4",
+      "title": "2 Pack Pizza Pans, 13.4 Inch Metal Round Pizza Tray"
+    },
+    {
+      "edit": "/web/productCrawl/edit?id=184527809329326223",
+      "rowId": "row_373",
+      "source": "https://www.amazon.com/dp/B0FS1G59PL",
+      "title": "6Pack Fabric Storage Bins, Cloth Organizer Baskets, 10.6In, 6Color"
+    },
+    {
+      "edit": "/web/productCrawl/edit?id=184527809329326055",
+      "rowId": "row_374",
+      "source": "https://www.amazon.com/dp/B0F9FKQWBW",
+      "title": "250 Pack Paper Food Trays, 1 lb Disposable Food Boats for Nachos, Heavy Duty Nacho Serving Boats, Red Checkered Nacho Tray for Fries Hot Dog Taco BBQ, Grease Resistant"
+    },
+    {
+      "edit": "/web/productCrawl/edit?id=184527809329325609",
+      "rowId": "row_375",
+      "source": "https://www.amazon.com/dp/B0FQ2CHL41",
+      "title": "3 Pack Corner Shower Caddy, Adhesive Corner Showers Shelf, Black"
+    },
+    {
+      "edit": "/web/productCrawl/edit?id=184527809329325325",
+      "rowId": "row_376",
+      "source": "https://www.amazon.com/dp/B0FQ9T1HT6",
+      "title": "8 Pack Glass Meal Prep Containers with Lids, 32oz Round, Black"
+    },
+    {
+      "edit": "/web/productCrawl/edit?id=184527809329325191",
+      "rowId": "row_377",
+      "source": "https://www.amazon.com/dp/B0FSK17ZBR",
+      "title": "6 Pack Glass Jars with Lids, 8 oz Glass Food Jars, 6 Colors"
+    },
+    {
+      "edit": "/web/productCrawl/edit?id=184527809329325017",
+      "rowId": "row_378",
+      "source": "https://www.amazon.com/dp/B0FK1SRCM5",
+      "title": "5 Pack Mixing Bowls with Lids, Size 4.5, 2.5, 1.5, 1, 0.75QT, Black"
+    },
+    {
+      "edit": "/web/productCrawl/edit?id=184527809328983967",
+      "rowId": "row_379",
+      "source": "https://www.amazon.com/dp/B0FNJMLLWP",
+      "title": "60 Pack Mini Glass Honey Jars, 2 oz Hexagon Spice Jar"
+    },
+    {
+      "edit": "/web/productCrawl/edit?id=184527809328870833",
+      "rowId": "row_380",
+      "source": "https://www.amazon.com/dp/B0FMXZ1XHX",
+      "title": "10 PCS Gold S Hooks, Brass S Hooks for Hanging, 3.54 Inch"
+    }
+  ],
+  "requestedSources": [
+    "https://www.amazon.com/dp/B0FMXZ1XHX",
+    "https://www.amazon.com/dp/B0FNJMLLWP",
+    "https://www.amazon.com/dp/B0FQBPY8G1",
+    "https://www.amazon.com/dp/B0FK1SRCM5",
+    "https://www.amazon.com/dp/B0FSK17ZBR",
+    "https://www.amazon.com/dp/B0FQ9T1HT6",
+    "https://www.amazon.com/dp/B0FQ2CHL41",
+    "https://www.amazon.com/dp/B0F9FKQWBW",
+    "https://www.amazon.com/dp/B0FS1G59PL",
+    "https://www.amazon.com/dp/B0FK1TJ5G4"
+  ],
+  "confirmed": false
+}

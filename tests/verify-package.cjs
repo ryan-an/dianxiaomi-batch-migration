@@ -1,0 +1,13 @@
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),X=require('../extension/vendor/xlsx.full.min.js');
+const m=JSON.parse(fs.readFileSync('extension/manifest.json','utf8'));assert.equal(m.manifest_version,3);
+assert.equal(m.version,'0.4.19');assert.equal(m.action.default_popup,undefined);assert.ok(!fs.existsSync('extension/panel-window.js'));
+for(const file of [m.background.service_worker,'popup.html','popup.css','popup.js','ui-model.js','work-target.js',...m.content_scripts.flatMap(x=>x.js)])assert.ok(fs.existsSync(path.join('extension',file)),file);
+const ui=fs.readFileSync('extension/popup.html','utf8');for(const id of ['startIndex','limit','mappingBlock','targetTab','advanced'])assert.ok(!ui.includes(`id="${id}"`));
+for(const match of fs.readFileSync('extension/popup.html','utf8').matchAll(/(?:src|href)="([^"]+)"/g))assert.ok(fs.existsSync(path.join('extension',match[1])),match[1]);
+for(const file of fs.readdirSync('extension').filter(f=>f.endsWith('.js')))new vm.Script(fs.readFileSync(path.join('extension',file),'utf8'),{filename:file});
+const w=X.read(fs.readFileSync('outputs/单条实测结果.xlsx'));
+const s=w.Sheets[w.SheetNames[0]];assert.equal(s.J6.v,'184527809328870833');assert.equal(s.J6.t,'s');assert.equal(s.K6.v,'184807703383437685');assert.equal(s.K6.t,'s');
+const rows=JSON.parse(fs.readFileSync('outputs/单条实测结果.json','utf8'));assert.equal(rows.filter(x=>x.status==='已上线').length,1);assert.equal(rows.filter(x=>x.status==='未执行').length,9);
+for(const name of fs.readdirSync('docs/evidence').filter(f=>/\.(html|json)$/.test(f)))assert.ok(!fs.readFileSync(path.join('docs/evidence',name),'utf8').includes('[Truncated]'),`DOM截断: ${name}`);
+const panelContext={};vm.runInNewContext(fs.readFileSync('extension/panel-view.js','utf8'),panelContext);assert.equal(panelContext.DXMPanelView.css,fs.readFileSync('extension/popup.css','utf8'));assert.equal(panelContext.DXMPanelView.html,ui.match(/<main\b[\s\S]+?<\/main>/)[0]);
+console.log('网页浮动面板、共享界面与全部脚本引用通过；实测结果仍为1条已上线、9条未执行，18位ID保持文本。');

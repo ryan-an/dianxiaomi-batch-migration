@@ -1,0 +1,59 @@
+2026/10/23 17:41:09 检查 万万欣DE / 英国 的已有采集记录
+2026/10/23 17:41:22 开始采集 10 条链接
+2026/10/23 17:41:22 已执行0条，成功:0，跳过:0，失败:0
+2026/10/23 17:41:28 已执行1条，成功:1，跳过:0，失败:0
+2026/10/23 17:41:34 已执行2条，成功:2，跳过:0，失败:0
+2026/10/23 17:41:40 已执行3条，成功:3，跳过:0，失败:0
+2026/10/23 17:41:46 已执行4条，成功:4，跳过:0，失败:0
+2026/10/23 17:41:55 已执行5条，成功:5，跳过:0，失败:0
+2026/10/23 17:42:01 已执行6条，成功:6，跳过:0，失败:0
+2026/10/23 17:42:14 已执行7条，成功:7，跳过:0，失败:0
+2026/10/23 17:42:17 已执行8条，成功:8，跳过:0，失败:0
+2026/10/23 17:42:23 已执行9条，成功:9，跳过:0，失败:0
+2026/10/23 17:42:29 已执行10条，成功:10，跳过:0，失败:0
+2026/10/23 17:42:34 已对应标题：10 PCS Gold S Hooks, Brass S Hooks for Hanging, 3.54 Inch
+2026/10/23 17:42:34 已对应标题：60 Pack Mini Glass Honey Jars, 2 oz Hexagon Spice Jar
+2026/10/23 17:42:34 已对应标题：12 Pack Gingham Tablecloth, 54x108 in Plastic Tablecloth, Red White
+2026/10/23 17:42:34 已对应标题：5 Pack Mixing Bowls with Lids, Size 4.5, 2.5, 1.5, 1, 0.75QT, Black
+2026/10/23 17:42:34 已对应标题：6 Pack Glass Jars with Lids, 8 oz Glass Food Jars, 6 Colors
+2026/10/23 17:42:34 已对应标题：8 Pack Glass Meal Prep Containers with Lids, 32oz Round, Black
+2026/10/23 17:42:34 已对应标题：3 Pack Corner Shower Caddy, Adhesive Corner Showers Shelf, Black
+2026/10/23 17:42:34 已对应标题：250 Pack Paper Food Trays, 1 lb Disposable Food Boats for Nachos, Heavy Duty Nacho Serving Boats, Red Checkered Nacho Tray for Fries Hot Dog Taco BBQ, Grease Resistant
+2026/10/23 17:42:34 已对应标题：6Pack Fabric Storage Bins, Cloth Organizer Baskets, 10.6In, 6Color
+2026/10/23 17:42:34 已对应标题：2 Pack Pizza Pans, 13.4 Inch Metal Round Pizza Tray
+2026/10/23 17:42:34 批量认领到 [英国]万万欣DE
+2026/10/23 17:42:36 本页处理 10 个本批次产品
+2026/10/23 17:42:36 认领到采集箱
+状态：进行中...
+详情：
+关闭
+2026/10/23 17:42:42 Amazon采集认领执行完成，成功 10 条，失败 0 条，跳过重复数据 0 条，Amazon采集箱>>
+2026/10/23 17:42:45 将本批次产品批量移入待发布
+2026/10/23 17:42:45 本页处理 10 个本批次产品
+2026/10/23 17:42:46 已提交 10 个产品移入，等待店小秘处理完成，请勿刷新页面
+2026/10/23 17:42:46 等待店小秘返回移入结果，请勿刷新页面
+2026/10/23 17:42:47 执行结果
+执行成功：10个，产品成功移入待发布，请到待发布产品中查看
+执行失败：0
+关闭
+2026/10/23 17:42:49 填写：10 PCS Gold S Hooks, Brass S Hooks for Hanging, 3.54 Inch
+2026/10/23 17:43:14 本条失败：等待超时：下拉选项 FBA
+2026/10/23 17:43:14 填写：60 Pack Mini Glass Honey Jars, 2 oz Hexagon Spice Jar
+2026/10/23 17:43:15 本条失败：编辑页来源链接不匹配，禁止写入
+2026/10/23 17:43:15 填写：12 Pack Gingham Tablecloth, 54x108 in Plastic Tablecloth, Red White
+2026/10/23 17:43:17 本条失败：编辑页来源链接不匹配，禁止写入
+2026/10/23 17:43:17 填写：5 Pack Mixing Bowls with Lids, Size 4.5, 2.5, 1.5, 1, 0.75QT, Black
+2026/10/23 17:43:19 本条失败：编辑页来源链接不匹配，禁止写入
+2026/10/23 17:43:19 填写：6 Pack Glass Jars with Lids, 8 oz Glass Food Jars, 6 Colors
+2026/10/23 17:43:20 本条失败：编辑页来源链接不匹配，禁止写入
+2026/10/23 17:43:20 填写：8 Pack Glass Meal Prep Containers with Lids, 32oz Round, Black
+2026/10/23 17:43:22 本条失败：编辑页来源链接不匹配，禁止写入
+2026/10/23 17:43:22 填写：3 Pack Corner Shower Caddy, Adhesive Corner Showers Shelf, Black
+2026/10/23 17:43:24 本条失败：编辑页来源链接不匹配，禁止写入
+2026/10/23 17:43:24 填写：250 Pack Paper Food Trays, 1 lb Disposable Food Boats for Nachos, Heavy Duty Nacho Serving Boats, Red Checkered Nacho Tray for Fries Hot Dog Taco BBQ, Grease Resistant
+2026/10/23 17:43:25 本条失败：编辑页来源链接不匹配，禁止写入
+2026/10/23 17:43:25 填写：6Pack Fabric Storage Bins, Cloth Organizer Baskets, 10.6In, 6Color
+2026/10/23 17:43:27 本条失败：编辑页来源链接不匹配，禁止写入
+2026/10/23 17:43:27 填写：2 Pack Pizza Pans, 13.4 Inch Metal Round Pizza Tray
+2026/10/23 17:43:29 本条失败：编辑页来源链接不匹配，禁止写入
+2026/10/23 17:43:29 本批次结束，可以下载结果表

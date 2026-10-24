@@ -1,0 +1,104 @@
+店小秘迁移助手
+−
+迁移数据.xls
+已识别 10 条产品
+更换
+开始执行
+下载结果
+
+需要核对当前产品，已停止自动操作
+
+等待超时：批量移入待发布
+
+已处理 10 / 10 条
+
+上线 0 · 待确认 0 · 需处理 8 · 已跳过 2
+
+执行日志
+28 条
+
+15:35:41
+检查 万万欣DE / 英国 的已有采集记录
+
+15:35:54
+来源链接已有采集记录，未重复采集或认领
+
+15:35:54
+来源链接已有采集记录，未重复采集或认领
+
+15:35:54
+开始采集 8 条链接
+
+15:35:54
+已执行0条，成功:0，跳过:0，失败:0
+
+15:36:03
+已执行1条，成功:1，跳过:0，失败:0
+
+15:36:06
+已执行2条，成功:2，跳过:0，失败:0
+
+15:36:12
+已执行3条，成功:3，跳过:0，失败:0
+
+15:36:18
+已执行4条，成功:4，跳过:0，失败:0
+
+15:36:30
+已执行5条，成功:5，跳过:0，失败:0
+
+15:36:36
+已执行6条，成功:6，跳过:0，失败:0
+
+15:36:39
+已执行7条，成功:7，跳过:0，失败:0
+
+15:36:54
+已执行8条，成功:8，跳过:0，失败:0
+
+15:37:00
+已对应标题：12 Pack Gingham Tablecloth, 54x108 in Plastic Tablecloth, Red White
+
+15:37:00
+已对应标题：5 Pack Mixing Bowls with Lids, Size 4.5, 2.5, 1.5, 1, 0.75QT, Black
+
+15:37:00
+已对应标题：6 Pack Glass Jars with Lids, 8 oz Glass Food Jars, 6 Colors
+
+15:37:00
+已对应标题：8 Pack Glass Meal Prep Containers with Lids, 32oz Round, Black
+
+15:37:00
+已对应标题：3 Pack Corner Shower Caddy, Adhesive Corner Showers Shelf, Black
+
+15:37:00
+已对应标题：250 Pack Paper Food Trays, 1 lb Disposable Food Boats for Nachos, Heavy Duty Nacho Serving Boats, Red Checkered Nacho Tray for Fries Hot Dog Taco BBQ, Grease Resistant
+
+15:37:00
+已对应标题：6Pack Fabric Storage Bins, Cloth Organizer Baskets, 10.6In, 6Color
+
+15:37:00
+已对应标题：2 Pack Pizza Pans, 13.4 Inch Metal Round Pizza Tray
+
+15:37:00
+批量认领到 [英国]万万欣DE
+
+15:37:01
+本页处理 8 个本批次产品
+
+15:37:02
+认领到采集箱 状态：进行中... 详情： 关闭
+
+15:37:08
+Amazon采集认领执行完成，成功 8 条，失败 0 条，跳过重复数据 0 条，Amazon采集箱>>
+
+15:37:11
+将本批次产品批量移入待发布
+
+15:37:11
+本页处理 8 个本批次产品
+
+15:37:31
+提交状态不确定，已停止：等待超时：批量移入待发布
+
+收起面板后，任务继续执行。

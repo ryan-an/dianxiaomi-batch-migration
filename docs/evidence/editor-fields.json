@@ -1,0 +1,997 @@
+[
+  {
+    "controls": [
+      {
+        "id": "rc_select_1",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "店铺账号"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_site",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "站点选择"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "请输入",
+        "role": null,
+        "tag": "INPUT",
+        "value": "10 PCS Gold S Hooks, Brass S Hooks for Hanging, 3.54 Inch"
+      }
+    ],
+    "label": "产品标题"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_titleDifferentiation",
+        "name": "",
+        "placeholder": "请输入",
+        "role": null,
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "商品亮点"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_category",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "产品分类"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "saleType",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "0"
+      },
+      {
+        "id": "",
+        "name": "saleType",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "1"
+      }
+    ],
+    "label": "售卖形式"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "exemptUPC",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "1"
+      },
+      {
+        "id": "",
+        "name": "exemptUPC",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "0"
+      }
+    ],
+    "label": "UPC豁免"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "sourceUrl",
+        "placeholder": "用于记录供货渠道URL，方便采购。仅在店小秘显示，不会同步到平台！",
+        "role": null,
+        "tag": "INPUT",
+        "value": "https://www.amazon.com/dp/B0FMXZ1XHX"
+      }
+    ],
+    "label": "来源URL"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "示例：华为P60红色手机壳，SKU为HuaweiP60-red，Parent SKU为HuaweiP60",
+        "role": null,
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "Parent SKU"
+  },
+  {
+    "controls": [
+      {
+        "id": "rc_select_7",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "必填项，Prodcut ID",
+        "role": null,
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "产品ID"
+  },
+  {
+    "controls": [
+      {
+        "id": "rc_select_8",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "品牌"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "请输入制造商",
+        "role": null,
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "制造商"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_model_number.0.value",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "Model Number(型号)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_model_name.0.value",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "Model Name(型号名称)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_unit_count.0.value",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "1"
+      }
+    ],
+    "label": "Unit Count(单位计数)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_unit_count.0.type.value",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "Unit Count Type(单位计数类型)"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "Accessories"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "Care Guide"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "Mounting Hardware"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "User Manual"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "custom_option_16"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "no"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "Included Components(所包含组件)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_list_price.0.currency",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "List Price Currency(价目表货币)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_list_price.0.value_with_tax",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "List Price with Tax(含税价目表)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_dimensions.0.length.value",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "7"
+      }
+    ],
+    "label": "Item Length(商品长度)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_dimensions.0.length.unit",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "Item Length Unit(商品长度单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_dimensions.0.width.value",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "7"
+      }
+    ],
+    "label": "Item Width(商品宽度)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_dimensions.0.width.unit",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "Item Width Unit(商品宽度单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_dimensions.0.height.value",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "6"
+      }
+    ],
+    "label": "Item Height(商品高度)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_dimensions.0.height.unit",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "Item Height Unit(商品高度单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_dimensions.0.length.value",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "10"
+      }
+    ],
+    "label": "Item Package Length(包装长度)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_dimensions.0.length.unit",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "Package Length Unit(包装长度单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_dimensions.0.width.value",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "7"
+      }
+    ],
+    "label": "Item Package Width(包装宽度)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_dimensions.0.width.unit",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "Package Width Unit(包装宽度单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_dimensions.0.height.value",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "10"
+      }
+    ],
+    "label": "Item Package Height(包装高度)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_dimensions.0.height.unit",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "Package Height Unit(包装高度单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_weight.0.value",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "91"
+      }
+    ],
+    "label": "Item Package Weight(包装重量)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_item_package_weight.0.unit",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "Item Package Weight Unit(包装重量单位)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_country_of_origin.0.value",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "Country of Origin(原产地)"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_batteries_required.0.value",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "Are batteries required?(需要电池吗？)"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "ghs"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "not_applicable"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "unknown"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "other"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "storage"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "transportation"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "waste"
+      }
+    ],
+    "label": "Dangerous Goods Regulations(危险商品规管)"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "price",
+        "placeholder": "请输入价格",
+        "role": null,
+        "tag": "INPUT",
+        "value": "10.2"
+      }
+    ],
+    "label": "价格"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "请输入促销价",
+        "role": null,
+        "tag": "INPUT",
+        "value": "10.2"
+      }
+    ],
+    "label": "促销价"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "请选择开始时间",
+        "role": null,
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "促销开始时间"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "请选择结束时间",
+        "role": null,
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "促销结束时间"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "请输入产品数量",
+        "role": null,
+        "tag": "INPUT",
+        "value": "18"
+      }
+    ],
+    "label": "产品数量"
+  },
+  {
+    "controls": [
+      {
+        "id": "rc_select_0",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "物品状况"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "TEXTAREA",
+        "value": ""
+      }
+    ],
+    "label": "状况描述"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "on"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "on"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "on"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "on"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "on"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "on"
+      },
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "on"
+      }
+    ],
+    "label": "产品图片"
+  },
+  {
+    "controls": [
+      {
+        "id": "ckeditor14",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "TEXTAREA",
+        "value": "Product descriptionRAIHOMKIT 10 PCS Brass S Hooks, Gold S Hooks for Hanging Coat Clothes, Heavy Duty S Shaped Hook for Kitchen Pots Pans Cups<br /> Our sturdy brass S-shaped hooks feature a smooth finish and versatile design, perfect for securely hanging pots, coats and more around the home.<br /> These elegant gold S-shaped hooks are durable, stylish, and can be easily hung on existing rods or racks without any installation.<br /> Specifications:<br /> Color: Gold<br /> Material: Brass<br /> Size: 3.54 inch/9 cm in length<br /> 3.5 mm in thickness<br /> Packaging Includes:<br /> 10 PCS Brass S Hooks<br /> Note:<br /> 1.Please confirm the size before buying.<br /> 2.Please allow slight errors on size due to manual measurement."
+      }
+    ],
+    "label": "产品描述"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_bulletPoints_0",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "TEXTAREA",
+        "value": "Package Includes: You will receive 10pcs gold S-shaped hooks measuring 3.54 inches (9 cm) in length, 0.14 inches (3.5 mm) in thickness, with a 1.2-inch (3 cm) opening, perfect for securely hanging various items around your home."
+      }
+    ],
+    "label": "* Bullet Point：\n AI生成"
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_bulletPoints_1",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "TEXTAREA",
+        "value": "Material: Our S-shaped hooks are made of sturdy brass with a smooth finish, ensuring durability and preventing scratches or hand injuries while securely holding your items."
+      }
+    ],
+    "label": ""
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_bulletPoints_2",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "TEXTAREA",
+        "value": "S Shape Design: These well-crafted S-shaped hooks feature an elegant design and can be easily hung on existing rods or racks without installation, screws, or nails."
+      }
+    ],
+    "label": ""
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_bulletPoints_3",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "TEXTAREA",
+        "value": "Gold S Hook: These gold S-shaped hooks are not only durable but also stylish, featuring an elegant golden finish that complements various décor styles and fits perfectly in any room."
+      }
+    ],
+    "label": ""
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_bulletPoints_4",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "TEXTAREA",
+        "value": "Wide Application: These S-shaped hooks are versatile and perfect for use in kitchens, closets, bathrooms, and more. They can be used to hang pots, pans, cups, towels, coats, clothes, keys, and other household items."
+      }
+    ],
+    "label": ""
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_bulletPoints_5",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "TEXTAREA",
+        "value": ""
+      }
+    ],
+    "label": ""
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_bulletPoints_6",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "TEXTAREA",
+        "value": ""
+      }
+    ],
+    "label": ""
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_bulletPoints_7",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "TEXTAREA",
+        "value": ""
+      }
+    ],
+    "label": ""
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_bulletPoints_8",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "TEXTAREA",
+        "value": ""
+      }
+    ],
+    "label": ""
+  },
+  {
+    "controls": [
+      {
+        "id": "form_item_bulletPoints_9",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "TEXTAREA",
+        "value": ""
+      }
+    ],
+    "label": ""
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "请输入邮箱地址",
+        "role": null,
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "制造商邮箱"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "请输入邮箱地址",
+        "role": null,
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "欧盟责任人邮箱"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "radioGroup",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "1"
+      },
+      {
+        "id": "",
+        "name": "radioGroup",
+        "placeholder": "",
+        "role": null,
+        "tag": "INPUT",
+        "value": "0"
+      }
+    ],
+    "label": "合规文件"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "请输入",
+        "role": null,
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "处理时间"
+  },
+  {
+    "controls": [
+      {
+        "id": "rc_select_5",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "配送渠道"
+  },
+  {
+    "controls": [
+      {
+        "id": "rc_select_6",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "运费模板"
+  },
+  {
+    "controls": [
+      {
+        "id": "rc_select_20",
+        "name": "",
+        "placeholder": "",
+        "role": "combobox",
+        "tag": "INPUT",
+        "value": ""
+      }
+    ],
+    "label": "定价规则"
+  },
+  {
+    "controls": [
+      {
+        "id": "",
+        "name": "",
+        "placeholder": "",
+        "role": null,
+        "tag": "TEXTAREA",
+        "value": ""
+      }
+    ],
+    "label": "Search Terms"
+  }
+]

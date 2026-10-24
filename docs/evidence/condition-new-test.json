@@ -1,0 +1,3 @@
+{
+  "result": "PASS：必填精确选择New，排除Like New/OEM/Open Box；非必填保留；字段不存在跳过。"
+}

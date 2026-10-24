@@ -1,0 +1,66 @@
+Browser tab: 12, Title: "网页内浮动面板 · 本地验证", URL: "http://127.0.0.1:8765/tests/in-page.html?state=ready&build=0.4.0".
+1 AXWebArea 网页内浮动面板 · 本地验证, URL: 127.0.0.1:8765/tests/in-page.html?state=ready&build=0.4.0
+	2 container
+		3 text 店小秘页面交互模拟 本地测试 · 不连接店小秘 · 不操作产品
+	4 container
+		5 heading 采集箱, Value: 2
+			6 text 采集箱
+		7 button 页面普通按钮, ID: under
+		8 button 模拟插件图标, ID: simulateIcon
+		64 text 页面点击次数：1
+		10 text 按住面板标题拖动；点击页面后面板仍保留；执行时此按钮会被锁定。
+		11 table
+			12 row
+				13 cell
+					14 text 产品
+				15 cell
+					16 text 店铺
+				17 cell
+					18 text 状态
+			19 row
+				20 cell
+					21 text 本地测试商品 A
+					22 text 仅用于查看面板布局
+				23 cell
+					24 text 英国店铺
+				25 cell
+					26 text 未执行
+			27 row
+				28 cell
+					29 text 本地测试商品 B
+					30 text 不对应任何线上操作
+				31 cell
+					32 text 英国店铺
+				33 cell
+					34 text 未执行
+	35 text 本地导出检查已就绪。
+	36 container Description: 店小秘迁移浮动面板, ID: surface
+		37 container
+			38 container 按住标题栏拖动位置
+				39 heading 店小秘迁移助手, Value: 1
+					40 text 店小秘迁移助手
+				41 button Description: 收起面板, ID: collapsePanel
+			42 container upload
+				43 text 迁移数据.xls
+				44 text 已识别 10 条产品
+				45 button 更换, ID: chooseFile
+				46 button Description: 上传迁移表格, ID: file
+			47 button 开始执行, ID: start
+			48 button 下载结果, ID: download
+			49 text 已停止，本轮记录已保留
+			50 container Description: 执行进度, ID: progress
+				51 progress indicator Description: 产品处理进度, Value: 100, ID: progressBar
+				52 text 已处理 10 / 10 条
+				53 text 上线 0 · 待确认 0 · 需处理 0
+			54 container logDetails
+				55 button (expanded) 执行日志 2 条, Secondary Actions: Collapse
+					56 text 执行日志
+					57 text 2 条
+				58 container Description: 执行日志, ID: logs
+					59 text 14:32:00
+					60 text 已准备 10 条产品（本地演示，不连接店小秘）。
+					61 text 14:32:05
+					62 text 已停止，本轮结果已保留。
+			63 text 收起面板后，任务继续执行。
+
+The focused UI element is 7 button 页面普通按钮, ID: under

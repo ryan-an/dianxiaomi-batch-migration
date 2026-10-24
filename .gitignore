@@ -1,0 +1,21 @@
+# Local development runtimes and caches
+/artifact-work/
+node_modules/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local credentials and editor settings
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.vscode/
+.idea/
+
+# Operating system temporary files
+.DS_Store
+Thumbs.db
+*.tmp
+*.log

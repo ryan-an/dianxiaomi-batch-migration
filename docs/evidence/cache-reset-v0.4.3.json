@@ -1,0 +1,51 @@
+[
+  {
+    "test": "清空表格、任务、日志和三种存储区",
+    "result": "缓存检查：local 0 项，sync 0 项，session 0 项；批次已清除。"
+  },
+  {
+    "test": "刷新后不恢复旧表格和任务",
+    "result": {
+      "filename": "上传迁移表格",
+      "progressHidden": true,
+      "startDisabled": true,
+      "status": "请先上传表格"
+    }
+  },
+  {
+    "test": "执行中禁止清空",
+    "result": {
+      "disabled": true,
+      "title": "请先停止执行，等待任务结束后再清空缓存"
+    }
+  },
+  {
+    "test": "停止完成后允许清空",
+    "result": {
+      "clearEnabled": true,
+      "status": "已停止，本轮记录已保留"
+    }
+  },
+  {
+    "test": "停止后清空成功",
+    "result": "缓存检查：local 0 项，sync 0 项，session 0 项；批次已清除。"
+  },
+  {
+    "test": "清空失败保留表格并显示错误",
+    "result": {
+      "clearEnabled": true,
+      "filename": "迁移数据.xls",
+      "message": "清空缓存失败：本地模拟存储错误"
+    }
+  },
+  {
+    "test": "最终版本清空后保持初始界面",
+    "result": {
+      "clearEnabled": true,
+      "filename": "上传迁移表格",
+      "logCount": "",
+      "progressHidden": true,
+      "status": "缓存已清空，请重新上传表格"
+    }
+  }
+]
