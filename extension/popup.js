@@ -99,7 +99,7 @@
   };
   $('download').onclick=()=>{
     if(!job?.rows?.length)return;
-    try{const sheet=XLSX.utils.aoa_to_sheet(DXMCore.resultTable(job.rows));sheet['!cols']=[{wch:15},{wch:48},{wch:60},{wch:20},{wch:10},{wch:22},{wch:55},{wch:25},{wch:20},{wch:25},{wch:25},{wch:28},{wch:48},{wch:80}];const book=XLSX.utils.book_new();XLSX.utils.book_append_sheet(book,sheet,'迁移结果');XLSX.writeFile(book,`迁移结果_${new Date().toISOString().slice(0,10)}.xlsx`);}
+    try{const sheet=XLSX.utils.aoa_to_sheet(DXMCore.resultTable(job.rows));sheet['!cols']=DXMCore.resultColumns.map(column=>({wch:column.width}));sheet['!autofilter']={ref:sheet['!ref']};const book=XLSX.utils.book_new();XLSX.utils.book_append_sheet(book,sheet,'迁移结果');XLSX.writeFile(book,`迁移结果_${new Date().toISOString().slice(0,10)}.xlsx`);}
     catch(e){error=`结果导出失败：${e.message}`;render();}
   };
   $('latestLog').onclick=()=>{$('logs').scrollTop=$('logs').scrollHeight;$('latestLog').hidden=true;};

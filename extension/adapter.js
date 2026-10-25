@@ -105,6 +105,73 @@
     }
     throw new Error(`${key}写入后未保留`);
   }
+  async function ensureTitleQuantity(record){
+    const update=C.planProductTitle(record);
+    if(!update.changed)return update;
+    for(let attempt=0;attempt<3;attempt++){
+      const field=formItem('产品标题').querySelector('input,textarea');
+      if(!field||field.disabled||field.readOnly)throw new Error('产品标题输入框不可编辑');
+      if(field.value!==update.title)input(field,update.title);
+      await sleep(200);
+      if(formItem('产品标题').querySelector('input,textarea')?.value===update.title)return update;
+    }
+    throw new Error('产品标题数量写入后未保留');
+  }
+  function editorRequest(record,field,action,html){
+    if(stopped)return Promise.reject(new Error('已停止'));
+    const source=document.querySelector('input[name="sourceUrl"]')?.value;
+    if(!sameSource(source,record.source))return Promise.reject(new Error('产品描述的来源链接不匹配'));
+    return new Promise((resolve,reject)=>{
+      const requestId=root.crypto?.randomUUID?.()||Date.now()+'-'+Math.random();
+      const finish=(error,data)=>{clearTimeout(timer);document.removeEventListener('DXM_EDITOR_RESPONSE',receive);error?reject(error):resolve(data);};
+      const receive=event=>{let response;try{response=JSON.parse(event.detail);}catch{return;}if(response.id===requestId)finish(response.ok?null:new Error(response.error),response.data);};
+      const timer=setTimeout(()=>finish(new Error('产品描述编辑器连接超时，请重新加载扩展并刷新页面')),10000);
+      document.addEventListener('DXM_EDITOR_RESPONSE',receive);
+      document.dispatchEvent(new CustomEvent('DXM_EDITOR_REQUEST',{detail:JSON.stringify({id:requestId,action,elementId:field.id,html,productId:record.productId||'',source})}));
+    });
+  }
+  function descriptionField(){
+    const row=document.querySelector('[data-path="product_description.0.value"]');
+    if(!row)return null;
+    return one(all('textarea[id^="ckeditor"]',row),'产品描述编辑器');
+  }
+  async function ensureGermanDescription(record){
+    const title=C.planProductTitle(record).title;
+    if(!descriptionField())return {absent:true};
+    const html='<p>'+title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</p>';
+    let changed=false,lastError;
+    for(let attempt=0;attempt<3;attempt++){
+      try{
+        const field=descriptionField();if(!field)throw new Error('产品描述字段在填写时消失');
+        const before=await editorRequest(record,field,'read');
+        if(before.text!==title||before.fieldText!==title){await editorRequest(record,field,'set',html);changed=true;}
+        await sleep(200);
+        const actual=await editorRequest(record,descriptionField(),'read');
+        if(actual.text===title&&actual.fieldText===title)return {changed};
+        lastError=new Error('产品描述写入后未保留');
+      }catch(error){lastError=error;if(stopped)throw error;}
+      await sleep(200);
+    }
+    throw lastError;
+  }
+  function bulletFields(){return all('textarea[id^="form_item_bulletPoints_"]').sort((a,b)=>Number(a.id.match(/_(\d+)$/)?.[1])-Number(b.id.match(/_(\d+)$/)?.[1]));}
+  async function ensureGermanBullets(record){
+    const title=C.planProductTitle(record).title;
+    if(!bulletFields().length)return {absent:true};
+    let changed=false;
+    for(let attempt=0;attempt<3;attempt++){
+      const ids=bulletFields().map(field=>field.id);
+      for(let i=0;i<ids.length;i++){
+        const field=id(ids[i]),value=i===0?title:'';
+        if(!field)break;
+        if(field.value!==value){if(field.readOnly)throw new Error('Bullet Point输入框只读');input(field,value);changed=true;}
+      }
+      await sleep(200);
+      const fields=bulletFields();
+      if(fields.length&&fields[0].value===title&&fields.slice(1).every(field=>field.value===''))return {changed,count:fields.length};
+    }
+    throw new Error('Bullet Point写入或清空后未保留');
+  }
   function requiredFieldErrors(){
     const errors=[];
     for(const item of shown('.ant-form-item')){
@@ -209,6 +276,11 @@
         await sleep(2000);
         for(const key of checked){field=key;const actual=C.text(productField(key)?.value);if(!actual||(values[key]&&actual!==values[key]))throw new Error(`${key}为空或与应填值不一致`);}
         field='制造商';if(brandItem()&&checked.includes('制造商')&&pageBrand()!==C.text(productField('制造商')?.value))throw new Error('制造商与页面品牌不一致');
+        if(C.sameSite(record.site,'德国')){
+          for(const [key,ensure] of [['产品描述（德国翻译）',ensureGermanDescription],['Bullet Point（德国翻译）',ensureGermanBullets]]){
+            field=key;const result=await ensure(record);if(result.absent)skipped.push(key);else{checked.push(key);if(result.changed)repaired.push(key);}
+          }
+        }
         field='页面必填项';const errors=requiredFieldErrors();if(errors.length)throw new Error(errors.join('；'));
         return {checked,repaired,skipped};
       }catch(e){e.field=field;e.completedFields=checked;e.message=`提交前检查【${field}】失败：${e.message}`;throw e;}
@@ -369,9 +441,10 @@
       for(const key of Object.keys(productFields))await attempt(key,async()=>{const result=await ensureProductField(key,values[key]);if(result.absent)skip(key);else written.push(key);});
       await report('价格');
       put('Price',document.querySelector('input[name="price"]'));
-      if(C.sameSite(record.site,'英国')){
-        await report('List Price Currency（英国站选择英镑GBP）');
-        if(await choose('List Price Currency',id('form_item_list_price.0.currency'),'GBP(英镑)'))written.push('List Price Currency：GBP(英镑)');
+      const priceCurrency=C.sameSite(record.site,'英国')?'GBP(英镑)':C.sameSite(record.site,'德国')?'EUR(欧元)':'';
+      if(priceCurrency){
+        await report('List Price Currency（按站点选择'+priceCurrency+'）');
+        if(await choose('List Price Currency',id('form_item_list_price.0.currency'),priceCurrency))written.push('List Price Currency：'+priceCurrency);
       }
       const priceField=id('form_item_list_price.0.value_with_tax')||id('form_item_list_price.0.value');put('List Price',priceField);
       put('Color',id('form_item_color.0.value'));
@@ -411,7 +484,18 @@
       const dates=['请选择开始时间','请选择结束时间'].map(p=>document.querySelector(`input[placeholder="${p}"]`)?.value);
       // Observed collector sets a discount price without dates, blocking publication.
       if(promo?.value&&dates.every(x=>!x)){input(promo,'');written.push('清除无起止时间的采集促销价');}});
-      return {written,skipped,warnings};
+      let titleUpdate;
+      await attempt(C.sameSite(record.site,'德国')?'产品标题（德国翻译）':'产品标题数量',async()=>{
+        titleUpdate=await ensureTitleQuantity(record);
+        if(titleUpdate.changed)written.push(titleUpdate.mode==='german_translation'?'产品标题（德国翻译）':'产品标题数量');
+      });
+      if(C.sameSite(record.site,'德国')){
+        for(const [key,ensure] of [['产品描述（德国翻译）',ensureGermanDescription],['Bullet Point（德国翻译）',ensureGermanBullets]])await attempt(key,async()=>{
+          const result=await ensure(record);if(result.absent)skip(key);else written.push(key);
+        });
+      }
+      const title=C.text(formItem('产品标题').querySelector('input,textarea')?.value);
+      return {written,skipped,warnings,title,titleUpdate};
       }catch(e){e.field=currentField;e.completedFields=[...written];e.message=`填写【${currentField}】失败：${e.message}`;throw e;}
     },
     async publish({record}={}){

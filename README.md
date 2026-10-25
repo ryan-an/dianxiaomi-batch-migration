@@ -2,6 +2,24 @@
 
 此前手动验证了第1个产品从采集到上线的完整流程。2026-10-23用户的10条真实批次已完成采集、认领、移入待发布，写入阶段失败；本次查看现场并交付修复，没有重新运行真实产品。
 
+## v0.4.21 德国站使用德文标题、描述与卖点
+
+DE 与德国双向等价。德国商品编辑时，整个标题和产品描述均使用上传表中的“德国标题翻译”，第一条 Bullet Point 也使用该标题，其余全部清空。德国流程忽略产品数量；翻译为空时该行记为数据错误。描述通过 CKEditor 公开接口同步并回读，提交前再次核对描述与卖点；德国价目表货币字段存在时选择 EUR，英国继续沿用原数量标题规则及 GBP。
+
+下载结果保持已确认的 8 列，并使用实际新标题。109 项 Node 测试及实际 CKEditor 4.6.2 的离线浏览器回归通过，包含隔离脚本通信、编辑器数据和表单同步、全部后续卖点清空及英国回归。定位结构来自用户粘贴的当前页面 DOM；本次未操作真实产品。
+
+安装包：[店小秘迁移助手 v0.4.21](dist/店小秘迁移助手-v0.4.21.zip)。更新时重新加载扩展并刷新店小秘页面。详细规则见 [德国站填写规则](docs/德国站填写规则.md)。
+
+## v0.4.20 按表格数量修改标题与精简结果表
+
+采集后立即提取标题中第一个有效数量，编辑产品时按上传表“产品数量”替换对应数字，保留其余标题文字和配件数量。填写后回读确认新标题，后续校验与下载结果使用实际标题；保存原标题与原数量，继续执行可兼容列表显示原标题或新标题的情况。表格数量为空、标题没有匹配数量时保留原文并记录日志；无效数量记为数据错误。库存数量仍按原流程清空后切换 FBA。
+
+下载表按用户确认简化为 8 列：执行状态、原表链接、最终标题、原标题数量、表格产品数量、实际店铺、站点、失败原因。详细日志保留在插件内。规则及边界见 [产品数量提取规则](docs/产品数量提取规则.md)。
+
+103 项 Node 回归、捕获表单 DOM 的离线浏览器联动回归及 XLSX 往返验证通过，覆盖首个数量替换、节点重绘重试、写入被拒绝时保留实际标题、改标题后的身份校验和断点继续。本次未操作真实产品。
+
+安装包：[店小秘迁移助手 v0.4.20](dist/店小秘迁移助手-v0.4.20.zip)。更新时重新加载扩展并刷新店小秘页面。
+
 ## v0.4.19 检查警告后仍保存并发布
 
 填写完成后先等待2秒，再检查和补齐制造商、型号及型号名称；补填后也等待2秒再读取当前节点和必填校验。自动填写时单字段失败会记录警告，继续填写后续字段。填写或提交前检查报错均不再拦截“保存并发布”，始终进入发布步骤；点击前会重新核对当前产品身份，并等待按钮可用。
@@ -193,7 +211,7 @@
 使用 Node.js 24：
 
 ```powershell
-node --test --test-isolation=none tests/core.test.cjs tests/workflow.test.cjs tests/ui-model.test.cjs tests/work-target.test.cjs tests/background.test.cjs tests/panel-layout.test.cjs tests/batch-state.test.cjs
+node --test --test-isolation=none tests/core.test.cjs tests/workflow.test.cjs tests/ui-model.test.cjs tests/work-target.test.cjs tests/background.test.cjs tests/panel-layout.test.cjs tests/batch-state.test.cjs tests/part-number.test.cjs tests/quantity.test.cjs tests/german.test.cjs
 node tests/build-fixtures.cjs
 node tests/verify-package.cjs
 python -m http.server 8765 --bind 127.0.0.1

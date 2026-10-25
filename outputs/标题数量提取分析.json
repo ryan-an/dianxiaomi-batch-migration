@@ -1,0 +1,1538 @@
+{
+  "source": "C:\\Users\\root\\.codex\\attachments\\439c467a-e239-46c5-9ca5-1db7789529c2\\已粘贴的文本.txt",
+  "analyzedDate": "2026-10-24",
+  "mode": "first_supported_match",
+  "summary": {
+    "total": 115,
+    "matched": 96,
+    "noMatch": 19
+  },
+  "quantityMeaning": "从左到右取第一个支持的数量表达式：Set of N 或 N Pack/Packs/Pc/Pcs/Piece/Pieces；裸数字不识别，不合并或换算数量。",
+  "titles": [
+    {
+      "id": 1,
+      "title": "4 Pcs Kitchen Towel Holder Grabber Self Adhesive, Stainless Steel Kitchen Dish Towel Hook,Wall Mount Non-Drilling Hand Towel Hanger Towel Holders for Bathroom Kitchen Cabinet",
+      "quantity": 4,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "4 Pcs",
+          "quantity": 4,
+          "unit": "pcs",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "NANASO Parachute Toy - No Tangle Throwing Paratrooper, Hand Throw Army Man (Red, Yellow, Blue, Rose Red, Orange, Green, Army Green, Camouflage)",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 3,
+      "title": "NANASO 4Pack Kids Waterproof Art Smock with 3 Pockets | Waterproof Painting Apron Art Smock, Adjustable Artist Smock for Community Event, Crafts Art Painting Activity",
+      "quantity": 4,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "4Pack",
+          "quantity": 4,
+          "unit": "pack",
+          "index": 7
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "50 Pack Small Shipping Boxes,White Corrugated Cardboard Boxes,Outer size:4x4x2 inch,Internal size:3.6x3.8x1.9 inch,Recyclable Corrugated Mailer Boxes for Small Bussiness Packing and Mailing",
+      "quantity": 50,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "50 Pack",
+          "quantity": 50,
+          "unit": "pack",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "9PCS Kids Plastic Knife Set,Kitchen Kid Knife For Real Cooking,BPA-Free Toddler Knife Include 6 Plastic Knives Wood Kids Safe Knives Potato Slicers Onion Slicer for Fruit Salad Bread(Crocodile Style)",
+      "quantity": 9,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "9PCS",
+          "quantity": 9,
+          "unit": "pcs",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Unisex Swim Caps Ear Protection,2 Pack Silicone Swimming Caps for Short/Long Hair with Ear Plugs&Nose Clip,Waterproof Flexible Swimming Hat for Women Men Adults Kids,Easy to Put On and Off,Black+Blue",
+      "quantity": 2,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "2 Pack",
+          "quantity": 2,
+          "unit": "pack",
+          "index": 32
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Extrapins 6PCS Solar Tea Lights,Flameless Flickering LED Tealight Candle | Reusable Candle Lights,Waterproof Solar Power Tealights Outdoor with Dusk to Dawn Sensor for Party Outdoor Garden Patio Decor",
+      "quantity": 6,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "6PCS",
+          "quantity": 6,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "12Pack Mini Serving Tongs, Stainless Steel, 4.3In (Gold) for Appetizers, Desserts, Sugar, Ice Bucket",
+      "quantity": 12,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "12Pack",
+          "quantity": 12,
+          "unit": "pack",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "100 Pcs Smell Proof Pouch,Front Clear Flat Ziplock Bag,Resealable Metallic Foil Airtight Bags, Food Safe Storage Bags,Plastic Packaging Pouch for Coffee,Beans,Nuts,Dried Fruit",
+      "quantity": 100,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "100 Pcs",
+          "quantity": 100,
+          "unit": "pcs",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Merry Christmas Garden Flag",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 11,
+      "title": "Wooden Hundred Board Toy,100 Digital Board Montessori Math Toy with Storage Bag,Multi-Color Hundred Counting Toys,1-100 Consecutive Numbers Game,Educational&Learning Digital Toy Gift for Kids,Boy,Girl",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 12,
+      "title": "Compressed Wipes, Towels, or Compact Toilet Paper Tablets,for Travel, Home, Outdoor Activities (200 Pack with 20 Convenient Carrying Cases)",
+      "quantity": 200,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "200 Pack",
+          "quantity": 200,
+          "unit": "pack",
+          "index": 96
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "title": "Extrapins 36 Pack Watercolor Paint Set,Washable Water Colors with Paint Brushes,Watercolor Paint Bulk for Kids,Water Color Paint for Classroom Parties Kindergarten and Art Activities",
+      "quantity": 36,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "36 Pack",
+          "quantity": 36,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Butterfly Glitter Nail Sequins,3D Nail Art Flakes Colorful Confetti Glitter Sticker,Nail Art Design Makeup DIY Decoration Kit,Nail Sequins for Face Body Eye Hair Nail Art Powder-12 Colors",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 15,
+      "title": "NANASO Body Tape, Clothing Tape, 5 Rolls, Transparent Clear Color, 82 Feet | Pflegender Lippenbalsam,Lip Sleeping Mask,Lippenbalsam Lippenpflege für Verblassende Lippenlinien",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 16,
+      "title": "NANASO Parachute Toy, No Tangle Throw Throwing Parachute Men, Outdoor Children's Paratrooper Toy, Hand Throw Parachute Army Man (Pink,Red,Blue,Green,Camouflage)",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 17,
+      "title": "60pcs Fake Mustaches,Self Adhesive Novelty Fake Mustache Set,Fake Beards Fiesta Party Supplies,Fake Mustache Stickers For Mustache Party Costume St.Patrick's Day Halloween Festival Party(20 Styles)",
+      "quantity": 60,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "60pcs",
+          "quantity": 60,
+          "unit": "pcs",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "title": "Extrapins 12 Pack Drawstring Backpack Soccer Drawstring Bag Gift Bags | Drawstring Backpacks Bulk, Soccer Party Favors Cinch Bags String Bags Goodie Sack Bag",
+      "quantity": 12,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "12 Pack",
+          "quantity": 12,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "title": "Extrapins Picture Hanging Hooks,40Pcs 100 lb Picture Hangers with Nails,Heavy Picture Hanging Kit for Drywall Wooden Wall,Hooks for Hanging Pictures for Canvas Office Pictures House Decoration(Gold)",
+      "quantity": 40,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "40Pcs",
+          "quantity": 40,
+          "unit": "pcs",
+          "index": 32
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "title": "Extrapins 100 Hard Bristle Pipe Cleaners for Pipe Smoking,Teapot Cleaning | 2Pcs 3-in-1 Pipe Tamper Reamer,2 Mini Nylon Brush Set,2 Pcs Straw Cleaning Brushes,Detachable Key Ring Set of 5 Black Brushes",
+      "quantity": 2,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "2Pcs",
+          "quantity": 2,
+          "unit": "pcs",
+          "index": 76
+        },
+        {
+          "text": "2 Pcs",
+          "quantity": 2,
+          "unit": "pcs",
+          "index": 130
+        },
+        {
+          "text": "Set of 5",
+          "quantity": 5,
+          "unit": "set_of",
+          "index": 179
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "title": "Kipeber 24 Pcs Kids Firefighter Hat,Plastic Fireman Hat,Red Fire Chief Helmet for Kids,Soft Children’s Fireman Helmet Fire Hats for Boys Girls Role Play Party Costume Dress Up Accessory",
+      "quantity": 24,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "24 Pcs",
+          "quantity": 24,
+          "unit": "pcs",
+          "index": 8
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "title": "Extrapins 50 Pcs Bubble Mailers 4.3x9 inch,Black Poly Padded Envelopes,Waterproof Self Seal Shipping Bags Mailing Envelopes Bubble Padded,Bubble Envelopes for Mailing Shipping Packing Small Business",
+      "quantity": 50,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "50 Pcs",
+          "quantity": 50,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "title": "Extrapins 45PCS Clear Colored Plastic Folders, 12.2\" x 8.7\", 10 Colors",
+      "quantity": 45,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "45PCS",
+          "quantity": 45,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "title": "Extrapins 4 Pieces Digital Kitchen Timer, Countdown Timer Big Digits | Magnetic Back and ON/Off Switch,Cooking Timer,Loud Alarm Timers,Classroom Timers for Minute Second Count Up Countdown",
+      "quantity": 4,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "4 Pieces",
+          "quantity": 4,
+          "unit": "pieces",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "title": "EXTRAPINS Butterfly",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 26,
+      "title": "50 Pack Small Shipping Boxes,Brown Corrugated Cardboard Boxes,Internal size:5.5x3.7x1.25inches,Recyclable Corrugated Mailer Boxes for Small Bussiness Packing and Mailing",
+      "quantity": 50,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "50 Pack",
+          "quantity": 50,
+          "unit": "pack",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "title": "Extrapins Kids' Compact Green Binoculars, Outdoor Exploration Kit, Green | Age 3-12, Shockproof Binoculars, Perfect for Bird Watching, Hiking, Camping, Travel and Learning",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 28,
+      "title": "3 Bundles Roses Artificial Flowers, Fake Rose Artificial Flower Bouquets, Bridal Wedding Rose Bouquet, Artificial Roses Flowers for Home Garden Hotel Office Decoration",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 29,
+      "title": "Car Wash Sponge,Non-Scratch Large car Sponges for Washing, Multi-Use Cleaing Sponges Bone Design Cleaning Polishing Foam for Dishes Washing Bathroom and Kitchen Cleaning 4PCS(2 Yellow,2 Blue)",
+      "quantity": 4,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "4PCS",
+          "quantity": 4,
+          "unit": "pcs",
+          "index": 170
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "title": "Kidtoozs 30 Pack",
+      "quantity": 30,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "30 Pack",
+          "quantity": 30,
+          "unit": "pack",
+          "index": 9
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "title": "Extrapins 9 Pack Handbag Dust Bags, Dust Bags for Handbags, Clear",
+      "quantity": 9,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "9 Pack",
+          "quantity": 9,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "title": "Extrapins 24 Pcs Basketball Goodie Bags (007)",
+      "quantity": 24,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "24 Pcs",
+          "quantity": 24,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "title": "100Pcs Disposable Piping Bags, Extra Thick Anti-Burst Pastry Bags,Frosting Bags For All Size Tips Couplers, Disposable Icing Bags For DIY Cupcake Decorating,Baking Cookies Candy Supplies 12inch",
+      "quantity": 100,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "100Pcs",
+          "quantity": 100,
+          "unit": "pcs",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "title": "Unisex Swim Caps Ear Protection,2Pack Silicone Swimming Caps for Short/Long Hair with Ear Plugs&Nose Clip,Waterproof Flexible Swimming Hat for Women Men Adults Kids,Easy to Put On and Off,Black+White",
+      "quantity": 2,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "2Pack",
+          "quantity": 2,
+          "unit": "pack",
+          "index": 32
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "title": "Extrapins 4 PCS Huge Heart Shaped Balloons, 32 Inches, Red, Heart Shaped",
+      "quantity": 4,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "4 PCS",
+          "quantity": 4,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "title": "Extrapins Clear Crossbody Purse Bag,Adjustable Strap Shoulder Handbag big",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 37,
+      "title": "Extrapins Shower Head Holder, Adjustable Wand Holder with 2 Hanger Hooks | Wall Mount Bracket, Aluminium Alloy, Silver",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 38,
+      "title": "Clay Tools Set, 13 Pieces Plastic Clay Tools and 4 Pieces Ball Stylus Dotting Tools, Sculpting Tools Suitable for Clay Ceramic Crafts DIY Cake Fondant Decoration",
+      "quantity": 13,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "13 Pieces",
+          "quantity": 13,
+          "unit": "pieces",
+          "index": 16
+        },
+        {
+          "text": "4 Pieces",
+          "quantity": 4,
+          "unit": "pieces",
+          "index": 49
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "title": "Extrapins 8PCS Cuticle Oil Pens, Cuticle Revitalizer Oil Pen",
+      "quantity": 8,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "8PCS",
+          "quantity": 8,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "title": "Extrapins 9PCS Mini Stapler with Staples, Portable Small Stapler, 3 Colors",
+      "quantity": 9,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "9PCS",
+          "quantity": 9,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "title": "Children's Artists Fabric Aprons,12 Colors Kids Artist Aprons,Non Woven Artist Apron For Kid,Children Painting Aprons,Kids Art Smocks for Classroom,Kitchen,Community Event,Crafts&Art Painting Activity",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 42,
+      "title": "Extrapins 12 Pack Mini Paint Set,Washable Acrylic Paint Strips Set for Kids & Adults,24 Filled Paint Strips in 12 Colors,24 Brushes,12 Mixing Palettes,3 Big Brushes",
+      "quantity": 12,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "12 Pack",
+          "quantity": 12,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "title": "Extrapins Desktop Shelf Organizer | Extrapins Desktop Shelf Organizer",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 44,
+      "title": "Extrapins 16 Pcs Disposable Plastic Tablecloths and Satin Table Runner Set",
+      "quantity": 16,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "16 Pcs",
+          "quantity": 16,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "title": "Extrapins 30-Pack Metal Plant Labels Weatherproof Garden Markers（Silver）",
+      "quantity": 30,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "30-Pack",
+          "quantity": 30,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "title": "EXTRAPINS 2 PCS Double Layer Extra Large Satin Sleeping Cap, Black | Silk Bonnets for Women, Satin Bonnet for Curly Hair with Elastic for Women Girl",
+      "quantity": 2,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "2 PCS",
+          "quantity": 2,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "title": "Extrapins 10 Pcs Yoga Strap for Stretching, Exercise Adjustable Straps",
+      "quantity": 10,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "10 Pcs",
+          "quantity": 10,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "title": "Extrapins 100 Pcs Pool Cover Clips",
+      "quantity": 100,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "100 Pcs",
+          "quantity": 100,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "title": "Extrapins 3 Pairs Leg Sleeves, Full-Length Compression Sleeve",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 50,
+      "title": "12 Pack Beach Towel Clips,Plastic Strong Pool Chair Clips,Heavy Duty Beach Towel Holder Laundry Clothes Clips for Beach Chair Pool Chair on Cruise,Windproof Clamps Clothes Pegs,No Trace,Bright Color",
+      "quantity": 12,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "12 Pack",
+          "quantity": 12,
+          "unit": "pack",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "title": "Extrapins 8 Pack Plastic Squeeze Bottles, (8.2in)",
+      "quantity": 8,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "8 Pack",
+          "quantity": 8,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "title": "Extrapins 12Pcs Bib Aprons Bulk, Adjustable Black Apron with 2 Pocket | Waterproof Kitchen Apron for Women Men, Machine Washable",
+      "quantity": 12,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "12Pcs",
+          "quantity": 12,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "title": "Extrapins 6 Pcs Oktoberfest Tablecloth, 54\" x 108\" Disposable Table Covers | Plastic Bavarian Blue White Diamond Check Tablecover for Oktoberfest Party Decorations, Picnic and Beer Festival Supplies",
+      "quantity": 6,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "6 Pcs",
+          "quantity": 6,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "title": "Extrapins 24 Pcs Stainless Steel Kids Silverware, 6.5 In Spoon Fork, Silver",
+      "quantity": 24,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "24 Pcs",
+          "quantity": 24,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "title": "Extrapins 50Pcs Alligator Hair Clips, Professional Hair Styling Clips, Pink | Plastic Non Slip Hair Clips for Women with Wide Teeth and Double-Hinged Design, Styling Sectioning",
+      "quantity": 50,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "50Pcs",
+          "quantity": 50,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "title": "Extrapins 6Pcs Clear Mason Jar Glass Flower Vases",
+      "quantity": 6,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "6Pcs",
+          "quantity": 6,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 57,
+      "title": "Extrapins 50 Pcs Black Bubble Mailers, Poly Padded Envelopes, 3 Size | Waterproof Self Seal Adhesive Shipping Bags, Bubble Envelopes for Mailing Shipping Packing Small Business",
+      "quantity": 50,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "50 Pcs",
+          "quantity": 50,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 58,
+      "title": "Extrapins 6PCS Solar Tea Lights, Waterproof Solar Power Tealights Outdoor | Flameless Flickering LED Tealight Candle with Dusk to Dawn Light Sensor, Reusable Candle Lights for Party, Garden Camping",
+      "quantity": 6,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "6PCS",
+          "quantity": 6,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 59,
+      "title": "Extrapins 8 Pack Porcelain Dessert Plates",
+      "quantity": 8,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "8 Pack",
+          "quantity": 8,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "title": "Extrapins 600 Pcs Wax Craft Sticks, Bendable Sticky Wax Sticks, 13 Colors",
+      "quantity": 600,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "600 Pcs",
+          "quantity": 600,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 61,
+      "title": "NANASO 12PCS Self Adhesive Bandage Wrap,3\" x 5 Yards Elastic Adhesive Tape for Sports,Self Adherent Wrap for Pet,Breathable Cohesive Bandage for Wrist Ankle Knee Leg First Aid Sprains Swelling-Black",
+      "quantity": 12,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "12PCS",
+          "quantity": 12,
+          "unit": "pcs",
+          "index": 7
+        }
+      ]
+    },
+    {
+      "id": 62,
+      "title": "Extrapins 24 Piece Dinner Forks Set, 5.4 Inch Stainless Steel Salad Fork",
+      "quantity": 24,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "24 Piece",
+          "quantity": 24,
+          "unit": "piece",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 63,
+      "title": "Compressed Wipes, Compact Toilet Paper Tablets, 100, Daily Use | Towels for Travel, Home, Outdoor Activities, Daily Use",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 64,
+      "title": "Extrapins 100 Pcs Pizza Slice Boxes",
+      "quantity": 100,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "100 Pcs",
+          "quantity": 100,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 65,
+      "title": "Extrapins 50 Pcs Oil Absorbent Pads, 9.8 x 13 Inch Oil Spill Mat, Oil-Only Absorbent Mat Pad, Heavy Weight Absorbing Sheets Oil Pads, Universal Absorbing Mat for Home Garage Basement, Grey (Gray)",
+      "quantity": 50,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "50 Pcs",
+          "quantity": 50,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 66,
+      "title": "Extrapins 200 Pcs Mini Christmas Gift Bows, 1 in Mini Bows, Assorted Colors",
+      "quantity": 200,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "200 Pcs",
+          "quantity": 200,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 67,
+      "title": "Extrapins 50Pack Mini Tealight Candles, White Round Tea Lights, 1.38x0.39in | Smokeless & Dripless Tealight Candles, Unscented Mini Candles For Home Decor Weddings Parties Dinners Emergencies",
+      "quantity": 50,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "50Pack",
+          "quantity": 50,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 68,
+      "title": "2 PACK Cat Self Grooming Corner Scratcher with Catnip, Massage Comb Brush for Long & Short Fur",
+      "quantity": 2,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "2 PACK",
+          "quantity": 2,
+          "unit": "pack",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": 69,
+      "title": "Extrapins Set of 12 Washable Paint Sets,Acrylic Paint Set,12 Paint Pots in 12 Colors,24 Pcs Paintbrushes,3 Palettes,1 Folding Bucket,Craft Paint Sets for Kids & Adults,Camps,Schools and Clubs",
+      "quantity": 12,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "Set of 12",
+          "quantity": 12,
+          "unit": "set_of",
+          "index": 10
+        },
+        {
+          "text": "24 Pcs",
+          "quantity": 24,
+          "unit": "pcs",
+          "index": 85
+        }
+      ]
+    },
+    {
+      "id": 70,
+      "title": "EXTRAPINS 6 Pack Ice Cube Tray",
+      "quantity": 6,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "6 Pack",
+          "quantity": 6,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 71,
+      "title": "Extrapins 6 Pack Porcelain Dinner Plates, 10.5 Inch White Square Plates | Porcelain Dessert Plate, Ceramic Serving Plate for Salad Pasta Steak Snacks, Microwave and Dishwasher Safe",
+      "quantity": 6,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "6 Pack",
+          "quantity": 6,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 72,
+      "title": "Extrapins 4Pcs Glass Bowls with Blue Lids,Food Storage Container,1,2,4,7Cup | Round Glass Bowl, Meal Prep and Leftovers Keeper, 4 Size Stackable Lunch Container, Dishwasher & Freezer Safe",
+      "quantity": 4,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "4Pcs",
+          "quantity": 4,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 73,
+      "title": "Extrapins 16 Pcs Disposable Plastic Tablecloths and Satin Table Runner Set",
+      "quantity": 16,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "16 Pcs",
+          "quantity": 16,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 74,
+      "title": "Extrapins 30 Pack Treat Boxes, Gable Boxes Party Favor Boxes, Pink | Gable Paper Gift Boxes with Handles, Pink Candy Boxes Goodie Boxes for Kids Birthday Party Baby Shower 6.5 X 3.5 X 3.5 Inches",
+      "quantity": 30,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "30 Pack",
+          "quantity": 30,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 75,
+      "title": "Extrapins 8 Piece Ceramic Dinner Plates",
+      "quantity": 8,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "8 Piece",
+          "quantity": 8,
+          "unit": "piece",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 76,
+      "title": "Extrapins 10 Pcs Stainless Steel Plates, 8 Inch Gold Round Dinner Plates | Reusable Metal Plates, Stainless Steel Gold Plates, Unbreakable Camping Plate for Camping BBQ Party Picnic Kitchen Restaurant",
+      "quantity": 10,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "10 Pcs",
+          "quantity": 10,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 77,
+      "title": "Unisex Swim Caps Ear Protection,2 Pack Silicone Swimming Caps for Short/Long Hair with Ear Plugs&Nose Clip,Waterproof Flexible Swimming Hat for Women Men Adults Kids,Easy to Put On and Off,Black+Black",
+      "quantity": 2,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "2 Pack",
+          "quantity": 2,
+          "unit": "pack",
+          "index": 32
+        }
+      ]
+    },
+    {
+      "id": 78,
+      "title": "Extrapins 12 Pcs Amber Votive Candle Holders,Green",
+      "quantity": 12,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "12 Pcs",
+          "quantity": 12,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 79,
+      "title": "15 Colors Eyeliner Pen Set, Eye Shadow Pencil, Pearl Eyeliner Kit Metallic Eyeliner Pencil Glitter Eyeliner for Women Eye&Lip Liner Professional Eye Makeup Set Colorful Eyeliner Eye Color",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 80,
+      "title": "Extrapins 50 Pack Crayons Bulk, Crayon Packs with 8 Assorted Colors | 400 Count Bulk, Crayons Party Favors, Mini Boxes of Crayon for Home Office Birthdays Party Supplies",
+      "quantity": 50,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "50 Pack",
+          "quantity": 50,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 81,
+      "title": "6 Pcs Bud Vases",
+      "quantity": 6,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "6 Pcs",
+          "quantity": 6,
+          "unit": "pcs",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": 82,
+      "title": "Unisex Swim Caps Ear Protection,2 Pack Silicone Swimming Caps for Short/Long Hair with Ear Plugs&Nose Clip,Waterproof Flexible Swimming Hat for Women Men Adults Kids,Easy to Put On and Off ,Black+Rosy",
+      "quantity": 2,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "2 Pack",
+          "quantity": 2,
+          "unit": "pack",
+          "index": 32
+        }
+      ]
+    },
+    {
+      "id": 83,
+      "title": "14 Pads Pop Up Sticky Notes,1400 Sheet Lined Sticky Notes 3x3 Inch,Self-Stick Notes Pads with Lines,Bright Multi Colors Easy Post Notes Pop up Refill for Office Study School Daily Life,100 Sheets/Pad",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 84,
+      "title": "Extrapins 50 Pcs Bubble Mailers 3 Sizes",
+      "quantity": 50,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "50 Pcs",
+          "quantity": 50,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 85,
+      "title": "Extrapins 24 Pcs Basketball Goodie Bags (006)",
+      "quantity": 24,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "24 Pcs",
+          "quantity": 24,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 86,
+      "title": "Extrapins 60 Pack Hexagon Glass Jars, 2 oz Mini Honey Jars with Gold Lids",
+      "quantity": 60,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "60 Pack",
+          "quantity": 60,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 87,
+      "title": "Extrapins 12 Piece Dinner Forks Set, 5.4 Inch Stainless Steel Forks | Salad Fork Silverware Use for Home Kitchen Restaurant, Durable Table Fork Set, Mirror Polished, Dishwasher Safe",
+      "quantity": 12,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "12 Piece",
+          "quantity": 12,
+          "unit": "piece",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 88,
+      "title": "Extrapins 36 Pieces Colorful Stackable Crayons,12 Colors Stacking Crayons | Buildable Crayons for Drawing Coloring,Stacking DIY Crayons for Classroom Office School Supplies",
+      "quantity": 36,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "36 Pieces",
+          "quantity": 36,
+          "unit": "pieces",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 89,
+      "title": "Kipeber 50PCS Lip Mask Sheet,Collagen Crystal Lip Masks,Pink Lip Care Pads Mask for Moisturizing Nourishing,Anti-Aging & Anti-Wrinkle,Lip Gel Patches Pads for Dry Lip,Remove Dead Skin",
+      "quantity": 50,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "50PCS",
+          "quantity": 50,
+          "unit": "pcs",
+          "index": 8
+        }
+      ]
+    },
+    {
+      "id": 90,
+      "title": "50 Pcs Metallic Bubble Mailers",
+      "quantity": 50,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "50 Pcs",
+          "quantity": 50,
+          "unit": "pcs",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": 91,
+      "title": "Extrapins 50 Pack Tealight Candles, Red Mini Tea Lights Candle, Round | Smokeless Unscented Tealight Candle, Dripless, 2 Hours Burn Time For Wedding Parties Home Decor Dinners Emergencies",
+      "quantity": 50,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "50 Pack",
+          "quantity": 50,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 92,
+      "title": "Extrapins 2PCS Large Stainless Steel Cutting Boards with Lip | Extrapins 2PCS Large Stainless Steel Cutting Boards with Lip",
+      "quantity": 2,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "2PCS",
+          "quantity": 2,
+          "unit": "pcs",
+          "index": 10
+        },
+        {
+          "text": "2PCS",
+          "quantity": 2,
+          "unit": "pcs",
+          "index": 73
+        }
+      ]
+    },
+    {
+      "id": 93,
+      "title": "100 Pcs Smell Proof Pouch,Front Clear Flat Ziplock Bag,Resealable Metallic Foil Airtight Bags, Food Safe Storage Bags,Plastic Packaging Pouch for Coffee,Beans,Nuts,Dried Fruit",
+      "quantity": 100,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "100 Pcs",
+          "quantity": 100,
+          "unit": "pcs",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": 94,
+      "title": "Extrapins 100 Pack Small Paper Food Trays, 1Lb Disposable Serving Tray | Red & White Checkered Serving Boats, Paper Food Tray for Concession Food Condiments Nachos",
+      "quantity": 100,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "100 Pack",
+          "quantity": 100,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 95,
+      "title": "EXTRAPINS 100 Pack Disposable Changing Pads,Waterproof Baby Disposable Underpads,Soft Absorbent Waterproof Diaper Changing Pad for Baby Incontinence with Moisture Protector,23.6 x 17.7Inch(Blue)",
+      "quantity": 100,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "100 Pack",
+          "quantity": 100,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 96,
+      "title": "2 in 1 Pumice Stone for Feet,6 Pack Foot Scrubber & Callus Remover, Stone Scrubber for Hard Skin,Foot Pumice,Dead Skin Remover for Feet, Heels, Hands and Body",
+      "quantity": 6,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "6 Pack",
+          "quantity": 6,
+          "unit": "pack",
+          "index": 29
+        }
+      ]
+    },
+    {
+      "id": 97,
+      "title": "Extrapins 48 PCS",
+      "quantity": 48,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "48 PCS",
+          "quantity": 48,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 98,
+      "title": "Extrapins 14 Pack Plastic Pencil Cases | Extrapins 14 Pack Plastic Pencil Cases",
+      "quantity": 14,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "14 Pack",
+          "quantity": 14,
+          "unit": "pack",
+          "index": 10
+        },
+        {
+          "text": "14 Pack",
+          "quantity": 14,
+          "unit": "pack",
+          "index": 51
+        }
+      ]
+    },
+    {
+      "id": 99,
+      "title": "Extrapins 50 Pack Paper Charcuterie Boxes with Clear Lids, 7.5 Inch, Pink",
+      "quantity": 50,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "50 Pack",
+          "quantity": 50,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 100,
+      "title": "7 Inch Silicone small Tongs Set, mini Kitchen tongs with Silicone Tips Food Tongs Stainless Steel Cooking Tongs for Salad, Grilling, Frying and Cooking (Blue,Green,Red,Purple,Black, 5 Pieces)",
+      "quantity": 5,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "5 Pieces",
+          "quantity": 5,
+          "unit": "pieces",
+          "index": 182
+        }
+      ]
+    },
+    {
+      "id": 101,
+      "title": "Extrapins 12Pack Playing Card Case, 3.7x2.7x0.9 In Clear Gaming Card Holder | Plastic Card Boxes, Clear Playing Deck Box with Snap Closure, Empty Plastic Storage Box for Gaming Cards Business Cards",
+      "quantity": 12,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "12Pack",
+          "quantity": 12,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "title": "Extrapins 8 Pieces Floating Sunglass Straps, 8 Color | Eyeglass Chain Eyewear Retainer, Sunglasses Strap for Sport Swimming Men Women",
+      "quantity": 8,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "8 Pieces",
+          "quantity": 8,
+          "unit": "pieces",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 103,
+      "title": "Extrapins 16 Pcs Plastic Tablecloths and Satin Table Runner Set | 8 Pcs 54 X 108 Inch White Tablecloth, 8 Pcs 12 X 108 Inch Green Runners, Rectangle Table Cover for Wedding Birthday",
+      "quantity": 16,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "16 Pcs",
+          "quantity": 16,
+          "unit": "pcs",
+          "index": 10
+        },
+        {
+          "text": "8 Pcs",
+          "quantity": 8,
+          "unit": "pcs",
+          "index": 66
+        },
+        {
+          "text": "8 Pcs",
+          "quantity": 8,
+          "unit": "pcs",
+          "index": 104
+        }
+      ]
+    },
+    {
+      "id": 104,
+      "title": "Extrapins 100 Pack Charcuterie Boxes with Clear Lids, 4.7 Inch",
+      "quantity": 100,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "100 Pack",
+          "quantity": 100,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 105,
+      "title": "Extrapins 50 Pcs Pool Cover Clips",
+      "quantity": 50,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "50 Pcs",
+          "quantity": 50,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 106,
+      "title": "Extrapins 100 Pcs Mini Christmas Gift Bows, 1 Inch Adhesive Present Bow | Assorted Colors Mini Bows, Metallic Star Bow for Presents Holiday Party Decoration Christmas DIY Gift Wrapping",
+      "quantity": 100,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "100 Pcs",
+          "quantity": 100,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 107,
+      "title": "Extrapins 4Pcs Friction Powered Construction Truck Toys Set - Push and Go Sand Truck Vehicles for Kids Boys Girls",
+      "quantity": 4,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "4Pcs",
+          "quantity": 4,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 108,
+      "title": "Extrapins 16.5Ft Nano Double Sided Tape Adhesive, Washable Gel Grip Tape | Removable Traceless Multifunction Strong Reusable Transparent Anti-Slip Adhesive for Paste Photos and Posters, Fix Carpet Ma",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 109,
+      "title": "Extrapins 10 Pcs Yoga Strap for Stretching,6 Ft Exercise Adjustable Straps,Yoga Bands with Safe Adjustable D Ring Buckle,Non Elastic Yoga Belt for Pilates Gym Workouts,Physical Therapy,Black (Black)",
+      "quantity": 10,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "10 Pcs",
+          "quantity": 10,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 110,
+      "title": "Extrapins 60 Pcs 5.90 x 7.87 Inch Holographic Bubble Mailers",
+      "quantity": 60,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "60 Pcs",
+          "quantity": 60,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 111,
+      "title": "NANASO 12PCS Self Adhesive Bandage Wrap,4\" x 5 Yards Elastic Adhesive Tape for Sports,Self Adherent Wrap for Pet,Breathable Cohesive Bandage for Wrist Ankle Knee Leg First Aid Sprains Swelling-Black",
+      "quantity": 12,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "12PCS",
+          "quantity": 12,
+          "unit": "pcs",
+          "index": 7
+        }
+      ]
+    },
+    {
+      "id": 112,
+      "title": "9PCS Kids Plastic Knife Set,Kitchen Kid Knife For Real Cooking,BPA-Free Toddler Knife Include 6 Plastic Knives Wood Kids Safe Knives Potato Slicers Onion Slicer for Fruit Salad Bread(Fish Style)",
+      "quantity": 9,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "9PCS",
+          "quantity": 9,
+          "unit": "pcs",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "id": 113,
+      "title": "Drain Clog Remover Tool, 7-In-1 Snake Drain Anti-Clog Kit, Sink Drain Cleaner For Kitchen Sinks, Toilet Sewer, Bathtubs And Bathroom Sinks Dredge",
+      "quantity": "",
+      "status": "no_match",
+      "candidates": []
+    },
+    {
+      "id": 114,
+      "title": "Extrapins 3Pack Microfiber Hair Drying Cap, Quick Dry Fast Drying Hair Caps",
+      "quantity": 3,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "3Pack",
+          "quantity": 3,
+          "unit": "pack",
+          "index": 10
+        }
+      ]
+    },
+    {
+      "id": 115,
+      "title": "Extrapins 60 PCS Kids Jump Ropes, 7.3 Feet Colorful Jump Ropes Bulk",
+      "quantity": 60,
+      "status": "matched",
+      "candidates": [
+        {
+          "text": "60 PCS",
+          "quantity": 60,
+          "unit": "pcs",
+          "index": 10
+        }
+      ]
+    }
+  ]
+}

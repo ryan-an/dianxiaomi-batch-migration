@@ -1,0 +1,24 @@
+{
+  "source": "用户于 2026-10-24 粘贴的当前编辑页 outerHTML；仅提取字段定位信息，长内容和工具栏图标已省略",
+  "page": "https://www.dianxiaomi.com/web/amazon/edit?id=184807703385394451",
+  "description": {
+    "dataPath": "product_description.0.value",
+    "label": "产品描述",
+    "textareaId": "ckeditor14",
+    "hidden": true,
+    "editorContainerId": "cke_ckeditor14",
+    "sourceButtonClass": "cke_button__source",
+    "iframeClass": "cke_wysiwyg_frame"
+  },
+  "bulletPoints": {
+    "firstId": "form_item_bulletPoints_0",
+    "secondId": "form_item_bulletPoints_1",
+    "selector": "textarea[id^=\"form_item_bulletPoints_\"]",
+    "subsequentCount": "运行时扫描所有已有条目"
+  },
+  "runtime": {
+    "publicScript": "https://s13.dianxiaomi.com/fe-res/ckeditor/ckeditor.js",
+    "verifiedVersion": "4.6.2"
+  },
+  "verification": "本地使用站点公开版本的实际编辑器，验证页面/隔离世界通信、变更事件、隐藏值同步及 Bullet Point 清空；未操作真实产品"
+}

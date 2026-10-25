@@ -3,15 +3,58 @@
   'use strict';
   const text = v => v == null ? '' : String(v).trim();
   const norm = v => text(v).normalize('NFKC').replace(/\s+/g, ' ').toLowerCase();
+  // Keep offsets into the original title so only the matched digits change.
+  function findProductQuantity(title) {
+    const original=title==null?'':String(title),offsets=[];let value='',position=0;
+    for(const character of original){
+      const normalized=character.normalize('NFKC').replace(/[\u2010-\u2015\u2212]/g,'-');
+      value+=normalized;
+      for(let i=0;i<normalized.length;i++)offsets.push({start:position,end:position+character.length});
+      position+=character.length;
+    }
+    const pattern=/(?<!\d,)(?<![\p{L}\p{N}_.+\/×-])(?:set\s+of\s+([1-9]\d*)(?![\d.,]\d|\s*[-/×x]\s*\d)\b|([1-9]\d*)[\s-]*(?:packs?|pcs?|pieces?)\b)/giu;
+    for(const match of value.matchAll(pattern)){
+      if(/\d\s*[-/×x]\s*$/iu.test(value.slice(0,match.index)))continue;
+      const digits=match[1]||match[2],quantity=Number(digits);
+      if(!Number.isSafeInteger(quantity))return null;
+      const start=match.index+match[0].indexOf(digits);
+      return {quantity,start:offsets[start].start,end:offsets[start+digits.length-1].end};
+    }
+    return null;
+  }
+  function extractProductQuantity(title){return findProductQuantity(title)?.quantity??'';}
+  function parseTargetProductQuantity(value){
+    const normalized=text(value).normalize('NFKC');if(!normalized)return '';
+    const quantity=Number(normalized);
+    if(!/^\d+(?:\.0+)?$/.test(normalized)||!Number.isSafeInteger(quantity)||quantity<1)throw new Error('表格“产品数量”必须是正整数或留空');
+    return quantity;
+  }
+  function updateProductTitleQuantity(title,value){
+    const original=title==null?'':String(title),match=findProductQuantity(original),targetQuantity=parseTargetProductQuantity(value);
+    const result={title:original,originalQuantity:match?.quantity??'',targetQuantity,changed:false,status:targetQuantity===''?'missing_target':!match?'no_match':'unchanged'};
+    if(targetQuantity===''||!match)return result;
+    result.title=original.slice(0,match.start)+targetQuantity+original.slice(match.end);
+    result.changed=result.title!==original;if(result.changed)result.status='updated';
+    return result;
+  }
   const alias = Object.freeze({ '万万欣UK|英国': '万万欣DE' });
-  function normalizeSite(value) {return ['uk','英国'].includes(norm(value))?'英国':text(value);}
+  function normalizeSite(value) {const site=norm(value);return ['uk','英国'].includes(site)?'英国':['de','德国'].includes(site)?'德国':text(value);}
   function sameSite(a,b) {return norm(normalizeSite(a))===norm(normalizeSite(b));}
   function siteInText(value,site) {
     const s=text(value).normalize('NFKC').replace(/「[^」]*」/g,' ');
     if(sameSite(site,'英国'))return /英国|(?:^|[^\p{L}\p{N}])uk(?=$|[^\p{L}\p{N}])/iu.test(s);
+    if(sameSite(site,'德国'))return /德国|(?:^|[^\p{L}\p{N}])de(?=$|[^\p{L}\p{N}])/iu.test(s);
     return !!text(site)&&s.includes(text(site));
   }
   function shopForSite(shop,site,aliases=alias) {return aliases[`${shop}|${normalizeSite(site)}`]||aliases[`${shop}|${text(site)}`]||shop;}
+  function planProductTitle(record){
+    if(sameSite(record.site,'德国')){
+      const title=text(record.data?.['德国标题翻译']);
+      if(!title)throw new Error('德国站“德国标题翻译”不能为空');
+      return {mode:'german_translation',title,changed:title!==text(record.title),status:'translated',originalQuantity:extractProductQuantity(record.title),targetQuantity:''};
+    }
+    return {mode:'quantity',...updateProductTitleQuantity(record.title,record.data?.['产品数量'])};
+  }
   function sourceKey(value) {
     const u = new URL(text(value));
     if (!['http:', 'https:'].includes(u.protocol)) throw new Error('链接必须是 http 或 https');
@@ -45,6 +88,8 @@
       try {
         item.key = sourceKey(item.source);
         if (!item.shop || !item.site) throw new Error('缺少店铺或站点');
+        if(sameSite(item.site,'德国')){planProductTitle(item);item.targetQuantity='';}
+        else item.targetQuantity=parseTargetProductQuantity(data['产品数量']);
         if (seen.has(item.key)) throw new Error('来源链接重复，未重复执行');
         seen.add(item.key);
         item.targetShop = shopForSite(item.shop,data['站点'],options.shopAliases || alias);
@@ -59,8 +104,17 @@
     if (candidates.length !== 1) throw new Error(`${description}：匹配到 ${candidates.length} 条，已停止以免填错产品`);
     return candidates[0];
   }
+  const resultColumns=Object.freeze([
+    {label:'执行状态',width:14},{label:'原表链接',width:48},{label:'最终标题',width:75},
+    {label:'原标题数量',width:16},{label:'表格产品数量',width:16},{label:'实际店铺',width:20},
+    {label:'站点',width:10},{label:'失败原因',width:48}
+  ].map(Object.freeze));
   function resultTable(rows){
-    return [['执行状态','原表链接','采集标题','实际店铺','站点','当前步骤','失败原因','来源位置','原店铺','采集ID','产品ID','提交发布时间','目标页面','执行记录'],...rows.map(r=>[r.status,r.source,r.title,r.targetShop,r.site,r.step,r.error,r.provenance,r.shop,r.collectorId,r.productId,r.publishedAt,r.targetUrl,(r.history||[]).map(x=>`${x.time} ${x.message}`).join('\n')].map(text))];
+    return [resultColumns.map(column=>column.label),...rows.map(r=>{
+      const originalQuantity=extractProductQuantity(r.collectedTitle||r.title);let targetQuantity;
+      try{targetQuantity=parseTargetProductQuantity(r.data?.['产品数量']??r.targetQuantity);}catch{targetQuantity=text(r.data?.['产品数量']);}
+      return [text(r.status),text(r.source),text(r.title),originalQuantity,targetQuantity,text(r.targetShop),text(r.site),text(r.error)];
+    })];
   }
   function csv(rows) {
     const quote = value => {
@@ -81,7 +135,7 @@
     if (/克|grams|^g$/.test(s)) return 'g';
     return norm(v);
   }
-  const api = {text,norm,alias,normalizeSite,sameSite,siteInText,shopForSite,sourceKey,parseWorkbook,uniqueMatch,resultTable,csv,unitKey};
+  const api = {text,norm,extractProductQuantity,parseTargetProductQuantity,updateProductTitleQuantity,planProductTitle,resultColumns,alias,normalizeSite,sameSite,siteInText,shopForSite,sourceKey,parseWorkbook,uniqueMatch,resultTable,csv,unitKey};
   root.DXMCore = api;
   if (typeof module !== 'undefined') module.exports = api;
 })(typeof globalThis === 'object' ? globalThis : this);

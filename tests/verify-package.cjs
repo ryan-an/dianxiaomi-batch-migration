@@ -1,7 +1,8 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),X=require('../extension/vendor/xlsx.full.min.js');
 const m=JSON.parse(fs.readFileSync('extension/manifest.json','utf8'));assert.equal(m.manifest_version,3);
-assert.equal(m.version,'0.4.19');assert.equal(m.action.default_popup,undefined);assert.ok(!fs.existsSync('extension/panel-window.js'));
+assert.equal(m.version,'0.4.21');assert.equal(m.action.default_popup,undefined);assert.ok(!fs.existsSync('extension/panel-window.js'));
 for(const file of [m.background.service_worker,'popup.html','popup.css','popup.js','ui-model.js','work-target.js',...m.content_scripts.flatMap(x=>x.js)])assert.ok(fs.existsSync(path.join('extension',file)),file);
+const core=require('../extension/core.js');assert.equal(typeof core.planProductTitle,'function');assert.equal(typeof core.updateProductTitleQuantity,'function');assert.equal(core.resultColumns.length,8);assert.equal(core.normalizeSite('DE'),'德国');assert.ok(m.content_scripts.some(entry=>entry.world==='MAIN'&&entry.js.includes('editor-bridge.js')));
 const ui=fs.readFileSync('extension/popup.html','utf8');for(const id of ['startIndex','limit','mappingBlock','targetTab','advanced'])assert.ok(!ui.includes(`id="${id}"`));
 for(const match of fs.readFileSync('extension/popup.html','utf8').matchAll(/(?:src|href)="([^"]+)"/g))assert.ok(fs.existsSync(path.join('extension',match[1])),match[1]);
 for(const file of fs.readdirSync('extension').filter(f=>f.endsWith('.js')))new vm.Script(fs.readFileSync(path.join('extension',file),'utf8'),{filename:file});

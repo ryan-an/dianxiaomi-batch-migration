@@ -1,12 +1,52 @@
 {
   "manifest_version": 3,
   "name": "店小秘批量迁移助手",
-  "version": "0.4.19",
+  "version": "0.4.21",
   "description": "本地解析迁移表，按链接映射采集标题，认领、填写并发布，保留逐条执行结果。",
-  "permissions": ["storage"],
-  "host_permissions": ["https://www.dianxiaomi.com/*"],
-  "background": {"service_worker": "background.js"},
-  "action": {"default_title": "显示网页内迁移面板"},
-  "content_scripts": [{"matches": ["https://www.dianxiaomi.com/web/amazon/*", "https://www.dianxiaomi.com/web/productCrawl/*"], "js": ["vendor/xlsx.full.min.js", "core.js", "ui-model.js", "work-target.js", "batch-state.js", "adapter.js", "panel-layout.js", "panel-view.js", "overlay.js", "popup.js"], "run_at": "document_idle"}],
-  "content_security_policy": {"extension_pages": "script-src 'self'; object-src 'self'"}
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.dianxiaomi.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "显示网页内迁移面板"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.dianxiaomi.com/web/amazon/*",
+        "https://www.dianxiaomi.com/web/productCrawl/*"
+      ],
+      "js": [
+        "vendor/xlsx.full.min.js",
+        "core.js",
+        "ui-model.js",
+        "work-target.js",
+        "batch-state.js",
+        "adapter.js",
+        "panel-layout.js",
+        "panel-view.js",
+        "overlay.js",
+        "popup.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.dianxiaomi.com/web/amazon/*"
+      ],
+      "js": [
+        "editor-bridge.js"
+      ],
+      "run_at": "document_idle",
+      "world": "MAIN"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
 }

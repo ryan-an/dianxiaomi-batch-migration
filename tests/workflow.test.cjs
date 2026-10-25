@@ -2,12 +2,14 @@ const {test}=require('node:test'),assert=require('node:assert/strict');global.DX
 const product=(i=1)=>({index:i-1,source:`https://www.amazon.com/dp/B0TEST000${i}`,shop:'万万欣UK',targetShop:'万万欣DE',site:'英国',data:{'Model Number':'/01'},title:'',status:'待执行',history:[],error:''});
 function scenario(records,options={}){
   const job={rows:records,logs:[],state:'running',options:{modelNameFromNumber:true}};
-  let path='',tab='',claimed=false,moved=false,retried=false,editorId='',movePolls=0;const sent=[],sleeps=[],published=new Set();
+  let path='',tab='',claimed=false,moved=false,retried=false,editorId='',movePolls=0,search='';const sent=[],sleeps=[],published=new Set();
   const applies=key=>typeof options[key]==='function'?options[key](editorId):options[key];
-  const crawl=r=>({id:`c${r.index}`,rowId:`row${r.index}`,source:r.source,title:`Title ${r.index}`,text:`Title ${r.index}`});
-  const listing=r=>({id:`p${r.index}`,source:r.source,title:`Title ${r.index}`,text:`Title ${r.index}「万万欣DE」${options.pageSite||'英国'}`,editUrl:`https://www.dianxiaomi.com/web/amazon/edit?id=p${r.index}`,links:[]});
+  const titleFor=r=>options.title||`Title ${r.index}`;
+  const crawl=r=>({id:`c${r.index}`,rowId:`row${r.index}`,source:r.source,title:titleFor(r),text:titleFor(r)});
+  const listing=r=>({id:`p${r.index}`,source:r.source,title:options.listingTitle||titleFor(r),text:`Title ${r.index}「万万欣DE」${options.pageSite||'英国'}`,editUrl:`https://www.dianxiaomi.com/web/amazon/edit?id=p${r.index}`,links:[]});
   const io={save:async()=>{},closeEditor:async r=>{assert.equal(r.status,'已发布');sent.push({a:'closeEditor',id:r.productId});},sleep:async ms=>{sleeps.push({ms,after:sent.at(-1)?.a});if(options.now)options.now.value+=ms;if(options.stopDuringWait&&ms===2000)job.stop=true;},waitEditor:async(u,r)=>{sent.push({a:'waitEditor',url:u});assert.equal(editorId,r.productId);},open:async u=>{assert.ok(!job.pendingMove,'结果确认前不能跳转');assert.ok(!u.includes('/amazon/edit?'),'编辑页只能从列表点击进入');sent.push({a:'open',url:u});path=u;editorId=new URL(u).searchParams.get('id');},call:async(a,args={},risky=false)=>{
     sent.push({a,args,risky});
+    if(a==='searchTitle')search=args.title;
     if(a==='editProduct'){assert.ok(path.endsWith('/offline'));editorId=args.record.productId;path=`https://www.dianxiaomi.com/web/amazon/edit?id=${editorId}`;return {url:path};}
     if(a==='acquisitionTab'){tab=args.name;return {};}
     if(a==='snapshot'){
@@ -17,7 +19,7 @@ function scenario(records,options={}){
         if(tab==='采集失败'&&options.retry&&!retried)rows=[crawl(records[0]),...(options.historicalFailure?[crawl(records[1]),{...crawl(product(9)),id:'foreign'}]:[])];
         if(tab==='未认领'&&!claimed){rows=records.filter((r,i)=>!(options.retry&&!retried&&i===0)).map(crawl);if(options.crawlAmbiguous)rows.push({...crawl(records[0]),id:'duplicate-crawl'});}
       }else if(path.endsWith('/draft'))rows=claimed&&!moved?records.map(listing):[];
-      else if(path.endsWith('/offline'))rows=records.map(listing);
+      else if(path.endsWith('/offline'))rows=records.map(listing).filter(row=>!options.filterSearch||row.title.includes(search));
       else if(path.endsWith('/online'))rows=records.filter(r=>published.has(`p${r.index}`)).map(listing);
       if(options.ambiguous&&path.endsWith('/draft'))rows.push({...listing(records[0]),id:'duplicate'});
       return {rows,hasNext:false,signature:JSON.stringify(rows.map(r=>r.id))};
@@ -32,7 +34,7 @@ function scenario(records,options={}){
     }
     if(a==='retry')retried=true;
     if(a==='progress')return {done:true,text:'已完成',...(options.unknownCounts?{}:{failed:options.retry&&!retried?1:0})};
-    if(a==='fill'){assert.equal(args.modelName,'/01');assert.equal(args.continueOnError,true);if(applies('fieldError')){const e=new Error('填写【配送渠道】失败：选项未展开');e.field='配送渠道';e.completedFields=['库存数量清空'];throw e;}return {written:['UPC','FBA'],skipped:options.skipped||[],warnings:options.fieldWarnings||[]};}
+    if(a==='fill'){assert.equal(args.modelName,'/01');assert.equal(args.continueOnError,true);if(applies('fieldError')){const e=new Error('填写【配送渠道】失败：选项未展开');e.field='配送渠道';e.completedFields=['库存数量清空'];throw e;}return {written:['UPC','FBA'],skipped:options.skipped||[],warnings:options.fieldWarnings||[],...(options.filledTitle===undefined?{}:{title:options.filledTitle,titleUpdate:options.titleUpdate})};}
     if(a==='preflight'){assert.equal(sleeps.at(-1)?.ms,2000);if(applies('preflightError')){const e=new Error('提交前检查【Model Name】失败：型号名称仍为空');e.field='Model Name';throw e;}return {checked:['制造商','Model Number','Model Name'],repaired:options.repaired||[]};}
     if(a==='publish'){assert.equal(args.record.productId,editorId);if(applies('noClick')){const e=new Error('保存并发布按钮不可点击');e.notSubmitted=true;throw e;}if(applies('uncertain')){const e=new Error('连接断开');e.uncertain=true;throw e;}published.add(editorId);}
     if(a==='publishStatus'){if(applies('statusError'))throw new Error('读取发布结果时连接断开');if(applies('pendingStatus'))return {done:false};if(applies('noConfirmation'))return {done:true};return applies('validation')?{done:true,failed:true,text:'请输入型号名称'}:{done:true,submitted:true};}
@@ -213,4 +215,48 @@ test('成功弹窗即完成并关闭编辑页，下一条之前关闭，不读�
 test('旧待确认记录继续时直接完成，不重复提交也不查询在线',async()=>{
   const r=product();r.status='已提交待确认';r.checkpoint='submitted';const s=scenario([r]);await s.run();
   assert.equal(r.status,'已发布');assert.equal(s.sent.length,0);
+});
+
+
+test('采集提取原标题数量，编辑采用表格数量，预检发布及导出均使用实际新标题',async()=>{
+  const original='Set of 12 Paint Sets, 24 Pcs Brushes',final='Set of 3 Paint Sets, 24 Pcs Brushes',record=product();record.data['产品数量']='3';
+  const s=scenario([record],{title:original,filledTitle:final,titleUpdate:{status:'updated',originalQuantity:12,targetQuantity:3}});await s.run();
+  assert.equal(record.status,'已发布');assert.equal(record.collectedTitle,original);assert.equal(record.collectedQuantity,12);assert.equal(record.targetQuantity,3);assert.equal(record.title,final);
+  assert.equal(s.sent.find(x=>x.a==='editProduct').args.record.title,original);
+  assert.equal(s.sent.find(x=>x.a==='preflight').args.record.title,final);assert.equal(s.sent.find(x=>x.a==='publish').args.record.title,final);
+  assert.ok(s.job.logs.some(x=>/原标题数量：12；表格产品数量：3/.test(x.message)));
+  assert.ok(s.job.logs.some(x=>/标题数量已修改：12 → 3/.test(x.message)));
+  assert.deepEqual(global.DXMCore.resultTable([record])[1].slice(2,5),[final,12,3]);
+});
+
+test('改标题后中断续执行兼容列表仍为原标题或已保存为新标题，保持原数量不变',async()=>{
+  const original='12 Pack Cups',final='3 Pack Cups';
+  for(const listingTitle of [original,final]){
+    const record=product();Object.assign(record,{title:final,collectedTitle:original,collectedQuantity:12,collectorId:'c0',productId:'p0',checkpoint:'offline'});record.data['产品数量']='3';
+    const s=scenario([record],{title:original,listingTitle,filterSearch:true,filledTitle:final,titleUpdate:{status:listingTitle===final?'unchanged':'updated',originalQuantity:listingTitle===final?3:12,targetQuantity:3}});await s.run();
+    assert.equal(record.status,'已发布');assert.equal(record.collectedQuantity,12);assert.equal(record.collectedTitle,original);assert.equal(record.title,final);
+    assert.equal(s.sent.find(x=>x.a==='editProduct').args.record.title,listingTitle);
+    assert.equal(s.sent.filter(x=>['collect','claim','move'].includes(x.a)).length,0);
+    assert.deepEqual(s.sent.filter(x=>x.a==='searchTitle').map(x=>x.args.title),listingTitle===original?[final,original]:[final]);
+  }
+});
+
+test('旧保存批次产品数量无效时不执行采集或发布',async()=>{
+  const record=product();record.data['产品数量']='0';const s=scenario([record]);await s.run();
+  assert.equal(record.status,'失败');assert.match(record.error,/产品数量.*正整数/);assert.equal(s.sent.filter(x=>['collect','fill','publish'].includes(x.a)).length,0);
+});
+
+
+test('德国批次忽略产品数量，使用完整德国翻译，后续校验与精简导出采用新标题',async()=>{
+  for(const pageSite of ['德国','DE']){
+    const record=product();record.shop='万万欣DE';record.site='DE';record.data['德国标题翻译']='4 Stück Gewürzschalen';record.data['产品数量']='invalid';
+    const s=scenario([record],{pageSite,title:'12 Pack Cups, 24 Pcs Brushes',filledTitle:'4 Stück Gewürzschalen',titleUpdate:{mode:'german_translation',status:'translated'}});await s.run();
+    assert.equal(record.status,'已发布');assert.equal(record.site,'德国');assert.equal(record.collectedQuantity,12);assert.equal(record.targetQuantity,'');assert.equal(record.title,'4 Stück Gewürzschalen');
+    assert.equal(s.sent.find(x=>x.a==='publish').args.record.title,'4 Stück Gewürzschalen');assert.equal(global.DXMCore.resultTable([record])[1][2],'4 Stück Gewürzschalen');
+    assert.ok(s.job.logs.some(entry=>/德国标题使用表格/.test(entry.message)));assert.equal(s.sent.filter(x=>x.a==='claim').length,1);
+  }
+});
+
+test('旧德国批次缺少翻译时不采集或发布',async()=>{
+  const record=product();record.site='DE';const s=scenario([record]);await s.run();assert.equal(record.status,'失败');assert.match(record.error,/德国标题翻译/);assert.equal(s.sent.filter(x=>['collect','fill','publish'].includes(x.a)).length,0);
 });
