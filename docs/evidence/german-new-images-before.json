@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-26",
+  "productId": "184807703385394451",
+  "site": "英国",
+  "demoExplicitlyAuthorized": true,
+  "source": "https://www.amazon.com/dp/B0F6V2FSSF",
+  "images": [
+    {
+      "index": 0,
+      "src": "https://wxalbum-10001658-file.dianxiaomi.com/wxalbum/1677094/20261026235042/dc49ef815eb215d2ac870824581cbbae.jpeg",
+      "size": "300 X 300"
+    },
+    {
+      "index": 1,
+      "src": "https://m.media-amazon.com/images/I/61WSqsMmB0L._AC_SL1500_.jpg",
+      "size": "1480 X 1500"
+    },
+    {
+      "index": 2,
+      "src": "https://m.media-amazon.com/images/I/814IO3DF5JL._AC_SL1500_.jpg",
+      "size": "1500 X 1500"
+    },
+    {
+      "index": 3,
+      "src": "https://m.media-amazon.com/images/I/61TJjZxDgDL._AC_SL1500_.jpg",
+      "size": "1500 X 1500"
+    },
+    {
+      "index": 4,
+      "src": "https://m.media-amazon.com/images/I/81bKQgLjPaL._AC_SL1500_.jpg",
+      "size": "1500 X 1500"
+    },
+    {
+      "index": 5,
+      "src": "https://m.media-amazon.com/images/I/71LS39tgXYL._AC_SL1500_.jpg",
+      "size": "1500 X 1500"
+    }
+  ],
+  "selectors": {
+    "imageSection": "#imageInfo",
+    "cards": "#imageInfo .img-list .img-item",
+    "image": "img.img-css",
+    "size": ".img-size",
+    "delete": "a.icon_delete",
+    "edit": "a.icon-operate"
+  }
+}
