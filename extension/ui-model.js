@@ -20,11 +20,7 @@
     else if(job.state==='review')Object.assign(value,{tone:'error',label:'需要核对当前产品，已停止自动操作'});
     else if(job.state==='error')Object.assign(value,{tone:'error',label:'执行中断，请查看原因'});
     else if(job.state==='stopped')Object.assign(value,{tone:'paused',label:'已停止，本轮记录已保留'});
-    else if(value.failed)Object.assign(value,{tone:'error',label:`本轮结束，${value.failed} 条产品需要处理`});
-    else if(value.review)Object.assign(value,{tone:'error',label:`本轮结束，${value.review} 条产品的发布结果待核对`});
-    else if(value.pending)Object.assign(value,{tone:'paused',label:`已提交发布，${value.pending} 条等待平台确认`});
-    else if(value.success)Object.assign(value,{tone:'success',label:`本轮完成，${value.success} 条已发布`});
-    else Object.assign(value,{tone:'idle',label:value.skipped?`本轮结束，${value.skipped} 条已跳过`:'本轮已结束'});
+    else Object.assign(value,{tone:value.success?'success':value.failed||value.review?'error':value.pending?'paused':'idle',label:`本轮结束，已发布${value.success}条，总共${value.total}条`});
     return value;
   }
   function tabLabel(tab){

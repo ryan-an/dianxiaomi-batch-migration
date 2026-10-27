@@ -6,7 +6,7 @@ test('执行范围验证正整数并截到实际产品数量',()=>{
 });
 test('已提交与真正上线区分；只统计本轮选择范围',()=>{
   const job={state:'done',options:{startIndex:2,limit:2},rows:[{status:'数据错误'},{status:'已上线'},{status:'已提交待确认'},{status:'失败'}]};
-  const s=U.summary(job);assert.equal(s.total,2);assert.equal(s.success,1);assert.equal(s.pending,1);assert.equal(s.failed,0);assert.equal(s.percent,100);assert.equal(s.tone,'paused');assert.match(s.label,/等待平台确认/);
+  const s=U.summary(job);assert.equal(s.total,2);assert.equal(s.success,1);assert.equal(s.pending,1);assert.equal(s.failed,0);assert.equal(s.percent,100);assert.equal(s.tone,'success');assert.equal(s.label,'本轮结束，已发布1条，总共2条');
 });
 test('停止请求到后台结束之间仍属于执行中',()=>{
   const job={state:'running',stop:true,step:'正在停止',rows:[{status:'待执行'}],options:{startIndex:1,limit:1}};
@@ -22,7 +22,10 @@ test('中断与失败不显示完成成功状态',()=>{
 });
 test('店小秘标签显示中文页面用途',()=>{assert.equal(U.tabLabel({url:'https://www.dianxiaomi.com/web/amazon/pageList/offline'}),'店小秘 · 待发布产品');assert.equal(U.statusTone('待人工核对'),'error');});
 
-test('批次继续完成后，有发布结果待核对时不显示全部成功',()=>{
+test('本轮结束只要至少发布1条就用绿色，待核对和失败数量仍保留',()=>{
   const s=U.summary({state:'done',rows:[{status:'已发布'},{status:'待人工核对'}]});
-  assert.equal(s.tone,'error');assert.equal(s.review,1);assert.match(s.label,/1 条产品的发布结果待核对/);assert.equal(s.percent,100);
+  assert.equal(s.tone,'success');assert.equal(s.review,1);assert.equal(s.label,'本轮结束，已发布1条，总共2条');assert.equal(s.percent,100);
+  for(const [states,published] of [[['已发布','失败'],1],[['已上线','已跳过'],1],[['失败','数据错误'],0],[['已发布','已发布'],2]]){
+    const result=U.summary({state:'done',rows:states.map(status=>({status}))});assert.equal(result.label,`本轮结束，已发布${published}条，总共2条`);assert.equal(result.tone,published?'success':'error');
+  }
 });

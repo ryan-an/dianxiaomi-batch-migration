@@ -165,6 +165,12 @@
             await this.log(`已填写：${filled.written.join('、')}`,[r]);
             for(const warning of filled.warnings||[])await this.warn(r,'填写',warning);
           }catch(e){await this.warn(r,'填写',e);}
+          if(C.isNewProduct(r)){
+            await this.step('新品：保留主图并裁剪为300×300，保存并应用',[r]);
+            r.imageResult=await this.io.call('germanNewImages',{record:r});
+            if(!r.imageResult?.done)throw new Error('新品图片未确认应用成功');
+            await this.log('新品图片已确认：仅一张300×300主图',[r]);
+          }
           await this.step('等待页面更新 2 秒后检查',[r]);await this.io.sleep(2000);this.guard();
           await this.step('提交前检查并补齐制造商、型号和型号名称',[r]);
           try{

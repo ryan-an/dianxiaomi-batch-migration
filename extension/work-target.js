@@ -10,6 +10,16 @@
       return true;
     }catch{return false;}
   }
+  function imageEditorTab(tab){
+    return [tab?.url,tab?.pendingUrl].some(value=>{try{const url=new URL(value);return url.origin==='https://www.dianxiaomi.com'&&url.pathname.replace(/\/$/,'')==='/web/newImageEditor';}catch{return false;}});
+  }
+  function imageEditorOpenError(tabs,beforeIds,productTabId){
+    const before=new Set(beforeIds),fresh=tabs.filter(tab=>!before.has(tab.id)),editors=fresh.filter(imageEditorTab);
+    if(editors.some(tab=>tab.openerTabId&&tab.openerTabId!==productTabId))return '小秘美图标签已打开，但来源标签与当前商品不匹配，未接管；请核对是否由当前商品打开';
+    if(!fresh.length)return '点击小秘美图后未检测到新标签：可能被浏览器拦截弹窗，或页面未响应点击；请检查地址栏弹窗拦截提示，并手动点击小秘美图验证';
+    const paths=[...new Set(fresh.map(tab=>{try{const url=new URL(tab.url||tab.pendingUrl);return url.origin==='https://www.dianxiaomi.com'?url.pathname:'其他站点或空白页';}catch{return '地址不可读取';}}))].slice(0,3);
+    return `检测到${fresh.length}个新标签，但未找到可接管的小秘美图（${paths.join('、')}）；请核对新页面地址或是否在其他浏览器中打开`;
+  }
   function chooseTab(tabs,active=[]){
     const candidates=tabs.filter(allowedTab),current=active.find(allowedTab);
     if(current&&candidates.some(t=>t.id===current.id))return candidates.find(t=>t.id===current.id);
@@ -25,5 +35,5 @@
     const active=await api.tabs.query({active:true,lastFocusedWindow:true});
     const tab=chooseTab(tabs,active);if(!tab)throw new Error('请先在这个浏览器中打开并登录店小秘，再点击开始执行。');return tab;
   }
-  const api={allowedTab,chooseTab,resolve,samePage};root.DXMTarget=api;if(typeof module!=='undefined')module.exports=api;
+  const api={allowedTab,chooseTab,resolve,samePage,imageEditorTab,imageEditorOpenError};root.DXMTarget=api;if(typeof module!=='undefined')module.exports=api;
 })(globalThis);

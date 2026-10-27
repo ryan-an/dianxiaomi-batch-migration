@@ -40,6 +40,7 @@
   const alias = Object.freeze({ '万万欣UK|英国': '万万欣DE' });
   function normalizeSite(value) {const site=norm(value);return ['uk','英国'].includes(site)?'英国':['de','德国'].includes(site)?'德国':text(value);}
   function sameSite(a,b) {return norm(normalizeSite(a))===norm(normalizeSite(b));}
+  function isNewProduct(record){return norm(record?.data?.['新品'])==='是';}
   function siteInText(value,site) {
     const s=text(value).normalize('NFKC').replace(/「[^」]*」/g,' ');
     if(sameSite(site,'英国'))return /英国|(?:^|[^\p{L}\p{N}])uk(?=$|[^\p{L}\p{N}])/iu.test(s);
@@ -135,7 +136,7 @@
     if (/克|grams|^g$/.test(s)) return 'g';
     return norm(v);
   }
-  const api = {text,norm,extractProductQuantity,parseTargetProductQuantity,updateProductTitleQuantity,planProductTitle,resultColumns,alias,normalizeSite,sameSite,siteInText,shopForSite,sourceKey,parseWorkbook,uniqueMatch,resultTable,csv,unitKey};
+  const api = {text,norm,extractProductQuantity,parseTargetProductQuantity,updateProductTitleQuantity,planProductTitle,resultColumns,alias,normalizeSite,sameSite,isNewProduct,siteInText,shopForSite,sourceKey,parseWorkbook,uniqueMatch,resultTable,csv,unitKey};
   root.DXMCore = api;
   if (typeof module !== 'undefined') module.exports = api;
 })(typeof globalThis === 'object' ? globalThis : this);

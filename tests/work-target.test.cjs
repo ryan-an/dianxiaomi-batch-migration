@@ -1,5 +1,17 @@
 const test=require('node:test'),assert=require('node:assert/strict'),T=require('../extension/work-target.js');
 const tab=(id,path='amazon/pageList/draft',extra={})=>({id,url:'https://www.dianxiaomi.com/web/'+path,...extra});
+test('美图标签识别支持pendingUrl及尾斜线，拒绝其他域名和路径',()=>{
+  assert.equal(T.imageEditorTab(tab(1,'newImageEditor/')),true);
+  assert.equal(T.imageEditorTab({url:'about:blank',pendingUrl:'https://www.dianxiaomi.com/web/newImageEditor?x=1'}),true);
+  assert.equal(T.imageEditorTab({url:'https://www.dianxiaomi.com.evil.test/web/newImageEditor'}),false);
+  assert.equal(T.imageEditorTab(tab(1,'amazon/edit')),false);
+});
+test('美图打开失败区分未产生标签、来源不符和不匹配地址',()=>{
+  const existing=tab(1,'newImageEditor');
+  assert.match(T.imageEditorOpenError([existing],[1],2),/未检测到新标签.*可能.*拦截/);
+  assert.match(T.imageEditorOpenError([existing,tab(3,'newImageEditor',{openerTabId:9})],[1],2),/来源标签.*不匹配/);
+  assert.match(T.imageEditorOpenError([existing,tab(3,'differentEditor')],[1],2),/1个新标签.*differentEditor/);
+});
 test('自动匹配当前窗口的店小秘页面，排除扩展页和伪造域名',()=>{
   const tabs=[tab(1),tab(2,'productCrawl/dataAcquisition',{lastAccessed:100}),{id:3,url:'chrome-extension://local/popup.html'},{id:4,url:'https://www.dianxiaomi.com.example.org/web/amazon/'}];
   assert.equal(T.chooseTab(tabs,[tab(1)]).id,1);assert.equal(T.chooseTab(tabs,[tabs[2]]).id,2);assert.equal(T.allowedTab(tabs[3]),false);

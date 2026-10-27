@@ -1,19 +1,36 @@
 importScripts('core.js','workflow.js','work-target.js');
-let job=null,busy=false,loadPromise=null,resetting=false;
+let job=null,busy=false,loadPromise=null,resetting=false,panelOpening=false;
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 chrome.action.onClicked.addListener(async tab=>{
+  if(panelOpening)return;
+  panelOpening=true;
   try{
     let target=DXMTarget.allowedTab(tab)?tab:null;
     if(!target){try{target=await DXMTarget.resolve(chrome);}catch{await chrome.tabs.create({url:'https://www.dianxiaomi.com/web/productCrawl/dataAcquisition',active:true});return;}}
     await chrome.tabs.update(target.id,{active:true});
-    const result=await chrome.tabs.sendMessage(target.id,{kind:'DXM_PANEL_OPEN'});
-    if(!result?.ok)throw new Error('请刷新店小秘页面，再点击插件图标。');
+    let result;
+    try{result=await chrome.tabs.sendMessage(target.id,{kind:'DXM_PANEL_OPEN'});}catch{}
+    if(!result?.ok){
+      const probe=await chrome.scripting.executeScript({target:{tabId:target.id},func:()=>{
+        if(globalThis.DXMPanel){globalThis.DXMPanel.show();return true;}
+        document.getElementById('dxm-migration-panel')?.remove();return false;
+      }});
+      if(!probe.some(frame=>frame.result===true)){
+        const scripts=chrome.runtime.getManifest().content_scripts;
+        for(const entry of scripts.filter(entry=>entry.world==='MAIN'&&target.url.includes('/web/amazon/')))
+          await chrome.scripting.executeScript({target:{tabId:target.id},world:'MAIN',files:entry.js});
+        await chrome.scripting.executeScript({target:{tabId:target.id},files:scripts[0].js});
+        result=await chrome.tabs.sendMessage(target.id,{kind:'DXM_PANEL_OPEN'});
+        if(!result?.ok)throw new Error('面板初始化后仍未响应');
+      }
+    }
     await chrome.action.setBadgeText({text:''});
     await chrome.action.setTitle({title:'显示网页内迁移面板'});
-  }catch{
+  }catch(error){
+    console.error('迁移助手面板打开失败：',error);
     await chrome.action.setBadgeText({text:'刷新'});
     await chrome.action.setTitle({title:'请刷新店小秘页面，再点击插件图标显示面板'});
-  }
+  }finally{panelOpening=false;}
 });
 async function save(){if(job)await chrome.storage.local.set({dxmJob:job});}
 async function load(){
@@ -50,6 +67,48 @@ async function raw(action,args={}){
   const result=await chrome.tabs.sendMessage(job.tabId,{kind:'DXM_ACTION',action,args,runId:job.id});
   if(!result?.ok){const e=new Error(result?.error||'页面没有返回执行结果');e.field=result?.field;e.completedFields=result?.completedFields;e.notSubmitted=result?.notSubmitted;throw e;}return result.data;
 }
+async function germanNewImages(record){
+  if(!DXMCore.isNewProduct(record))throw new Error('本条未标记为新品');
+  const productTabId=job.tabId,before=new Set((await chrome.tabs.query({})).map(t=>t.id));
+  const initial=await raw('prepareGermanNewImages',{record});if(initial.done)return initial;
+  let editor;
+  const guard=()=>{if(job.stop)throw new Error('用户已停止');};
+  const send=async action=>{
+    guard();const response=await chrome.tabs.sendMessage(editor.id,{kind:'DXM_IMAGE_ACTION',action,runId:job.id});
+    if(!response?.ok)throw new Error(response?.error||'图片编辑器没有返回结果');return response.data;
+  };
+  try{
+    const end=Date.now()+45000;let observedTabs=[];
+    while(Date.now()<end){
+      guard();observedTabs=await chrome.tabs.query({});const candidates=observedTabs.filter(t=>!before.has(t.id)&&DXMTarget.imageEditorTab(t)&&(!t.openerTabId||t.openerTabId===productTabId));
+      if(candidates.length>1)throw new Error('小秘美图打开多个新标签，请核对');
+      if(candidates.length===1){editor=candidates[0];break;}await pause(300);
+    }
+    if(!editor)throw new Error(DXMTarget.imageEditorOpenError(observedTabs,[...before],productTabId));
+    job.imageTabId=editor.id;await save();await chrome.tabs.update(editor.id,{active:true});
+    const readyEnd=Date.now()+60000;let ready=false,lastError;
+    while(Date.now()<readyEnd){
+      guard();try{if((await send('ready'))?.ready){ready=true;break;}}catch(error){lastError=error;}
+      await pause(300);
+    }
+    if(!ready)throw new Error(`小秘美图未就绪：${lastError?.message||'图片未加载'}`);
+    await send('crop');guard();
+    // Successful apply can close the editor before its reply reaches us. The
+    // product form is authoritative; do not send Save a second time.
+    let saveError;try{await send('save');}catch(error){saveError=error;}
+    const appliedEnd=Date.now()+60000;
+    while(Date.now()<appliedEnd){
+      guard();const state=await raw('germanImageState',{record});
+      if(state.done&&state.src!==initial.src){
+        await chrome.tabs.update(productTabId,{active:true});
+        try{await chrome.tabs.get(editor.id);await chrome.tabs.remove(editor.id);}catch{}
+        return {...state,removed:initial.removed};
+      }
+      await pause(300);
+    }
+    throw new Error(`图片保存后未确认应用300×300主图${saveError?'：'+saveError.message:''}，保留页面核对`);
+  }finally{delete job.imageTabId;await save();}
+}
 const io={save,sleep:pause,
   async closeEditor(record){
     if(record.status!=='已发布')throw new Error('未收到发布成功确认，保留编辑页');
@@ -63,6 +122,7 @@ const io={save,sleep:pause,
   },
   async call(action,args={},risky=false){
     if(job.stop)throw new Error('用户已停止');
+    if(action==='germanNewImages')return germanNewImages(args.record);
     let beforeTabs;
     if(action==='editProduct'){job.listTabId=job.tabId;beforeTabs=(await chrome.tabs.query({})).map(t=>t.id);await save();}
     if(risky){job.intent={action,time:new Date().toISOString()};await save();}
@@ -138,7 +198,7 @@ chrome.runtime.onMessage.addListener((m,s,reply)=>{
       job.logs.push(entry);if(job.logs.length>1000)job.logs.shift();r.history.push(entry);r.currentField=m.field;await save();return {ok:true};
     }
     if(m.kind==='DXM_STOP'){
-      if(job&&busy){job.stop=true;await save();try{await chrome.tabs.sendMessage(job.tabId,{kind:'DXM_ACTION',action:'stop'});}catch{}}
+      if(job&&busy){job.stop=true;await save();await Promise.allSettled([chrome.tabs.sendMessage(job.tabId,{kind:'DXM_ACTION',action:'stop'}),...(job.imageTabId?[chrome.tabs.sendMessage(job.imageTabId,{kind:'DXM_IMAGE_ACTION',action:'stop'})]:[])]);}
       return {ok:true};
     }
     if(m.kind==='DXM_START'){
@@ -161,7 +221,7 @@ chrome.runtime.onMessage.addListener((m,s,reply)=>{
         if(!r.error){DXMCore.sourceKey(r.source);r.site=DXMCore.normalizeSite(r.site);r.targetShop=DXMCore.shopForSite(r.shop,r.site);if(!continuing)r.status='待执行';}
       }
       if(!rows.some(r=>!r.error))throw new Error(rows.some(r=>r.publishUncertain)?'剩余产品的发布结果待核对，已保留编辑页，不自动重复提交':'表格中没有可执行的产品，请检查原表数据');
-      const nextJob={...(continuing?job:{}),id:crypto.randomUUID(),fileId:storedFile?.id,state:'running',rows,logs:continuing?job.logs:[],options,tabId:tab.id,startedAt:continuing?job.startedAt:new Date().toISOString(),step:continuing?'继续执行':'准备',stop:false,intent:null,error:'',resuming:continuing};
+      const nextJob={...(continuing?job:{}),id:crypto.randomUUID(),fileId:storedFile?.id,state:'running',rows,logs:continuing?job.logs:[],options,tabId:tab.id,imageTabId:null,startedAt:continuing?job.startedAt:new Date().toISOString(),step:continuing?'继续执行':'准备',stop:false,intent:null,error:'',resuming:continuing};
       await chrome.storage.local.set({dxmJob:nextJob});job=nextJob;
       setTimeout(()=>new DXMWorkflow(job,io).run().catch(async e=>{
         job.state='review';job.stop=true;job.error=`后台执行中断，请核对当前产品：${e.message}`;

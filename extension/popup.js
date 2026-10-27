@@ -35,10 +35,13 @@
     const invalid=(parsed?.rows.length||0)-valid;$('parseHint').hidden=!invalid;$('parseHint').textContent=`${invalid} 条数据需要处理，原因会保留在结果表。`;
     $('status').dataset.tone=connectionError||error?'error':s.tone;
     $('status').textContent=clearing?'正在清空缓存…':reading?'正在读取表格…':starting?'正在准备执行…':connectionError?'后台连接失败':error?'需要处理':notice|| (job?s.label:parsed?`准备就绪，将处理全部 ${parsed.rows.length} 条产品`:'请先上传表格');
+    if(job?.state==='done'&&!clearing&&!reading&&!starting&&!connectionError&&!error&&!notice){
+      const completed=node('span');completed.append('本轮结束，已发布',node('span',String(s.success),'published-count'),`条，总共${s.total}条`);$('status').replaceChildren(completed);
+    }
     const message=error||connectionError||job?.error||'';$('message').hidden=!message;$('message').textContent=message;
     $('progress').hidden=!job;$('progressFill').style.width=`${s.percent}%`;$('progressBar').setAttribute('aria-valuenow',s.percent);
     $('progressText').textContent=`已处理 ${s.processed} / ${s.total} 条`;
-    $('resultText').textContent=[`已发布 ${s.success}`,`待确认 ${s.pending}`,`需处理 ${s.failed+s.review}`,s.skipped?`已跳过 ${s.skipped}`:''].filter(Boolean).join(' · ');
+    $('resultText').replaceChildren('已发布 ',node('span',String(s.success),'published-count'),` · 待确认 ${s.pending} · 失败 `,node('span',String(s.failed+s.review),'failed-count'),s.skipped?` · 已跳过 ${s.skipped}`:'');
     renderLogs();
     panel?.update({locked:(busy()&&owner)||starting,running:busy()||starting,summary:s});
   }

@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-27",
+  "productId": "184807703388834057",
+  "fieldId": "form_item_number_of_boxes.0.value",
+  "dataPath": "number_of_boxes.0.value",
+  "html": "<div data-v-6540e92b=\"\" class=\"ant-form-item css-l8jjhh ant-form-item-has-error ant-form-item-with-help\"><div data-path=\"number_of_boxes.0.value\" disabled=\"false\" class=\"ant-row ant-form-item-row css-l8jjhh\"><div class=\"ant-col ant-form-item-label ant-form-item-label-wrap css-l8jjhh\" style=\"width: 300px;\"><label for=\"form_item_number_of_boxes.0.value\" class=\"ant-form-item-required\" title=\"\"><div class=\"label-wrapper\"><span>Anzahl von Paketen(箱子数量)</span><span class=\"iconfont icon_help_outline cursor-pointer m-left2 gray-c\"></span><!----></div></label></div><div class=\"ant-col ant-form-item-control css-l8jjhh\"><div class=\"ant-form-item-control-input\"><div class=\"ant-form-item-control-input-content\"><input type=\"text\" class=\"ant-input ant-input-status-error css-l8jjhh\" id=\"form_item_number_of_boxes.0.value\" value=\"\" style=\"width: 300px;\"></div></div><div style=\"display: flex; flex-wrap: nowrap;\"><div role=\"alert\" class=\"css-l8jjhh ant-form-item-explain ant-form-item-explain-connected ant-form-show-help\"><div class=\"ant-form-item-explain-error\" style=\"\">请输入箱子数量</div></div><div style=\"width: 0px; height: 24px;\"></div></div><!----></div></div><div class=\"ant-form-margin-offset\" style=\"margin-bottom: -24px;\"></div></div>",
+  "rule": "必填时固定填写1，非必填保留原值"
+}

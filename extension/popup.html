@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="popup.css"><title>店小秘迁移助手</title></head>
 <body><main class="panel">
-  <header title="按住标题栏拖动位置"><span class="app-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 7h14m-4-4 4 4-4 4M19 17H5m4-4-4 4 4 4"/></svg></span><h1>店小秘迁移助手</h1><button id="closePanel" class="close-button" type="button" aria-label="关闭面板" title="关闭面板">×</button></header>
+  <header title="按住标题栏拖动位置"><span class="app-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 7h14m-4-4 4 4-4 4M19 17H5m4-4-4 4 4 4"/></svg></span><h1>店小秘迁移助手</h1><button id="clearCache" class="clear-cache-button" type="button" title="清空表格、执行记录、日志和面板设置；不删除店小秘产品">清空缓存</button><button id="closePanel" class="close-button" type="button" aria-label="关闭面板" title="关闭面板">×</button></header>
   <fieldset id="upload">
     <div id="dropzone" class="file-drop"><div class="file-copy"><strong id="filename">上传迁移表格</strong><span id="fileMeta">支持 XLS / XLSX，也可以拖入文件</span></div><button id="chooseFile" type="button">选择文件</button><input id="file" class="sr-only" type="file" accept=".xls,.xlsx" aria-label="上传迁移表格"></div>
     <p id="parseHint" class="hint" hidden></p>
@@ -12,5 +12,5 @@
   <div id="message" class="message" role="alert" hidden></div>
   <section id="progress" hidden aria-label="执行进度"><div id="progressBar" class="track" role="progressbar" aria-label="产品处理进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progressFill"></span></div><p id="progressText" class="progress-text"></p><p id="resultText" class="hint"></p></section>
   <details id="logDetails"><summary>执行日志 <span id="logCount"></span></summary><div id="logs" class="logs" tabindex="0" aria-label="执行日志"><p class="empty">开始后显示操作进度。</p></div><button id="latestLog" class="text-button" type="button" hidden>回到最新日志 ↓</button></details>
-  <footer><span>关闭后可点击浏览器扩展图标重新打开。</span><button id="clearCache" class="text-button" type="button" title="清空表格、执行记录、日志和面板设置；不删除店小秘产品">清空缓存</button></footer>
+  <footer>关闭后可点击浏览器扩展图标重新打开。</footer>
 </main><script src="vendor/xlsx.full.min.js"></script><script src="core.js"></script><script src="ui-model.js"></script><script src="popup.js"></script></body></html>

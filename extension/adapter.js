@@ -31,11 +31,11 @@
   function modal(){return shown('.ant-modal').at(-1);}
   function itemLabel(e){return clean(e.querySelector('.ant-form-item-label')?.textContent).replace(/[＊*：:]/g,'');}
   function formItem(label){return one(all('.ant-form-item').filter(e=>itemLabel(e)===clean(label)),label);}
-  async function select(e,wanted,unit=false){
+  async function select(e,wanted,unit=false,aliases=[]){
     const box=e?.closest('.ant-select');if(!box)throw new Error(`下拉控件结构变化：${wanted}`);
-    const label=itemLabel(box.closest('.ant-form-item'))||'下拉框',same=v=>unit?C.unitKey(v)===C.unitKey(wanted):clean(v)===clean(wanted);
+    const label=itemLabel(box.closest('.ant-form-item'))||'下拉框',same=v=>unit?C.unitKey(v)===C.unitKey(wanted):[wanted,...aliases].some(value=>clean(v)===clean(value));
     const selected=()=>box.querySelector('.ant-select-selection-item')?.textContent;
-    if(same(selected()))return;
+    if(same(selected()))return C.text(selected());
     const controls=e.getAttribute('aria-controls')||e.getAttribute('aria-owns');
     if(e.getAttribute('aria-expanded')!=='true'){
       const target=box.querySelector('.ant-select-selector')||e;target.scrollIntoView({block:'center'});
@@ -51,7 +51,7 @@
       if(matches.length>1&&!unit)throw new Error(`【${label}】存在多个同名选项，请核对`);
       return matches[0];
     },`【${label}】的选项 ${wanted}`);
-    click(option);await until(()=>same(selected()),`确认【${label}】已选中 ${wanted}`);
+    click(option);await until(()=>same(selected()),`确认【${label}】已选中 ${wanted}`);return C.text(selected());
   }
   function id(value){return document.getElementById(value);}
   const productFields={
@@ -155,6 +155,16 @@
     throw lastError;
   }
   function bulletFields(){return all('textarea[id^="form_item_bulletPoints_"]').sort((a,b)=>Number(a.id.match(/_(\d+)$/)?.[1])-Number(b.id.match(/_(\d+)$/)?.[1]));}
+  function productImages(){return all('#imageInfo .img-list .img-item');}
+  function imageInfo(card){return {src:C.text(card?.querySelector('img.img-css')?.getAttribute('src')),size:C.text(card?.querySelector('.img-size')?.textContent)};}
+  function boxCountField(){
+    const fields=[...new Set([id('form_item_number_of_boxes.0.value'),...all('[data-path="number_of_boxes.0.value"] input:not([type="hidden"])')].filter(Boolean))];
+    return fields.length?one(fields,'箱子数量'):null;
+  }
+  function germanImageState(){
+    const cards=productImages(),main=imageInfo(cards[0]);
+    return {...main,count:cards.length,done:cards.length===1&&!!main.src&&/^300\s*[xX×]\s*300$/.test(main.size)};
+  }
   async function ensureGermanBullets(record){
     const title=C.planProductTitle(record).title;
     if(!bulletFields().length)return {absent:true};
@@ -261,6 +271,31 @@
     }
   }
   const commands={
+    async germanImageState({record}={}){checkIdentity(record);return germanImageState();},
+    async prepareGermanNewImages({record}={}){
+      checkIdentity(record);
+      if(!C.isNewProduct(record))throw new Error('仅新品为是时处理图片');
+      const original=imageInfo(productImages()[0]);if(!original.src)throw new Error('新品没有可处理的主图');
+      const removed=productImages().length-1;
+      while(productImages().length>1){
+        const before=productImages().length;
+        click(one(all('a.icon_delete',productImages().at(-1)),'附图删除按钮'));
+        await until(()=>productImages().length===before-1,'确认附图已移除');
+        if(imageInfo(productImages()[0]).src!==original.src)throw new Error('主图发生变化，已停止图片处理');
+      }
+      const state=germanImageState();if(state.done)return {...state,removed,alreadySized:true};
+      const edit=one(all('a.icon-operate',productImages()[0]),'主图编辑按钮');
+      // Ant Dropdown opens this menu on hover. HTMLElement.click() does not
+      // synthesize pointer entry and can leave the menu hidden indefinitely.
+      edit.scrollIntoView({block:'center'});
+      for(const target of [edit,edit.parentElement]){
+        if(stopped)throw new Error('已停止');
+        target.dispatchEvent(new MouseEvent('mouseover',{bubbles:true,view:window}));
+        target.dispatchEvent(new MouseEvent('mouseenter',{bubbles:false,view:window}));
+      }
+      const menu=await until(()=>oneOrNull(shown('.ant-dropdown [role="menuitem"][title="小秘美图"]')),'主图的小秘美图菜单');
+      click(menu);return {...state,removed,openRequested:true};
+    },
     async preflight({record,modelName}={}){
       const checked=[],repaired=[],skipped=[];let field='核对当前产品';
       try{
@@ -281,9 +316,25 @@
             field=key;const result=await ensure(record);if(result.absent)skipped.push(key);else{checked.push(key);if(result.changed)repaired.push(key);}
           }
         }
+        field='物品状况';const condition=await commands.ensureCondition();
+        if(condition.value){checked.push(field);if(condition.changed)repaired.push(field);}
+        field='箱子数量';const boxes=await commands.ensureBoxCount();
+        if(boxes.absent)skipped.push(field);else if(boxes.value){checked.push(field);if(boxes.changed)repaired.push(field);}
         field='页面必填项';const errors=requiredFieldErrors();if(errors.length)throw new Error(errors.join('；'));
         return {checked,repaired,skipped};
       }catch(e){e.field=field;e.completedFields=checked;e.message=`提交前检查【${field}】失败：${e.message}`;throw e;}
+    },
+    async ensureBoxCount(){
+      const initial=boxCountField();if(!initial)return {changed:false,absent:true};
+      if(!initial.closest('.ant-form-item')?.querySelector('.ant-form-item-required')&&initial.getAttribute('aria-required')!=='true'&&!initial.required)return {changed:false};
+      let changed=false;
+      for(let attempt=0;attempt<3;attempt++){
+        const field=boxCountField();if(!field)throw new Error('箱子数量字段在填写时消失');
+        if(field.disabled||field.readOnly)throw new Error('箱子数量输入框被禁用或只读');
+        if(field.value!=='1'){input(field,'1');changed=true;}
+        await sleep(200);if(boxCountField()?.value==='1')return {changed,value:'1'};
+      }
+      throw new Error('箱子数量写入1后未保留');
     },
     async ensurePartNumber(){
       const field=id('form_item_part_number.0.value');
@@ -299,7 +350,8 @@
       if(!matches.length)return {changed:false,absent:true};
       const item=one(matches,'物品状况'),combo=item.querySelector('[role="combobox"]');
       if(!item.querySelector('.ant-form-item-required')&&combo?.getAttribute('aria-required')!=='true')return {changed:false};
-      await select(combo,'New(新的)');return {changed:true,value:'New(新的)'};
+      const before=C.text(item.querySelector('.ant-select-selection-item')?.textContent);
+      const value=await select(combo,'New(新的)',false,['Neu(新的)']);return {changed:before!==value,value};
     },
     async ensureCategory(){
       const selected=()=>C.text(id('form_item_category')?.closest('.ant-select')?.querySelector('.ant-select-selection-item')?.textContent);
@@ -413,7 +465,7 @@
       const warning=e=>{if(!continueOnError||stopped)throw e;warnings.push({field:currentField,message:e.message,completedFields:[...written]});return false;};
       const skip=key=>{if(!skipped.includes(key))skipped.push(key);return false;};
       const optionalItem=label=>{const found=all('.ant-form-item').filter(e=>itemLabel(e)===clean(label));return found.length?one(found,label):null;};
-      const choose=async(key,element,value,unit=false)=>{currentField=key;if(!element)return skip(key);try{await select(element,value,unit);return true;}catch(e){return warning(e);}};
+      const choose=async(key,element,value,unit=false,aliases=[])=>{currentField=key;if(!element)return skip(key);try{await select(element,value,unit,aliases);return true;}catch(e){return warning(e);}};
       const report=async field=>{
         currentField=field;
         if(runId&&typeof chrome!=='undefined'&&chrome.runtime?.sendMessage){
@@ -468,7 +520,7 @@
         const u=record.data[`包装${cn}度单位`];if(wrote&&u)await choose(`包装${cn}度单位`,id(`form_item_item_package_dimensions.0.${axis}.unit`),u,true);
       }
       if(put('包装重量',id('form_item_item_package_weight.0.value'))&&record.data['包装重量单位'])await choose('包装重量单位',id('form_item_item_package_weight.0.unit'),record.data['包装重量单位'],true);
-      await report('原产地、电池和危险商品规管');if(await choose('原产地',id('form_item_country_of_origin.0.value'),'China(中国)'))written.push('原产地China');if(await choose('电池',id('form_item_batteries_required.0.value'),'No(不)'))written.push('电池No');
+      await report('原产地、电池和危险商品规管');if(await choose('原产地',id('form_item_country_of_origin.0.value'),'China(中国)'))written.push('原产地China');if(await choose('电池',id('form_item_batteries_required.0.value'),'No(不)',false,['Nein(不)']))written.push('电池No');
       await attempt('危险商品规管',async()=>{
       const danger=()=>id('form_item_dangerous_goods_regulations.0.value')?.closest('.ant-form-item')||all('.ant-form-item').find(e=>/Dangerous Goods Regulations|危险商品规管/.test(itemLabel(e)));
       if(!danger())skip('危险商品规管');else{
@@ -479,7 +531,8 @@
       if(dangerChecks.length!==1||dangerChecks[0].value!=='not_applicable')throw new Error('危险商品规管未能设为仅不适用');
       written.push('危险商品规管不适用');}});
       await attempt('零件编号（必填时填写01）',async()=>{const partNumber=await commands.ensurePartNumber();if(partNumber.changed)written.push('Part Number（零件编号）：01');});
-      await attempt('物品状况（必填时选择New）',async()=>{const condition=await commands.ensureCondition();if(condition.changed)written.push('物品状况：New(新的)');});
+      await attempt('物品状况（必填时选择新的）',async()=>{const condition=await commands.ensureCondition();if(condition.changed)written.push('物品状况：'+condition.value);});
+      await attempt('箱子数量（必填时填写1）',async()=>{const boxes=await commands.ensureBoxCount();if(boxes.absent)skip('箱子数量');else if(boxes.changed)written.push('箱子数量：1');});
       await attempt('促销信息',async()=>{const promo=document.querySelector('input[placeholder="请输入促销价"]');
       const dates=['请选择开始时间','请选择结束时间'].map(p=>document.querySelector(`input[placeholder="${p}"]`)?.value);
       // Observed collector sets a discount price without dates, blocking publication.
@@ -501,6 +554,7 @@
     async publish({record}={}){
       try{
         checkIdentity(record);
+        if(C.isNewProduct(record)&&!germanImageState().done)throw new Error('新品图片尚未确认只保留一张300×300主图');
         const target=await until(()=>shown('button').find(e=>clean(e.textContent)==='保存并发布'&&!e.disabled&&!e.classList.contains('ant-btn-loading')),'保存并发布按钮就绪',10000);
         checkIdentity(record);click(target);
       }catch(e){e.notSubmitted=true;throw e;}

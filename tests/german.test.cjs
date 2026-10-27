@@ -1,5 +1,14 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
 const C=require('../extension/core.js'),X=require('../extension/vendor/xlsx.full.min.js');
+test('新品=是触发图片处理，不区分站点',()=>{
+  for(const site of ['DE','德国',' de ','ＤＥ','英国','UK','美国','US',''])assert.equal(C.isNewProduct({site,data:{'新品':' 是 '}}),true);
+  for(const record of [{site:'DE',data:{'新品':''}},{site:'DE',data:{'新品':'否'}},{site:'DE',data:{}},{}])assert.equal(C.isNewProduct(record),false);
+  // Use a fixed fixture: the user edits 新品 in the real input workbook between runs.
+  const book=X.utils.book_new();X.utils.book_append_sheet(book,X.utils.aoa_to_sheet([
+    ['链接','店铺','站点','德国标题翻译','新品'],['https://amazon.com/dp/B0TEST0001','Shop','DE','Korb','是'],['https://amazon.com/dp/B0TEST0002','Shop','DE','Schale','']
+  ]),'输入');
+  const rows=C.parseWorkbook(book,X).rows;assert.deepEqual(rows.map(C.isNewProduct),[true,false]);assert.deepEqual(rows.map(row=>row.data['新品']),['是','']);
+});
 test('Germany: DE/德国 aliases work in both directions without matching store names or other sites',()=>{
   for(const value of ['DE','de',' De ','ＤＥ','德国']){assert.equal(C.normalizeSite(value),'德国');assert.ok(C.sameSite(value,'德国'));assert.ok(C.sameSite('DE',value));}
   assert.equal(C.sameSite('DE','英国'),false);assert.equal(C.sameSite('DE','美国'),false);

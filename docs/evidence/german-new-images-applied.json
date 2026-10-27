@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-27",
+  "productId": "184807703385394451",
+  "pageSite": "英国",
+  "demoExplicitlyAuthorized": true,
+  "steps": [
+    "保留第一张主图，移除五张附图",
+    "主图编辑菜单：小秘美图",
+    "裁剪/旋转：W=300，H=300",
+    "应用",
+    "右上角保存菜单：保存并应用",
+    "编辑器自动关闭，商品表单回读"
+  ],
+  "images": [
+    {
+      "size": "300 X 300",
+      "src": "https://wxalbum-10001658-file.dianxiaomi.com/wxalbum/1677094/20261027101819/12cc3436a900697acd9b033ca7f9a44f.jpeg"
+    }
+  ],
+  "productSaved": false,
+  "productPublished": false
+}
