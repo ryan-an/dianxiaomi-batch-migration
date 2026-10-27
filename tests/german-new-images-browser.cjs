@@ -24,7 +24,7 @@ const read=name=>fs.readFileSync(path.join(root,'docs/evidence',name),'utf8');
     for(const floating of [false,true]){
       await editor({floating});assert.equal((await page.evaluate(()=>DXMImageEditor.commands.crop())).cropped,true);
       await page.evaluate(()=>DXMImageEditor.commands.save());
-      const events=await page.evaluate(()=>events);assert.deepEqual(events,['open','W=300','H=300','crop-applied','save-menu','保存并应用',...(floating?['final-save']:[])]);
+      const events=await page.evaluate(()=>events);assert.deepEqual(events,['open','W=400','H=400','crop-applied','save-menu','保存并应用',...(floating?['final-save']:[])]);
       await assert.rejects(()=>page.evaluate(()=>DXMImageEditor.commands.save()),/禁止重复提交/);
     }
     for(const options of [{stop:true},{disabled:true}]){
@@ -53,11 +53,29 @@ const read=name=>fs.readFileSync(path.join(root,'docs/evidence',name),'utf8');
     const prepared=await page.evaluate(()=>DXMAdapter.commands.prepareGermanNewImages({record}));assert.equal(prepared.removed,5);assert.equal(prepared.openRequested,true);assert.equal(await page.evaluate(()=>opened),1);
     assert.equal(await page.evaluate(()=>editClicks),0);assert.deepEqual(await page.evaluate(()=>hoverEvents),['mouseover','choose']);
     assert.equal(await page.locator('#imageInfo .img-item').count(),1);
-    await assert.rejects(()=>page.evaluate(()=>DXMAdapter.commands.publish({record})),/300×300/);
+    await assert.rejects(()=>page.evaluate(()=>DXMAdapter.commands.publish({record})),/400×400/);
     const failed=await page.evaluate(async()=>{try{await DXMAdapter.commands.publish({record});}catch(e){return e.notSubmitted;}});assert.equal(failed,true);
-    await page.evaluate(()=>document.querySelector('#imageInfo .img-size').textContent='300 X 300');
+    await page.evaluate(()=>document.querySelector('#imageInfo .img-size').textContent='400 X 400');
     const complete=await page.evaluate(()=>DXMAdapter.commands.prepareGermanNewImages({record}));assert.equal(complete.done,true);assert.equal(complete.alreadySized,true);assert.equal(await page.evaluate(()=>opened),1);
     await page.evaluate(()=>record.site='英国');await assert.rejects(()=>page.evaluate(()=>DXMAdapter.commands.prepareGermanNewImages({record})),/站点不匹配|仅德国/);
-    console.log('PASS: actual captured image DOM, hover-only delayed menu (click cannot open it), five attachments removed with node replacement, first image preserved, dynamic W/H IDs, 300×300 crop/apply, no rotation, save-and-apply menu and floating Save, stop/disabled controls, no duplicate save, already-sized resume, publish guard, UK isolation. Offline only.');
+    // US always runs the same image flow, including upgrading an old 300px crop.
+    for(const [site,newProduct,size] of [['US','否','300 X 300'],['美国','','1500 X 1493'],['us','是','400 X 400']]){
+      await page.evaluate(({site,newProduct,size})=>{
+        record.site=site;record.data['新品']=newProduct;
+        [...document.querySelectorAll('.ant-form-item')].find(item=>item.querySelector('.ant-form-item-label')?.textContent==='站点选择').querySelector('.ant-select-selection-item').textContent=site==='美国'?'US':'美国';
+        const first=document.querySelector('#imageInfo .img-item');first.querySelector('.img-size').textContent=size;
+        for(let i=0;i<2;i++){const copy=first.cloneNode(true);copy.querySelector('img').src='https://fixture.test/us-extra'+i;first.parentElement.append(copy);}
+      },{site,newProduct,size});
+      await assert.rejects(()=>page.evaluate(()=>DXMAdapter.commands.publish({record})),/400×400/);
+      const before=await page.evaluate(()=>opened),result=await page.evaluate(()=>DXMAdapter.commands.prepareGermanNewImages({record}));
+      assert.equal(result.removed,2);assert.equal(await page.locator('#imageInfo .img-item').count(),1);
+      assert.equal(result.done,size==='400 X 400');assert.equal(await page.evaluate(()=>opened),before+(size==='400 X 400'?0:1));
+      if(size==='300 X 300')await assert.rejects(()=>page.evaluate(()=>DXMAdapter.commands.publish({record})),/400×400/);
+      await page.evaluate(()=>document.querySelector('#imageInfo .img-size').textContent='400 X 400');
+      assert.equal((await page.evaluate(()=>DXMAdapter.commands.prepareGermanNewImages({record}))).alreadySized,true);
+    }
+    await page.evaluate(()=>{record.site='DE';record.data['新品']='否';[...document.querySelectorAll('.ant-form-item')].find(item=>item.querySelector('.ant-form-item-label')?.textContent==='站点选择').querySelector('.ant-select-selection-item').textContent='德国';});
+    await assert.rejects(()=>page.evaluate(()=>DXMAdapter.commands.prepareGermanNewImages({record})),/仅美国站或新品/);
+    console.log('PASS: actual captured image DOM, hover-only delayed menu (click cannot open it), five attachments removed with node replacement, first image preserved, dynamic W/H IDs, 400×400 crop/apply, no rotation, save-and-apply menu and floating Save, stop/disabled controls, no duplicate save, already-sized resume, publish guard, UK isolation. Offline only.');
   }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});

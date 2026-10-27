@@ -16,7 +16,7 @@ test('Germany: DE/德国 aliases work in both directions without matching store 
   assert.equal(C.siteInText('产品「万万欣DE」美国','DE'),false);assert.equal(C.siteInText('DEMO「Shop」英国','DE'),false);
 });
 test('Germany: both supplied XLS rows have translated titles and normalize DE to Germany',()=>{
-  const book=X.read(fs.readFileSync('移德国.xls')),parsed=C.parseWorkbook(book,X,{mergeSplit:true});
+  const book=X.read(fs.readFileSync('店小秘自动采集迁移产品-德国数据.xls')),parsed=C.parseWorkbook(book,X,{mergeSplit:true});
   assert.equal(parsed.rows.length,2);assert.ok(parsed.rows.every(row=>row.site==='德国'&&!row.error&&row.targetShop==='万万欣DE'));
   assert.deepEqual(parsed.rows.map(row=>C.planProductTitle(row).title),['4 Stück Edelstahl Gewürzschalen','3 Stück Aufbewahrungskorb']);
   const rows=X.utils.sheet_to_json(book.Sheets.Sheet1,{header:1,raw:false,defval:''});

@@ -54,6 +54,50 @@
     click(option);await until(()=>same(selected()),`确认【${label}】已选中 ${wanted}`);return C.text(selected());
   }
   function id(value){return document.getElementById(value);}
+  function listPriceCurrency(record){return C.sameSite(record.site,'美国')?'USD(美元)':C.sameSite(record.site,'德国')?'EUR(欧元)':C.sameSite(record.site,'英国')?'GBP(英镑)':'';}
+  function listPriceField(record,currency=false){
+    const paths=currency?['list_price.0.currency']:C.sameSite(record.site,'美国')?['list_price.0.value','list_price.0.value_with_tax']:['list_price.0.value_with_tax','list_price.0.value'];
+    const selector=currency?'[role="combobox"]':'input:not([type="hidden"]):not([role="combobox"])';
+    for(const path of paths){
+      const fields=[...new Set([id('form_item_'+path),...all(`[data-path="${path}"] ${selector}`)].filter(e=>e&&visible(e)))];
+      if(fields.length)return one(fields,currency?'List Price Currency':'List Price');
+    }
+    const items=all('.ant-form-item').filter(e=>currency?/^(?:listpricecurrency|价目表货币)(?:\(|$)/i.test(itemLabel(e)):/^(?:listprice(?:withtax)?|不含税价目表|含税价目表)(?:\(|$)/i.test(itemLabel(e)));
+    const fields=[...new Set(items.flatMap(e=>shown(selector,e)))];
+    return fields.length?one(fields,currency?'List Price Currency':'List Price'):null;
+  }
+  async function loadedListPriceField(record,currency=false){
+    if(C.sameSite(record.site,'美国'))return until(()=>listPriceField(record,currency),`美国${currency?'价目表货币':'不含税价目表'}字段加载`,30000);
+    return listPriceField(record,currency);
+  }
+  async function ensureListPriceCurrency(record){
+    const wanted=listPriceCurrency(record);if(!wanted)return {absent:true};
+    if(!await loadedListPriceField(record,true))return {absent:true};
+    let changed=false,lastError;
+    for(let attempt=0;attempt<3;attempt++){
+      const field=listPriceField(record,true);if(!field)throw new Error('价目表货币字段在填写时消失');
+      const selected=()=>C.text(listPriceField(record,true)?.closest('.ant-select')?.querySelector('.ant-select-selection-item')?.textContent);
+      if(clean(selected())===clean(wanted))return {value:wanted,changed};
+      if(field.disabled||field.closest('.ant-select')?.classList.contains('ant-select-disabled'))throw new Error('价目表货币输入框被禁用');
+      changed=true;
+      try{await select(field,wanted);}catch(error){lastError=error;if(stopped)throw error;}
+      await sleep(200);if(clean(selected())===clean(wanted))return {value:wanted,changed};
+    }
+    throw lastError||new Error('价目表货币写入后未保留');
+  }
+  async function ensureListPrice(record){
+    const wanted=C.text(record.data?.['List Price']);if(!wanted)return {missing:true};
+    if(!await loadedListPriceField(record))return {absent:true};
+    const same=value=>C.text(value)===wanted||(/^\d+(?:\.\d+)?$/.test(C.text(value))&&/^\d+(?:\.\d+)?$/.test(wanted)&&Number(value)===Number(wanted));
+    let changed=false;
+    for(let attempt=0;attempt<3;attempt++){
+      const field=listPriceField(record);if(!field)throw new Error('List Price字段在填写时消失');
+      if(field.disabled||field.readOnly)throw new Error('List Price输入框被禁用或只读');
+      if(!same(field.value)){input(field,wanted);changed=true;}
+      await sleep(200);if(same(listPriceField(record)?.value))return {value:wanted,changed};
+    }
+    throw new Error('List Price写入后未保留');
+  }
   const productFields={
     '制造商':{ids:['form_item_manufacturer','form_item_manufacturer.0.value'],labels:['制造商','Manufacturer','Manufacturer(制造商)'],selectors:'input[placeholder="请输入制造商"],input[name="manufacturer"]'},
     'Model Number':{ids:['form_item_model_number.0.value'],labels:['Model Number','Model Number(型号)','型号'],selectors:'input[placeholder="请输入型号"]'},
@@ -163,7 +207,7 @@
   }
   function germanImageState(){
     const cards=productImages(),main=imageInfo(cards[0]);
-    return {...main,count:cards.length,done:cards.length===1&&!!main.src&&/^300\s*[xX×]\s*300$/.test(main.size)};
+    return {...main,count:cards.length,done:cards.length===1&&!!main.src&&/^400\s*[xX×]\s*400$/.test(main.size)};
   }
   async function ensureGermanBullets(record){
     const title=C.planProductTitle(record).title;
@@ -274,8 +318,8 @@
     async germanImageState({record}={}){checkIdentity(record);return germanImageState();},
     async prepareGermanNewImages({record}={}){
       checkIdentity(record);
-      if(!C.isNewProduct(record))throw new Error('仅新品为是时处理图片');
-      const original=imageInfo(productImages()[0]);if(!original.src)throw new Error('新品没有可处理的主图');
+      if(!C.shouldProcessImages(record))throw new Error('仅美国站或新品为是时处理图片');
+      const original=imageInfo(productImages()[0]);if(!original.src)throw new Error('商品没有可处理的主图');
       const removed=productImages().length-1;
       while(productImages().length>1){
         const before=productImages().length;
@@ -300,6 +344,12 @@
       const checked=[],repaired=[],skipped=[];let field='核对当前产品';
       try{
         checkIdentity(record);await settled();
+        if(C.sameSite(record.site,'美国')){
+          for(const [key,ensure] of [['List Price Currency',ensureListPriceCurrency],['List Price',ensureListPrice]]){
+            field=key;const result=await ensure(record);
+            if(result.absent||result.missing)skipped.push(key);else{checked.push(key);if(result.changed)repaired.push(key);}
+          }
+        }
         field='品牌';await ensureBrand(record.data['品牌']);
         const values=productValues(record,modelName);
         for(const key of Object.keys(productFields)){
@@ -309,9 +359,9 @@
         }
         // Re-read all three after asynchronous form updates; never trust old nodes.
         await sleep(2000);
-        for(const key of checked){field=key;const actual=C.text(productField(key)?.value);if(!actual||(values[key]&&actual!==values[key]))throw new Error(`${key}为空或与应填值不一致`);}
+        for(const key of checked.filter(key=>key in productFields)){field=key;const actual=C.text(productField(key)?.value);if(!actual||(values[key]&&actual!==values[key]))throw new Error(`${key}为空或与应填值不一致`);}
         field='制造商';if(brandItem()&&checked.includes('制造商')&&pageBrand()!==C.text(productField('制造商')?.value))throw new Error('制造商与页面品牌不一致');
-        if(C.sameSite(record.site,'德国')){
+        if(C.usesTranslatedContent(record.site)){
           for(const [key,ensure] of [['产品描述（德国翻译）',ensureGermanDescription],['Bullet Point（德国翻译）',ensureGermanBullets]]){
             field=key;const result=await ensure(record);if(result.absent)skipped.push(key);else{checked.push(key);if(result.changed)repaired.push(key);}
           }
@@ -493,12 +543,13 @@
       for(const key of Object.keys(productFields))await attempt(key,async()=>{const result=await ensureProductField(key,values[key]);if(result.absent)skip(key);else written.push(key);});
       await report('价格');
       put('Price',document.querySelector('input[name="price"]'));
-      const priceCurrency=C.sameSite(record.site,'英国')?'GBP(英镑)':C.sameSite(record.site,'德国')?'EUR(欧元)':'';
+      const priceCurrency=listPriceCurrency(record);
       if(priceCurrency){
-        await report('List Price Currency（按站点选择'+priceCurrency+'）');
-        if(await choose('List Price Currency',id('form_item_list_price.0.currency'),priceCurrency))written.push('List Price Currency：'+priceCurrency);
+        await attempt('List Price Currency（按站点选择'+priceCurrency+'）',async()=>{
+          const result=await ensureListPriceCurrency(record);if(result.absent)skip('List Price Currency');else written.push('List Price Currency：'+result.value);
+        });
       }
-      const priceField=id('form_item_list_price.0.value_with_tax')||id('form_item_list_price.0.value');put('List Price',priceField);
+      await attempt('List Price',async()=>{const result=await ensureListPrice(record);if(result.absent)skip('List Price');else if(!result.missing)written.push('List Price');});
       put('Color',id('form_item_color.0.value'));
       await attempt('容量',async()=>{if(record.data['容量']){
         const attributes=all('.ant-form-item');
@@ -538,11 +589,11 @@
       // Observed collector sets a discount price without dates, blocking publication.
       if(promo?.value&&dates.every(x=>!x)){input(promo,'');written.push('清除无起止时间的采集促销价');}});
       let titleUpdate;
-      await attempt(C.sameSite(record.site,'德国')?'产品标题（德国翻译）':'产品标题数量',async()=>{
+      await attempt(C.usesTranslatedContent(record.site)?'产品标题（德国翻译）':'产品标题数量',async()=>{
         titleUpdate=await ensureTitleQuantity(record);
         if(titleUpdate.changed)written.push(titleUpdate.mode==='german_translation'?'产品标题（德国翻译）':'产品标题数量');
       });
-      if(C.sameSite(record.site,'德国')){
+      if(C.usesTranslatedContent(record.site)){
         for(const [key,ensure] of [['产品描述（德国翻译）',ensureGermanDescription],['Bullet Point（德国翻译）',ensureGermanBullets]])await attempt(key,async()=>{
           const result=await ensure(record);if(result.absent)skip(key);else written.push(key);
         });
@@ -554,7 +605,7 @@
     async publish({record}={}){
       try{
         checkIdentity(record);
-        if(C.isNewProduct(record)&&!germanImageState().done)throw new Error('新品图片尚未确认只保留一张300×300主图');
+        if(C.shouldProcessImages(record)&&!germanImageState().done)throw new Error('商品图片尚未确认只保留一张400×400主图');
         const target=await until(()=>shown('button').find(e=>clean(e.textContent)==='保存并发布'&&!e.disabled&&!e.classList.contains('ant-btn-loading')),'保存并发布按钮就绪',10000);
         checkIdentity(record);click(target);
       }catch(e){e.notSubmitted=true;throw e;}

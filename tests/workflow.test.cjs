@@ -35,7 +35,7 @@ function scenario(records,options={}){
     if(a==='retry')retried=true;
     if(a==='progress')return {done:true,text:'已完成',...(options.unknownCounts?{}:{failed:options.retry&&!retried?1:0})};
     if(a==='fill'){assert.equal(args.modelName,'/01');assert.equal(args.continueOnError,true);if(applies('fieldError')){const e=new Error('填写【配送渠道】失败：选项未展开');e.field='配送渠道';e.completedFields=['库存数量清空'];throw e;}return {written:['UPC','FBA'],skipped:options.skipped||[],warnings:options.fieldWarnings||[],...(options.filledTitle===undefined?{}:{title:options.filledTitle,titleUpdate:options.titleUpdate})};}
-    if(a==='germanNewImages'){if(applies('imageError'))throw new Error('图片保存后未确认应用300×300主图');return {done:!options.imageIncomplete,count:1,size:'300 X 300',src:'new-image'};}
+    if(a==='germanNewImages'){if(applies('imageError'))throw new Error('图片保存后未确认应用400×400主图');return {done:!options.imageIncomplete,count:1,size:'400 X 400',src:'new-image'};}
     if(a==='preflight'){assert.equal(sleeps.at(-1)?.ms,2000);if(applies('preflightError')){const e=new Error('提交前检查【Model Name】失败：型号名称仍为空');e.field='Model Name';throw e;}return {checked:['制造商','Model Number','Model Name'],repaired:options.repaired||[]};}
     if(a==='publish'){assert.equal(args.record.productId,editorId);if(applies('noClick')){const e=new Error('保存并发布按钮不可点击');e.notSubmitted=true;throw e;}if(applies('uncertain')){const e=new Error('连接断开');e.uncertain=true;throw e;}published.add(editorId);}
     if(a==='publishStatus'){if(applies('statusError'))throw new Error('读取发布结果时连接断开');if(applies('pendingStatus'))return {done:false};if(applies('noConfirmation'))return {done:true};return applies('validation')?{done:true,failed:true,text:'请输入型号名称'}:{done:true,submitted:true};}
@@ -45,8 +45,8 @@ function scenario(records,options={}){
 }
 test('分组批量认领和移动，只提交本批次ID，以发布成功弹窗完成',async()=>{const s=scenario([product(1),product(2)]);await s.run();assert.equal(s.job.state,'done');assert.ok(s.job.rows.every(r=>r.status==='已发布'));assert.equal(s.sent.filter(x=>x.a==='collect').length,1);assert.equal(s.sent.find(x=>x.a==='claim').args.ids.length,2);});
 
-test('所有站点新品在发布前处理图片，空白或否不处理',async()=>{
-  for(const [site,value,expected] of [['DE','是',1],['德国','是',1],['英国','是',1],['UK','是',1],['美国','是',1],['DE','',0],['英国','否',0]]){
+test('所有站点新品及美国全部商品在发布前处理图片',async()=>{
+  for(const [site,value,expected] of [['DE','是',1],['德国','是',1],['英国','是',1],['UK','是',1],['美国','是',1],['US','否',1],['美国','',1],['US',undefined,1],['DE','',0],['德国','否',0],['英国','否',0]]){
     const record=product();record.site=site;record.data['德国标题翻译']='Korb';record.data['新品']=value;
     const s=scenario([record],{pageSite:site});await s.run();assert.equal(record.status,'已发布');
     const actions=s.sent.map(x=>x.a);assert.equal(actions.filter(x=>x==='germanNewImages').length,expected);
@@ -275,4 +275,31 @@ test('德国批次忽略产品数量，使用完整德国翻译，后续校验�
 
 test('旧德国批次缺少翻译时不采集或发布',async()=>{
   const record=product();record.site='DE';const s=scenario([record]);await s.run();assert.equal(record.status,'失败');assert.match(record.error,/德国标题翻译/);assert.equal(s.sent.filter(x=>['collect','fill','publish'].includes(x.a)).length,0);
+});
+
+test('美国别名混用时合并认领，恢复批次使用德国标题翻译并忽略产品数量',async()=>{
+  for(const pageSite of ['US','美国']){
+    const records=[product(1),product(2)];
+    for(const [i,r] of records.entries()){r.site=i?'美国':'US';r.data['德国标题翻译']='2 Pcs Bonnet Set';r.data['产品数量']='invalid';r.data['新品']=i?'否':'';}
+    const s=scenario(records,{pageSite,title:'12 Pack Original',filledTitle:'2 Pcs Bonnet Set',titleUpdate:{mode:'german_translation',status:'translated'}});await s.run();
+    assert.ok(records.every(r=>r.status==='已发布'&&r.site==='美国'&&r.targetQuantity===''&&r.title==='2 Pcs Bonnet Set'));
+    assert.equal(s.sent.filter(x=>x.a==='claim').length,1);assert.equal(s.sent.find(x=>x.a==='claim').args.ids.length,2);
+    assert.equal(s.sent.filter(x=>x.a==='germanNewImages').length,2);assert.ok(s.job.logs.some(entry=>/美国标题使用表格中的德国标题翻译/.test(entry.message)));
+    assert.equal(global.DXMCore.resultTable(records)[1][2],'2 Pcs Bonnet Set');
+  }
+});
+
+test('美国非新品图片失败或未完成时阻止该条发布，继续下一条',async()=>{
+  for(const options of [{imageError:id=>id==='p0'},{imageIncomplete:true}]){
+    const records=[product(1),product(2)];for(const r of records){r.site='US';r.data['德国标题翻译']='Bonnet';r.data['新品']='否';}
+    const s=scenario(records,{...options,pageSite:'美国'});await s.run();
+    assert.equal(records[0].status,'失败');assert.match(records[0].error,/图片/);
+    assert.deepEqual(s.sent.filter(x=>x.a==='publish').map(x=>x.args.record.productId),options.imageIncomplete?[]:['p1']);
+    assert.equal(records[1].status,options.imageIncomplete?'失败':'已发布');
+  }
+});
+
+test('旧美国批次缺少德国标题翻译时不采集或发布',async()=>{
+  const record=product();record.site='US';const s=scenario([record]);await s.run();
+  assert.equal(record.status,'失败');assert.match(record.error,/美国站.*德国标题翻译/);assert.equal(s.sent.filter(x=>['collect','fill','publish'].includes(x.a)).length,0);
 });

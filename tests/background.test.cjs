@@ -17,8 +17,8 @@ function boot({failSave=false,noTabs=false,rejectRun=false,previous=null,navigat
 }
 const rows=()=>[1,2].map(i=>({source:`https://www.amazon.com/dp/B0TEST000${i}`,shop:'万万欣UK',site:'英国',targetShop:'旧的错误映射',data:{},error:'',status:'待执行'}));
 
-async function imageScenario({apply=true,disconnect=false,ambiguous=false,alreadyDone=false,notReady=false,noNewTab=false,pending=false,site='DE'}={}){
-  const record={site,data:{'新品':'是'},productId:'p1'},messages=[],removed=[];let opened=false,applied=false;
+async function imageScenario({apply=true,disconnect=false,ambiguous=false,alreadyDone=false,notReady=false,noNewTab=false,pending=false,site='DE',newProduct='是'}={}){
+  const record={site,data:{'新品':newProduct},productId:'p1'},messages=[],removed=[];let opened=false,applied=false;
   const product={id:202,url:'https://www.dianxiaomi.com/web/amazon/edit?id=p1'},url='https://www.dianxiaomi.com/web/newImageEditor';
   const b=boot({clock:{value:0},previous:{state:'done',tabId:202,rows:[record]},tabsApi:{
     query:async()=>[product,{id:303,url,openerTabId:202},...(opened&&!noNewTab?[{id:404,url:pending?'about:blank':url,...(pending?{pendingUrl:url+'/'}:{}),openerTabId:202},{id:405,url,openerTabId:999},...(ambiguous?[{id:406,url,openerTabId:202}]:[])]:[])],
@@ -26,7 +26,7 @@ async function imageScenario({apply=true,disconnect=false,ambiguous=false,alread
     sendMessage:async(id,m)=>{
       messages.push({id,...m});
       if(m.action==='prepareGermanNewImages'){opened=!alreadyDone;return {ok:true,data:{done:alreadyDone,opened,src:'old',removed:5}};}
-      if(m.action==='germanImageState')return {ok:true,data:{done:applied,src:applied?'new':'old',size:applied?'300 X 300':'1500 X 1493',count:1}};
+      if(m.action==='germanImageState')return {ok:true,data:{done:applied,src:applied?'new':'old',size:applied?'400 X 400':'1500 X 1493',count:1}};
       if(m.kind==='DXM_IMAGE_ACTION'){
         assert.equal(id,404,'only newly opened editor for this product is controlled');
         if(m.action==='ready')return {ok:true,data:{ready:!notReady}};
@@ -59,9 +59,18 @@ test('德国新品保存未应用或编辑器未就绪时失败，不重复保�
     assert.equal(messages.filter(m=>m.action==='save').length,options.notReady?0:1);assert.deepEqual(removed,[]);
   }
 });
-test('德国新品编辑器歧义时不裁剪，已是一张300×300时不重开',async()=>{
+test('德国新品编辑器歧义时不裁剪，已是一张400×400时不重开',async()=>{
   const a=await imageScenario({ambiguous:true});await assert.rejects(()=>a.b.images(a.record),/多个新标签/);assert.equal(a.messages.filter(m=>m.kind==='DXM_IMAGE_ACTION').length,0);
   const b=await imageScenario({alreadyDone:true});assert.equal((await b.b.images(b.record)).done,true);assert.equal(b.messages.length,1);
+});
+
+test('美国无论新品、否或空白均执行完整图片流程，其他站点非新品被拒绝',async()=>{
+  for(const site of ['US','美国'])for(const newProduct of ['是','否','']){
+    const {b,record,messages}=await imageScenario({site,newProduct});assert.equal((await b.images(record)).done,true);
+    assert.deepEqual(messages.filter(m=>m.kind==='DXM_IMAGE_ACTION').map(m=>m.action),['ready','crop','save']);
+  }
+  const {b,record,messages}=await imageScenario({site:'DE',newProduct:'否'});
+  await assert.rejects(()=>b.images(record),/既非美国站/);assert.equal(messages.length,0);
 });
 
 test('新批次与恢复批次中的UK均按英国重新匹配店铺',async()=>{

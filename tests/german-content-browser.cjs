@@ -26,8 +26,8 @@ const {chromium}=require('playwright'),workspace=path.resolve(__dirname,'..'),as
       await page.addScriptTag({url:'http://migration.test/ckeditor/ckeditor.js'});
       await page.evaluate(async({site,title})=>{
         record.site=site;record.collectedTitle=record.title;record.data['德国标题翻译']=title;record.data['产品数量']=site==='UK'?'40':'quantity is ignored';
-        const siteItem=[...document.querySelectorAll('.ant-form-item')].find(item=>item.querySelector('.ant-form-item-label')?.textContent.trim()==='站点选择');siteItem.querySelector('.ant-select-selection-item').textContent=site==='UK'?'英国':'德国';
-        const currency=document.getElementById('form_item_list_price.0.currency').closest('.ant-select').querySelector('.ant-select-selection-item');if(currency)currency.textContent=site==='UK'?'GBP(英镑)':'EUR(欧元)';
+        const siteItem=[...document.querySelectorAll('.ant-form-item')].find(item=>item.querySelector('.ant-form-item-label')?.textContent.trim()==='站点选择');siteItem.querySelector('.ant-select-selection-item').textContent=DXMCore.sameSite(site,'美国')?(site==='美国'?'US':'美国'):site==='UK'?'英国':'德国';
+        const currency=document.getElementById('form_item_list_price.0.currency').closest('.ant-select').querySelector('.ant-select-selection-item');if(currency)currency.textContent=DXMCore.sameSite(site,'美国')?'USD(美元)':site==='UK'?'GBP(英镑)':'EUR(欧元)';
         document.getElementById('app').insertAdjacentHTML('beforeend','<div class="ant-form-item"><div data-path="product_description.0.value" class="ant-row ant-form-item-row"><div class="ant-form-item-label"><label class="ant-form-item-required" title="产品描述">产品描述</label></div><div class="ant-form-item-control"><textarea id="ckeditor14">Old English description</textarea></div></div></div>');
         for(let i=0;i<6;i++){
           const item=document.createElement('div');item.className='ant-form-item';item.innerHTML='<div class="ant-form-item-label"><label for="form_item_bulletPoints_'+i+'">'+(i===0?'* Bullet Point： AI生成':'')+'</label></div><textarea id="form_item_bulletPoints_'+i+'" rows="3"></textarea>';item.querySelector('textarea').value='Old English bullet '+i;document.getElementById('app').append(item);
@@ -63,6 +63,21 @@ const {chromium}=require('playwright'),workspace=path.resolve(__dirname,'..'),as
     await setup('DE','4 Stück <b>Schalen</b> & Zubehör');
     result=await page.evaluate(async()=>{const filled=await DXMAdapter.commands.fill({record,continueOnError:true});return {filled,text:CKEDITOR.instances.ckeditor14.document.getBody().getText().trim(),bold:CKEDITOR.instances.ckeditor14.document.getBody().find('b').count()};});
     assert.equal(result.text,'4 Stück <b>Schalen</b> & Zubehör');assert.equal(result.bold,0);
+    for(const site of ['US','美国']){
+      await setup(site,'2 Pcs <b>Bonnet</b> & Set');
+      result=await page.evaluate(async()=>{
+        const filled=await DXMAdapter.commands.fill({record,continueOnError:true});record.title=filled.title;
+        // Preflight must restore description and every bullet after form updates.
+        await new Promise(resolve=>CKEDITOR.instances.ckeditor14.setData('<p>Stale description</p>',resolve));
+        document.querySelectorAll('textarea[id^="form_item_bulletPoints_"]').forEach(field=>field.value='Stale bullet');
+        document.querySelectorAll('.ant-form-item-explain-error').forEach(e=>e.remove());
+        const checked=await DXMAdapter.commands.preflight({record});
+        return {filled,checked,text:CKEDITOR.instances.ckeditor14.document.getBody().getText().trim(),html:CKEDITOR.instances.ckeditor14.getData(),hidden:document.getElementById('ckeditor14').value,bullets:[...document.querySelectorAll('textarea[id^="form_item_bulletPoints_"]')].map(field=>field.value),currency:document.getElementById('form_item_list_price.0.currency').closest('.ant-select').querySelector('.ant-select-selection-item').textContent};
+      });
+      assert.equal(result.filled.title,'2 Pcs <b>Bonnet</b> & Set');assert.equal(result.text,result.filled.title);assert.equal(result.hidden,result.html);
+      assert.deepEqual(result.bullets,[result.filled.title,'','','','','']);assert.equal(result.currency,'USD(美元)');assert.equal(result.filled.warnings.length,0);
+      assert.ok(result.checked.repaired.includes('产品描述（德国翻译）'));assert.ok(result.checked.repaired.includes('Bullet Point（德国翻译）'));
+    }
     // UK keeps the quantity flow and leaves description and all bullets intact.
     await setup('UK');
     result=await page.evaluate(async()=>{const filled=await DXMAdapter.commands.fill({record,continueOnError:true});return {filled,requests:editorRequests,description:CKEDITOR.instances.ckeditor14.document.getBody().getText().trim(),bullets:[...document.querySelectorAll('textarea[id^="form_item_bulletPoints_"]')].map(field=>field.value)};});

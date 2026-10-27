@@ -68,7 +68,7 @@ async function raw(action,args={}){
   if(!result?.ok){const e=new Error(result?.error||'页面没有返回执行结果');e.field=result?.field;e.completedFields=result?.completedFields;e.notSubmitted=result?.notSubmitted;throw e;}return result.data;
 }
 async function germanNewImages(record){
-  if(!DXMCore.isNewProduct(record))throw new Error('本条未标记为新品');
+  if(!DXMCore.shouldProcessImages(record))throw new Error('本条既非美国站，也未标记为新品');
   const productTabId=job.tabId,before=new Set((await chrome.tabs.query({})).map(t=>t.id));
   const initial=await raw('prepareGermanNewImages',{record});if(initial.done)return initial;
   let editor;
@@ -106,7 +106,7 @@ async function germanNewImages(record){
       }
       await pause(300);
     }
-    throw new Error(`图片保存后未确认应用300×300主图${saveError?'：'+saveError.message:''}，保留页面核对`);
+    throw new Error(`图片保存后未确认应用400×400主图${saveError?'：'+saveError.message:''}，保留页面核对`);
   }finally{delete job.imageTabId;await save();}
 }
 const io={save,sleep:pause,

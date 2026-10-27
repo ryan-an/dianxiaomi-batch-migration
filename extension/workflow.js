@@ -158,18 +158,18 @@
             if(typeof filled.title==='string'&&filled.title){r.title=filled.title;r.titleQuantity=C.extractProductQuantity(r.title);}
             if(filled.titleUpdate){
               r.titleUpdate=filled.titleUpdate;
-              const message=filled.titleUpdate.mode==='german_translation'?'德国标题使用表格中的德国标题翻译':filled.titleUpdate.status==='updated'?`标题数量已修改：${filled.titleUpdate.originalQuantity} → ${filled.titleUpdate.targetQuantity}`:filled.titleUpdate.status==='no_match'?'标题未识别数量，保留原标题':filled.titleUpdate.status==='missing_target'?'表格产品数量为空，保留原标题':'标题数量与表格一致';
+              const message=filled.titleUpdate.mode==='german_translation'?`${C.normalizeSite(r.site)}标题使用表格中的德国标题翻译`:filled.titleUpdate.status==='updated'?`标题数量已修改：${filled.titleUpdate.originalQuantity} → ${filled.titleUpdate.targetQuantity}`:filled.titleUpdate.status==='no_match'?'标题未识别数量，保留原标题':filled.titleUpdate.status==='missing_target'?'表格产品数量为空，保留原标题':'标题数量与表格一致';
               await this.log(message,[r]);
             }
             if(r.skippedFields.length)await this.log(`页面没有这些字段，已跳过：${r.skippedFields.join('、')}`,[r]);
             await this.log(`已填写：${filled.written.join('、')}`,[r]);
             for(const warning of filled.warnings||[])await this.warn(r,'填写',warning);
           }catch(e){await this.warn(r,'填写',e);}
-          if(C.isNewProduct(r)){
-            await this.step('新品：保留主图并裁剪为300×300，保存并应用',[r]);
+          if(C.shouldProcessImages(r)){
+            await this.step(`${C.sameSite(r.site,'美国')?'美国站':'新品'}：保留主图并裁剪为400×400，保存并应用`,[r]);
             r.imageResult=await this.io.call('germanNewImages',{record:r});
-            if(!r.imageResult?.done)throw new Error('新品图片未确认应用成功');
-            await this.log('新品图片已确认：仅一张300×300主图',[r]);
+            if(!r.imageResult?.done)throw new Error('商品图片未确认应用成功');
+            await this.log('商品图片已确认：仅一张400×400主图',[r]);
           }
           await this.step('等待页面更新 2 秒后检查',[r]);await this.io.sleep(2000);this.guard();
           await this.step('提交前检查并补齐制造商、型号和型号名称',[r]);
@@ -206,7 +206,7 @@
           r.site=C.normalizeSite(r.site);
           if(r.title&&!r.collectedTitle)r.collectedTitle=r.title;
           r.collectedQuantity=C.extractProductQuantity(r.collectedTitle);
-          if(r.status==='待执行'){try{if(C.sameSite(r.site,'德国')){C.planProductTitle(r);r.targetQuantity='';}else r.targetQuantity=C.parseTargetProductQuantity(r.data?.['产品数量']);}catch(e){this.fail(r,e);}}
+          if(r.status==='待执行'){try{if(C.usesTranslatedContent(r.site)){C.planProductTitle(r);r.targetQuantity='';}else r.targetQuantity=C.parseTargetProductQuantity(r.data?.['产品数量']);}catch(e){this.fail(r,e);}}
         }
         for(const r of this.job.rows)if(r.status==='已提交待确认'){r.status='已发布';r.checkpoint='published';r.step='完成';r.error='';}
         const groups=new Map();for(const r of this.job.rows.filter(r=>r.status==='待执行')){const k=`${r.targetShop}|${r.site}`;if(!groups.has(k))groups.set(k,[]);groups.get(k).push(r);}

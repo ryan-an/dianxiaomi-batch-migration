@@ -1,6 +1,6 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');
 const X=require('../extension/vendor/xlsx.full.min.js'),C=require('../extension/core.js');
-const workbook=()=>X.read(fs.readFileSync('迁移数据.xls'));
+const workbook=()=>X.read(fs.readFileSync('店小秘自动采集迁移产品-英国数据.xls'));
 
 test('英国和UK双向等价，识别大小写及首尾空格，其他站点保持区分',()=>{
   for(const value of ['英国','UK','uk',' Uk ','ＵＫ']){assert.equal(C.normalizeSite(value),'英国');assert.ok(C.sameSite(value,'英国'));assert.ok(C.sameSite('UK',value));assert.equal(C.shopForSite('万万欣UK',value),'万万欣DE');}

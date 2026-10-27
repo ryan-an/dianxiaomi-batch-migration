@@ -38,20 +38,23 @@
     return result;
   }
   const alias = Object.freeze({ '万万欣UK|英国': '万万欣DE' });
-  function normalizeSite(value) {const site=norm(value);return ['uk','英国'].includes(site)?'英国':['de','德国'].includes(site)?'德国':text(value);}
+  function normalizeSite(value) {const site=norm(value);return ['uk','英国'].includes(site)?'英国':['de','德国'].includes(site)?'德国':['us','美国'].includes(site)?'美国':text(value);}
   function sameSite(a,b) {return norm(normalizeSite(a))===norm(normalizeSite(b));}
   function isNewProduct(record){return norm(record?.data?.['新品'])==='是';}
+  function shouldProcessImages(record){return sameSite(record?.site,'美国')||isNewProduct(record);}
+  function usesTranslatedContent(site){return sameSite(site,'德国')||sameSite(site,'美国');}
   function siteInText(value,site) {
     const s=text(value).normalize('NFKC').replace(/「[^」]*」/g,' ');
     if(sameSite(site,'英国'))return /英国|(?:^|[^\p{L}\p{N}])uk(?=$|[^\p{L}\p{N}])/iu.test(s);
     if(sameSite(site,'德国'))return /德国|(?:^|[^\p{L}\p{N}])de(?=$|[^\p{L}\p{N}])/iu.test(s);
+    if(sameSite(site,'美国'))return /美国|(?:^|[^\p{L}\p{N}])us(?=$|[^\p{L}\p{N}])/iu.test(s);
     return !!text(site)&&s.includes(text(site));
   }
   function shopForSite(shop,site,aliases=alias) {return aliases[`${shop}|${normalizeSite(site)}`]||aliases[`${shop}|${text(site)}`]||shop;}
   function planProductTitle(record){
-    if(sameSite(record.site,'德国')){
+    if(usesTranslatedContent(record.site)){
       const title=text(record.data?.['德国标题翻译']);
-      if(!title)throw new Error('德国站“德国标题翻译”不能为空');
+      if(!title)throw new Error(`${normalizeSite(record.site)}站“德国标题翻译”不能为空`);
       return {mode:'german_translation',title,changed:title!==text(record.title),status:'translated',originalQuantity:extractProductQuantity(record.title),targetQuantity:''};
     }
     return {mode:'quantity',...updateProductTitleQuantity(record.title,record.data?.['产品数量'])};
@@ -89,7 +92,7 @@
       try {
         item.key = sourceKey(item.source);
         if (!item.shop || !item.site) throw new Error('缺少店铺或站点');
-        if(sameSite(item.site,'德国')){planProductTitle(item);item.targetQuantity='';}
+        if(usesTranslatedContent(item.site)){planProductTitle(item);item.targetQuantity='';}
         else item.targetQuantity=parseTargetProductQuantity(data['产品数量']);
         if (seen.has(item.key)) throw new Error('来源链接重复，未重复执行');
         seen.add(item.key);
@@ -136,7 +139,7 @@
     if (/克|grams|^g$/.test(s)) return 'g';
     return norm(v);
   }
-  const api = {text,norm,extractProductQuantity,parseTargetProductQuantity,updateProductTitleQuantity,planProductTitle,resultColumns,alias,normalizeSite,sameSite,isNewProduct,siteInText,shopForSite,sourceKey,parseWorkbook,uniqueMatch,resultTable,csv,unitKey};
+  const api = {text,norm,extractProductQuantity,parseTargetProductQuantity,updateProductTitleQuantity,planProductTitle,resultColumns,alias,normalizeSite,sameSite,isNewProduct,shouldProcessImages,usesTranslatedContent,siteInText,shopForSite,sourceKey,parseWorkbook,uniqueMatch,resultTable,csv,unitKey};
   root.DXMCore = api;
   if (typeof module !== 'undefined') module.exports = api;
 })(typeof globalThis === 'object' ? globalThis : this);

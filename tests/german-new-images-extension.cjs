@@ -10,6 +10,7 @@ const read=name=>fs.readFileSync(path.join(root,'docs/evidence',name),'utf8');
   const profile=fs.mkdtempSync(path.join(os.tmpdir(),'dxm-new-images-'));
   const extension=process.env.DXM_TEST_EXTENSION_DIR?path.resolve(process.env.DXM_TEST_EXTENSION_DIR):path.join(root,'extension');
   const popupBlocked=process.argv.includes('--popup-blocked');
+    const us=process.argv.includes('--us');
   const context=await chromium.launchPersistentContext(profile,{executablePath,headless:true,ignoreDefaultArgs:popupBlocked?['--disable-popup-blocking']:[],args:[`--disable-extensions-except=${extension}`,`--load-extension=${extension}`]});
   try{
     const menu=JSON.parse(read('german-new-image-menu.json')).join('');
@@ -20,7 +21,7 @@ const read=name=>fs.readFileSync(path.join(root,'docs/evidence',name),'utf8');
       window.hoverCount=0;window.editClicks=0;const menu=document.querySelector('.ant-dropdown');menu.style.display='none';document.querySelector('#imageInfo').onclick=event=>{if(event.target.closest('a.icon_delete'))event.target.closest('.img-item').remove();if(event.target.closest('a.icon-operate')){editClicks++;menu.style.display='none';}};
       document.querySelector('#imageInfo').onmouseover=event=>{if(event.target.closest('a.icon-operate')){hoverCount++;setTimeout(()=>menu.style.display='block',80);}};
       menu.querySelector('[title="小秘美图"]').onclick=()=>{menu.style.display='none';window.open('/web/newImageEditor','_blank');};
-      addEventListener('message',event=>{if(event.origin==='${origin}'&&event.data==='fixture-apply'){const card=document.querySelector('#imageInfo .img-item');card.querySelector('img').src='${origin}/fixture-applied.jpg';card.querySelector('.img-size').textContent='300 X 300';}});
+      addEventListener('message',event=>{if(event.origin==='${origin}'&&event.data==='fixture-apply'){const card=document.querySelector('#imageInfo .img-item');card.querySelector('img').src='${origin}/fixture-applied.jpg';card.querySelector('.img-size').textContent='400 X 400';}});
     </script>`;
     const editor=read('german-new-image-crop.html').replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'')+`<script>
       window.fixtureEvents=[];const panel=document.querySelector('.crop_module .parameter');panel.style.display='none';
@@ -32,7 +33,7 @@ const read=name=>fs.readFileSync(path.join(root,'docs/evidence',name),'utf8');
     </script>`;
     const remote=[];await context.route('**/*',route=>{
       const url=new URL(route.request().url());let body;
-      if(url.origin===origin&&url.pathname==='/web/amazon/edit')body=product;
+      if(url.origin===origin&&url.pathname==='/web/amazon/edit')body=us?product.replace('>德国</span>','>美国</span>'):product;
       else if(url.origin===origin&&url.pathname==='/web/newImageEditor')body='<iframe src="/api/meituv2/editor.htm"></iframe>';
       else if(url.origin===origin&&url.pathname==='/api/meituv2/editor.htm')body=editor;
       if(body!==undefined)return route.fulfill({body,contentType:'text/html; charset=utf-8'});
@@ -41,14 +42,14 @@ const read=name=>fs.readFileSync(path.join(root,'docs/evidence',name),'utf8');
     const worker=context.serviceWorkers()[0]||await context.waitForEvent('serviceworker');
     const page=await context.newPage();await page.goto(origin+'/web/amazon/edit?id=p1');
     await worker.evaluate(()=>load());
-    const result=await worker.evaluate(async()=>{
+    const result=await worker.evaluate(async us=>{
       const product=(await chrome.tabs.query({})).find(tab=>tab.url==='https://www.dianxiaomi.com/web/amazon/edit?id=p1');
-      const record={productId:'p1',source:'https://amazon.com/dp/B0TEST0001',title:'Korb',site:'DE',targetShop:'Shop',data:{'新品':'是'}};
+      const record={productId:'p1',source:'https://amazon.com/dp/B0TEST0001',title:'Korb',site:us?'US':'DE',targetShop:'Shop',data:{'新品':us?'否':'是'}};
       job={id:'offline-extension-test',state:'running',stop:false,tabId:product.id,rows:[record],logs:[]};await save();
       try{return await io.call('germanNewImages',{record});}catch(error){return {error:error.message};}
-    });
+    },us);
     if(popupBlocked){assert.match(result.error,/未检测到新标签.*拦截弹窗/);assert.equal(context.pages().filter(page=>page.url()===origin+'/web/newImageEditor').length,0);console.log('PASS: popup-blocking enabled, synthetic click blocked, error distinguishes missing new tab. Offline only.');return;}
-    assert.equal(result.done,true);assert.equal(result.count,1);assert.equal(result.removed,5);assert.equal(result.size,'300 X 300');assert.equal(result.src,origin+'/fixture-applied.jpg');
+    assert.equal(result.done,true);assert.equal(result.count,1);assert.equal(result.removed,5);assert.equal(result.size,'400 X 400');assert.equal(result.src,origin+'/fixture-applied.jpg');
     assert.equal((await page.locator('#imageInfo .img-item').all()).length,1);
     assert.equal(await page.evaluate(()=>hoverCount),1);assert.equal(await page.evaluate(()=>editClicks),0);
     assert.equal(context.pages().filter(page=>page.url()===origin+'/web/newImageEditor').length,0);
