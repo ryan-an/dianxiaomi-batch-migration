@@ -16,3 +16,13 @@ test('有进行中状态或加载动画时，即使已有统计也不能提前�
 test('保留全部失败和部分失败数量供工作流中止',()=>{
   assert.equal(B.move(final(7,1),8).failed,1);assert.equal(B.move(final(0,8),8).failed,8);
 });
+
+test('只允许本组子变体的重复移入提示进入待发布核对，其他失败仍阻止',()=>{
+  const text='执行成功：1个\n执行失败：2\n产品：101\u2003失败原因：只能处在采集箱中的产品才能移入待发布！\n产品：102\u2003失败原因：只能处在采集箱中的产品才能移入待发布！';
+  const result=B.move({title:'执行结果',text},3);
+  assert.equal(B.movedChildren(result,['101','102']),true);
+  for(const ids of [[],['101'],['101','103']])assert.equal(B.movedChildren(result,ids),false);
+  assert.equal(B.movedChildren({...result,failed:1},['101','102']),false);
+  assert.equal(B.movedChildren({...result,success:0},['101','102']),false);
+  assert.equal(B.movedChildren({...result,failures:[{id:'101',reason:'其他错误'},{id:'102',reason:'只能处在采集箱中的产品才能移入待发布！'}]},['101','102']),false);
+});

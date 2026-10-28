@@ -1,4 +1,4 @@
-importScripts('core.js','workflow.js','work-target.js');
+importScripts('core.js','batch-state.js','workflow.js','work-target.js');
 let job=null,busy=false,loadPromise=null,resetting=false,panelOpening=false;
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 chrome.action.onClicked.addListener(async tab=>{
@@ -106,7 +106,7 @@ async function germanNewImages(record){
       }
       await pause(300);
     }
-    throw new Error(`图片保存后未确认应用400×400主图${saveError?'：'+saveError.message:''}，保留页面核对`);
+    throw new Error(`图片保存后未确认应用500×500主图${saveError?'：'+saveError.message:''}，保留页面核对`);
   }finally{delete job.imageTabId;await save();}
 }
 const io={save,sleep:pause,
@@ -149,7 +149,7 @@ const io={save,sleep:pause,
     if(!allowed(url))throw new Error('不允许跳转到店小秘工作流之外的地址');
     if(navigate&&new URL(url).pathname==='/web/amazon/edit')throw new Error('编辑页只能从待发布列表点击进入');
     if(job.stop)throw new Error('用户已停止');
-    if(job.pendingMove){const e=new Error('移入待发布结果尚未确认，已阻止刷新或跳转');e.uncertain=true;throw e;}
+    if(job.pendingMove&&!(job.pendingMove.reconciling&&url==='https://www.dianxiaomi.com/web/amazon/pageList/offline')){const e=new Error('移入待发布结果尚未确认，已阻止刷新或跳转');e.uncertain=true;throw e;}
     if(navigate){
       const current=await chrome.tabs.get(job.tabId);
       if(new URL(current.url).pathname==='/web/amazon/edit'){

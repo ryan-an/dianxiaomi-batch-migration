@@ -207,7 +207,7 @@
   }
   function germanImageState(){
     const cards=productImages(),main=imageInfo(cards[0]);
-    return {...main,count:cards.length,done:cards.length===1&&!!main.src&&/^400\s*[xX×]\s*400$/.test(main.size)};
+    return {...main,count:cards.length,done:cards.length===1&&!!main.src&&/^500\s*[xX×]\s*500$/.test(main.size)};
   }
   async function ensureGermanBullets(record){
     const title=C.planProductTitle(record).title;
@@ -242,12 +242,19 @@
   }
   function sameSource(a,b){try{return C.sourceKey(a)===C.sourceKey(b);}catch{return false;}}
   function rows(){
-    const map=new Map();
+    const map=new Map();let group=null;
     for(const row of all('.vxe-table--main-wrapper tr.vxe-body--row')){
       const links=all('a[href]',row),edit=links.find(a=>/\/web\/(productCrawl|amazon)\/edit\?id=/.test(a.getAttribute('href')));
       const src=links.find(a=>{try{const u=new URL(a.href);return /^https?:$/.test(u.protocol)&&u.hostname!=='www.dianxiaomi.com'&&!/\/dp\/(null|undefined)/.test(u.pathname);}catch{return false;}});
       const rowId=row.getAttribute('rowid');if(!src||!rowId)continue;
-      // List grouping rows have ASIN links but no source cell / title; never process those.
+      // Amazon group parents own their variants. Moving children again produces
+      // "只能处在采集箱中的产品才能移入待发布" after the parent already moved them.
+      const isAmazon=location.pathname.includes('/amazon/');
+      const editControl=exact('编辑','a,span',row);
+      if(isAmazon&&!editControl.length){
+        if(group&&sameSource(src.href,group.source))group.variantIds.push(rowId);
+        continue;
+      }
       const titleEl=row.querySelector('.no-new-line4[title]')||all('[title]',row).find(e=>e.getAttribute('title')&&e.querySelector('span'));
       if(!titleEl&&!location.pathname.includes('productCrawl'))continue;
       let persistentId=edit?new URL(edit.getAttribute('href'),location.origin).searchParams.get('id'):location.pathname.includes('productCrawl')?`source:${C.sourceKey(src.href)}`:rowId;
@@ -255,7 +262,8 @@
         if(map.get(persistentId).rowId===rowId)continue;
         persistentId+=`|duplicate:${rowId}`;
       }
-      map.set(persistentId,{id:persistentId,rowId,source:src.href,title:C.text(titleEl?.getAttribute('title')),text:row.innerText,editUrl:edit?new URL(edit.getAttribute('href'),location.origin).href:'',fba:!!row.querySelector('.amazonFBA'),links:links.map(a=>({text:C.text(a.textContent),href:a.href}))});
+      const item={id:persistentId,rowId,source:src.href,title:C.text(titleEl?.getAttribute('title')),text:row.innerText,editUrl:edit?new URL(edit.getAttribute('href'),location.origin).href:'',fba:!!row.querySelector('.amazonFBA'),links:links.map(a=>({text:C.text(a.textContent),href:a.href})),variantIds:[]};
+      map.set(persistentId,item);group=isAmazon&&row.querySelector('.vxe-tree--node-btn')?item:null;
     }
     return [...map.values()];
   }
@@ -344,6 +352,7 @@
       const checked=[],repaired=[],skipped=[];let field='核对当前产品';
       try{
         checkIdentity(record);await settled();
+        if(record.sellingMode==='single'){field='售卖形式';const sale=await commands.ensureSellingMode({record});checked.push(field);if(sale.changed)repaired.push(field);}
         if(C.sameSite(record.site,'美国')){
           for(const [key,ensure] of [['List Price Currency',ensureListPriceCurrency],['List Price',ensureListPrice]]){
             field=key;const result=await ensure(record);
@@ -373,6 +382,19 @@
         field='页面必填项';const errors=requiredFieldErrors();if(errors.length)throw new Error(errors.join('；'));
         return {checked,repaired,skipped};
       }catch(e){e.field=field;e.completedFields=checked;e.message=`提交前检查【${field}】失败：${e.message}`;throw e;}
+    },
+    async ensureSellingMode({record}={}){
+      checkIdentity(record);
+      const option=()=>one(shown('label').filter(e=>clean(e.textContent)==='单品'&&e.querySelector('input[type="radio"]')),'售卖形式单品');
+      let changed=false;
+      for(let attempt=0;attempt<3;attempt++){
+        const field=option().querySelector('input');
+        if(field.disabled)throw new Error('售卖形式单品选项被禁用');
+        if(field.checked)return {changed,value:'单品'};
+        click(option());changed=true;await sleep(300);
+        if(option().querySelector('input').checked)return {changed,value:'单品'};
+      }
+      throw new Error('售卖形式改为单品后未保留');
     },
     async ensureBoxCount(){
       const initial=boxCountField();if(!initial)return {changed:false,absent:true};
@@ -499,14 +521,15 @@
     },
     async move({ids,waitMode}){
       if(waitMode!=='poll')throw new Error('扩展文件版本不一致，请重新加载扩展并刷新页面后再执行');
+      const selected=rows().filter(r=>ids.includes(r.id)),childIds=selected.flatMap(r=>r.variantIds||[]);
       await selectRows(ids);await batchMenu('批量移入待发布');
       const m=await until(()=>modal(),'移入提示');if(!m.textContent.includes('移入待发布'))throw new Error('移入提示内容变化');click(button('确定',m));
-      return {submitted:true};
+      return {submitted:true,expected:ids.length+childIds.length,childIds};
     },
     async moveProgress({expected}){return moveState(expected);},
-    async closeMoveProgress({expected}){
+    async closeMoveProgress({expected,duplicateChildIds=[]}){
       const result=moveState(expected);
-      if(!result.done||result.failed||result.success!==expected)throw new Error('移入结果尚未全部成功，保留当前弹窗');
+      if(!result.done||((result.failed||result.success!==expected)&&!root.DXMBatchState.movedChildren(result,duplicateChildIds)))throw new Error('移入结果尚未全部成功，保留当前弹窗');
       const m=one(shown('.ant-modal').filter(e=>e.querySelector('.ant-modal-title')?.textContent.includes('执行结果')),'移入最终结果');
       click(button('关闭',m));await until(()=>!visible(m),'关闭移入最终结果');return result;
     },
@@ -526,6 +549,7 @@
       const attempt=async(field,fn)=>{await report(field);try{return await fn();}catch(e){return warning(e);}};
       try{
       checkIdentity(record);
+      if(record.sellingMode==='single'){await commands.ensureSellingMode({record});written.push('售卖形式：单品');}
       await attempt('产品分类（为空时自动识别）',async()=>{const category=await commands.ensureCategory();if(category.changed)written.push(`按平台推荐识别分类：${category.recommendedType?category.recommendedType+' / ':''}${category.recommendedPath||category.category}`);});
       const put=(key,element,value=record.data[key])=>{if(value!==undefined&&C.text(value)!==''){currentField=key;if(!element)return skip(key);try{input(element,value);written.push(key);return true;}catch(e){return warning(e);}}return false;};
       await attempt('展开更多属性',async()=>{const more=exact('更多属性','div,span').sort((a,b)=>a.children.length-b.children.length)[0];if(more){click(more);await sleep(200);}});
@@ -605,7 +629,8 @@
     async publish({record}={}){
       try{
         checkIdentity(record);
-        if(C.shouldProcessImages(record)&&!germanImageState().done)throw new Error('商品图片尚未确认只保留一张400×400主图');
+        if(record.sellingMode==='single')await commands.ensureSellingMode({record});
+        if(C.shouldProcessImages(record)&&!germanImageState().done)throw new Error('商品图片尚未确认只保留一张500×500主图');
         const target=await until(()=>shown('button').find(e=>clean(e.textContent)==='保存并发布'&&!e.disabled&&!e.classList.contains('ant-btn-loading')),'保存并发布按钮就绪',10000);
         checkIdentity(record);click(target);
       }catch(e){e.notSubmitted=true;throw e;}

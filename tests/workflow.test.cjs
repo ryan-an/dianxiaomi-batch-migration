@@ -1,4 +1,4 @@
-const {test}=require('node:test'),assert=require('node:assert/strict');global.DXMCore=require('../extension/core.js');const Workflow=require('../extension/workflow.js');
+const {test}=require('node:test'),assert=require('node:assert/strict');global.DXMCore=require('../extension/core.js');global.DXMBatchState=require('../extension/batch-state.js');const Workflow=require('../extension/workflow.js');
 const product=(i=1)=>({index:i-1,source:`https://www.amazon.com/dp/B0TEST000${i}`,shop:'万万欣UK',targetShop:'万万欣DE',site:'英国',data:{'Model Number':'/01'},title:'',status:'待执行',history:[],error:''});
 function scenario(records,options={}){
   const job={rows:records,logs:[],state:'running',options:{modelNameFromNumber:true}};
@@ -6,8 +6,8 @@ function scenario(records,options={}){
   const applies=key=>typeof options[key]==='function'?options[key](editorId):options[key];
   const titleFor=r=>options.title||`Title ${r.index}`;
   const crawl=r=>({id:`c${r.index}`,rowId:`row${r.index}`,source:r.source,title:titleFor(r),text:titleFor(r)});
-  const listing=r=>({id:`p${r.index}`,source:r.source,title:options.listingTitle||titleFor(r),text:`Title ${r.index}「万万欣DE」${options.pageSite||'英国'}`,editUrl:`https://www.dianxiaomi.com/web/amazon/edit?id=p${r.index}`,links:[]});
-  const io={save:async()=>{},closeEditor:async r=>{assert.equal(r.status,'已发布');sent.push({a:'closeEditor',id:r.productId});},sleep:async ms=>{sleeps.push({ms,after:sent.at(-1)?.a});if(options.now)options.now.value+=ms;if(options.stopDuringWait&&ms===2000)job.stop=true;},waitEditor:async(u,r)=>{sent.push({a:'waitEditor',url:u});assert.equal(editorId,r.productId);},open:async u=>{assert.ok(!job.pendingMove,'结果确认前不能跳转');assert.ok(!u.includes('/amazon/edit?'),'编辑页只能从列表点击进入');sent.push({a:'open',url:u});path=u;editorId=new URL(u).searchParams.get('id');},call:async(a,args={},risky=false)=>{
+  const listing=r=>({id:`p${r.index}`,source:r.source,title:options.listingTitle||titleFor(r),text:`Title ${r.index}「万万欣DE」${options.pageSite||'英国'}`,editUrl:`https://www.dianxiaomi.com/web/amazon/edit?id=p${r.index}`,links:[],variantIds:options.variantChildren?(path.endsWith('/offline')&&options.missingVariant?['101']:['101','102']):[]});
+  const io={save:async()=>{},closeEditor:async r=>{assert.equal(r.status,'已发布');sent.push({a:'closeEditor',id:r.productId});},sleep:async ms=>{sleeps.push({ms,after:sent.at(-1)?.a});if(options.now)options.now.value+=ms;if(options.stopDuringWait&&ms===2000)job.stop=true;},waitEditor:async(u,r)=>{sent.push({a:'waitEditor',url:u});assert.equal(editorId,r.productId);},open:async u=>{assert.ok(!job.pendingMove||(job.pendingMove.reconciling&&u.endsWith('/offline')),'结果确认前不能跳转');assert.ok(!u.includes('/amazon/edit?'),'编辑页只能从列表点击进入');sent.push({a:'open',url:u});path=u;editorId=new URL(u).searchParams.get('id');},call:async(a,args={},risky=false)=>{
     sent.push({a,args,risky});
     if(a==='searchTitle')search=args.title;
     if(a==='editProduct'){assert.ok(path.endsWith('/offline'));editorId=args.record.productId;path=`https://www.dianxiaomi.com/web/amazon/edit?id=${editorId}`;return {url:path};}
@@ -17,25 +17,28 @@ function scenario(records,options={}){
       if(path.includes('productCrawl')){
         if(tab==='全部')rows=options.existing?[crawl(records[0])]:[];
         if(tab==='采集失败'&&options.retry&&!retried)rows=[crawl(records[0]),...(options.historicalFailure?[crawl(records[1]),{...crawl(product(9)),id:'foreign'}]:[])];
-        if(tab==='未认领'&&!claimed){rows=records.filter((r,i)=>!(options.retry&&!retried&&i===0)).map(crawl);if(options.crawlAmbiguous)rows.push({...crawl(records[0]),id:'duplicate-crawl'});}
+        if(tab==='未认领'&&!claimed){rows=records.filter((r,i)=>!(options.retry&&!retried&&i===0)).map(crawl);if(options.crawlAmbiguous)rows.push({...crawl(records[0]),id:'c0-variant',...(options.differentTitle?{title:'Different title'}:{})});}
       }else if(path.endsWith('/draft'))rows=claimed&&!moved?records.map(listing):[];
       else if(path.endsWith('/offline'))rows=records.map(listing).filter(row=>!options.filterSearch||row.title.includes(search));
       else if(path.endsWith('/online'))rows=records.filter(r=>published.has(`p${r.index}`)).map(listing);
-      if(options.ambiguous&&path.endsWith('/draft'))rows.push({...listing(records[0]),id:'duplicate'});
+      if(options.ambiguous&&(path.endsWith('/draft')||path.endsWith('/offline')))rows.push({...listing(records[0]),id:'p0-variant',...(options.differentTitle?{title:'Different title'}:{})});
+      if(options.reverseOffline&&path.endsWith('/offline'))rows.reverse();
       return {rows,hasNext:false,signature:JSON.stringify(rows.map(r=>r.id))};
     }
     if(a==='claim'){assert.ok(args.ids.every(x=>x.startsWith('c')));assert.equal(args.shop,'万万欣DE');claimed=true;}
-    if(a==='move'){assert.ok(args.ids.every(x=>x.startsWith('p')));return {submitted:true};}
+    if(a==='move'){assert.ok(args.ids.every(x=>x.startsWith('p')));return {submitted:true,...(options.variantChildren?{expected:3,childIds:['101','102']}:{})};}
     if(a==='moveProgress'){
       movePolls++;
       if(options.moveDisconnected)throw new Error('进度连接中断');
       if(movePolls<(options.movePolls||1))return {done:false,text:`正在移入 ${movePolls}`};
-      moved=true;return {done:true,success:records.length-(options.moveFailed||0),failed:options.moveFailed||0,text:'执行结果'};
+      if(options.variantChildren){moved=true;return {done:true,success:1,failed:2,failures:['101','102'].map(id=>({id,reason:options.childError||'只能处在采集箱中的产品才能移入待发布！'})),text:'执行结果'};}
+      moved=true;return {done:true,success:records.length+(options.ambiguous&&!options.differentTitle?1:0)-(options.moveFailed||0),failed:options.moveFailed||0,text:'执行结果'};
     }
     if(a==='retry')retried=true;
+    if(a==='ensureSellingMode'&&options.saleError)throw new Error('售卖形式单品选项被禁用');
     if(a==='progress')return {done:true,text:'已完成',...(options.unknownCounts?{}:{failed:options.retry&&!retried?1:0})};
     if(a==='fill'){assert.equal(args.modelName,'/01');assert.equal(args.continueOnError,true);if(applies('fieldError')){const e=new Error('填写【配送渠道】失败：选项未展开');e.field='配送渠道';e.completedFields=['库存数量清空'];throw e;}return {written:['UPC','FBA'],skipped:options.skipped||[],warnings:options.fieldWarnings||[],...(options.filledTitle===undefined?{}:{title:options.filledTitle,titleUpdate:options.titleUpdate})};}
-    if(a==='germanNewImages'){if(applies('imageError'))throw new Error('图片保存后未确认应用400×400主图');return {done:!options.imageIncomplete,count:1,size:'400 X 400',src:'new-image'};}
+    if(a==='germanNewImages'){if(applies('imageError'))throw new Error('图片保存后未确认应用500×500主图');return {done:!options.imageIncomplete,count:1,size:'500 X 500',src:'new-image'};}
     if(a==='preflight'){assert.equal(sleeps.at(-1)?.ms,2000);if(applies('preflightError')){const e=new Error('提交前检查【Model Name】失败：型号名称仍为空');e.field='Model Name';throw e;}return {checked:['制造商','Model Number','Model Name'],repaired:options.repaired||[]};}
     if(a==='publish'){assert.equal(args.record.productId,editorId);if(applies('noClick')){const e=new Error('保存并发布按钮不可点击');e.notSubmitted=true;throw e;}if(applies('uncertain')){const e=new Error('连接断开');e.uncertain=true;throw e;}published.add(editorId);}
     if(a==='publishStatus'){if(applies('statusError'))throw new Error('读取发布结果时连接断开');if(applies('pendingStatus'))return {done:false};if(applies('noConfirmation'))return {done:true};return applies('validation')?{done:true,failed:true,text:'请输入型号名称'}:{done:true,submitted:true};}
@@ -86,8 +89,8 @@ test('开始后直接提交整组链接，不在采集前扫描历史或跳过�
   assert.ok(s.job.rows.every(r=>r.status==='已发布'));
   assert.ok(!s.job.logs.some(x=>/已有采集记录|未重复采集/.test(x.message)));
 });
-test('采集后来源匹配多条时仍记录失败，不认领、移动或发布',async()=>{
-  const s=scenario([product()],{crawlAmbiguous:true});await s.run();
+test('采集后同来源不同标题仍记录失败，不认领、移动或发布',async()=>{
+  const s=scenario([product()],{crawlAmbiguous:true,differentTitle:true});await s.run();
   assert.equal(s.job.rows[0].status,'失败');assert.match(s.job.rows[0].error,/采集链接和标题映射/);
   assert.equal(s.sent.filter(x=>['claim','move','fill','publish'].includes(x.a)).length,0);
 });
@@ -106,7 +109,40 @@ test('失败数量未知时不猜测重试',async()=>{
   const s=scenario([product()],{unknownCounts:true});await s.run();
   assert.ok(!s.sent.some(x=>x.a==='retry'));assert.match(s.job.rows[0].error,/失败数量/);
 });
-test('同链接同店铺的重复产品使流程失败，不执行移入或发布',async()=>{const s=scenario([product()],{ambiguous:true});await s.run();assert.equal(s.job.rows[0].status,'失败');assert.equal(s.sent.filter(x=>['move','publish'].includes(x.a)).length,0);});
+test('同链接同标题的全部采集变体认领，全部移入，仅编辑第一条并切换单品',async()=>{
+  const s=scenario([product()],{crawlAmbiguous:true,ambiguous:true});await s.run();
+  assert.equal(s.job.rows[0].status,'已发布');
+  assert.deepEqual(s.sent.find(x=>x.a==='claim').args.ids,['c0','c0-variant']);
+  assert.deepEqual(s.sent.find(x=>x.a==='move').args.ids,['p0','p0-variant']);
+  assert.equal(s.sent.filter(x=>x.a==='editProduct').length,1);assert.equal(s.sent.find(x=>x.a==='editProduct').args.record.productId,'p0');
+  assert.equal(s.sent.filter(x=>x.a==='publish').length,1);
+  assert.equal(s.sent.find(x=>x.a==='ensureSellingMode').args.record.sellingMode,'single');
+  assert.ok(s.sent.findIndex(x=>x.a==='ensureSellingMode')<s.sent.findIndex(x=>x.a==='fill'));
+});
+
+test('待发布按当前列表顺序仅编辑首条，同标题不同来源分别处理',async()=>{
+  const s=scenario([product()],{ambiguous:true,reverseOffline:true});await s.run();assert.equal(s.job.rows[0].status,'已发布');
+  assert.equal(s.sent.find(x=>x.a==='editProduct').args.record.productId,'p0-variant');
+  const separate=scenario([product(1),product(2)],{title:'Same title'});await separate.run();
+  assert.deepEqual(separate.sent.filter(x=>x.a==='editProduct').map(x=>x.args.record.source),separate.job.rows.map(r=>r.source));
+});
+
+test('父行带子变体移入重复提示后，必须在待发布核对全部子变体才允许填写',async()=>{
+  const s=scenario([product()],{variantChildren:true});await s.run();assert.equal(s.job.rows[0].status,'已发布');
+  assert.deepEqual(s.sent.find(x=>x.a==='moveProgress').args,{expected:3});
+  assert.deepEqual(s.sent.find(x=>x.a==='closeMoveProgress').args.duplicateChildIds,['101','102']);
+  assert.ok(s.job.logs.some(x=>x.message.includes('2 个子变体全部齐全')));assert.equal(s.job.pendingMove,null);
+  const missing=scenario([product()],{variantChildren:true,missingVariant:true});await missing.run();
+  assert.equal(missing.job.state,'review');assert.equal(missing.job.rows[0].status,'待人工核对');
+  assert.ok(!missing.sent.some(x=>['fill','publish'].includes(x.a)));assert.ok(missing.job.pendingMove);
+  const wrong=scenario([product()],{variantChildren:true,childError:'属性异常'});await wrong.run();
+  assert.equal(wrong.job.state,'review');assert.ok(!wrong.sent.some(x=>x.a==='closeMoveProgress'||x.a==='fill'));
+});
+
+test('单品切换失败阻止该条填写与发布',async()=>{
+  const s=scenario([product()],{saleError:true});await s.run();assert.equal(s.job.rows[0].status,'失败');
+  assert.match(s.job.rows[0].error,/单品/);assert.ok(!s.sent.some(x=>['fill','publish'].includes(x.a)));
+});
 test('表单校验错误不算发布成功',async()=>{const s=scenario([product()],{validation:true});await s.run();assert.equal(s.job.rows[0].status,'失败');assert.match(s.job.rows[0].error,/型号名称/);});
 test('不存在的字段跳过记录到产品和日志，不误记为本条填写失败',async()=>{
   const s=scenario([product()],{skipped:['Model Name','商品尺寸:长（cm）']});await s.run();
@@ -219,7 +255,7 @@ test('已经上线再次继续不会重复发布或采集',async()=>{
 test('每个产品都返回待发布按标题查找并点击编辑，不直接跳转编辑URL',async()=>{
   const s=scenario([product(1),product(2)]);await s.run();assert.ok(s.job.rows.every(r=>r.status==='已发布'));
   const edits=s.sent.map((x,i)=>x.a==='editProduct'?i:-1).filter(i=>i>=0);assert.equal(edits.length,2);
-  for(const i of edits){const previous=s.sent.slice(0,i),lastOpen=previous.findLastIndex(x=>x.a==='open');assert.match(previous[lastOpen].url,/\/offline$/);assert.ok(previous.slice(lastOpen).some(x=>x.a==='searchTitle'&&x.args.title===s.sent[i].args.record.title));assert.equal(s.sent[i+1].a,'waitEditor');assert.equal(s.sent[i+2].a,'fill');}
+  for(const i of edits){const previous=s.sent.slice(0,i),lastOpen=previous.findLastIndex(x=>x.a==='open');assert.match(previous[lastOpen].url,/\/offline$/);assert.ok(previous.slice(lastOpen).some(x=>x.a==='searchTitle'&&x.args.title===s.sent[i].args.record.title));assert.equal(s.sent[i+1].a,'waitEditor');assert.equal(s.sent[i+2].a,'ensureSellingMode');assert.equal(s.sent[i+3].a,'fill');}
 });
 test('成功弹窗即完成并关闭编辑页，下一条之前关闭，不读取在线或发布失败列表',async()=>{
   const s=scenario([product(1),product(2)]);await s.run();

@@ -21,7 +21,7 @@ const read=name=>fs.readFileSync(path.join(root,'docs/evidence',name),'utf8');
       window.hoverCount=0;window.editClicks=0;const menu=document.querySelector('.ant-dropdown');menu.style.display='none';document.querySelector('#imageInfo').onclick=event=>{if(event.target.closest('a.icon_delete'))event.target.closest('.img-item').remove();if(event.target.closest('a.icon-operate')){editClicks++;menu.style.display='none';}};
       document.querySelector('#imageInfo').onmouseover=event=>{if(event.target.closest('a.icon-operate')){hoverCount++;setTimeout(()=>menu.style.display='block',80);}};
       menu.querySelector('[title="小秘美图"]').onclick=()=>{menu.style.display='none';window.open('/web/newImageEditor','_blank');};
-      addEventListener('message',event=>{if(event.origin==='${origin}'&&event.data==='fixture-apply'){const card=document.querySelector('#imageInfo .img-item');card.querySelector('img').src='${origin}/fixture-applied.jpg';card.querySelector('.img-size').textContent='400 X 400';}});
+      addEventListener('message',event=>{if(event.origin==='${origin}'&&event.data==='fixture-apply'){const card=document.querySelector('#imageInfo .img-item');card.querySelector('img').src='${origin}/fixture-applied.jpg';card.querySelector('.img-size').textContent='500 X 500';}});
     </script>`;
     const editor=read('german-new-image-crop.html').replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'')+`<script>
       window.fixtureEvents=[];const panel=document.querySelector('.crop_module .parameter');panel.style.display='none';
@@ -49,7 +49,7 @@ const read=name=>fs.readFileSync(path.join(root,'docs/evidence',name),'utf8');
       try{return await io.call('germanNewImages',{record});}catch(error){return {error:error.message};}
     },us);
     if(popupBlocked){assert.match(result.error,/未检测到新标签.*拦截弹窗/);assert.equal(context.pages().filter(page=>page.url()===origin+'/web/newImageEditor').length,0);console.log('PASS: popup-blocking enabled, synthetic click blocked, error distinguishes missing new tab. Offline only.');return;}
-    assert.equal(result.done,true);assert.equal(result.count,1);assert.equal(result.removed,5);assert.equal(result.size,'400 X 400');assert.equal(result.src,origin+'/fixture-applied.jpg');
+    assert.equal(result.done,true);assert.equal(result.count,1);assert.equal(result.removed,5);assert.equal(result.size,'500 X 500');assert.equal(result.src,origin+'/fixture-applied.jpg');
     assert.equal((await page.locator('#imageInfo .img-item').all()).length,1);
     assert.equal(await page.evaluate(()=>hoverCount),1);assert.equal(await page.evaluate(()=>editClicks),0);
     assert.equal(context.pages().filter(page=>page.url()===origin+'/web/newImageEditor').length,0);

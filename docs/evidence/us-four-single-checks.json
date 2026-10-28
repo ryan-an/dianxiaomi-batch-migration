@@ -1,0 +1,30 @@
+{
+  "checks": [
+    {
+      "single": true,
+      "source": "https://www.amazon.com/dp/B08PBDJBX6",
+      "upcVisible": true,
+      "url": "https://www.dianxiaomi.com/web/amazon/edit?id=184807703391512169"
+    },
+    {
+      "single": true,
+      "source": "https://www.amazon.com/dp/B08PBCP6PG",
+      "upcVisible": true,
+      "url": "https://www.dianxiaomi.com/web/amazon/edit?id=184807703391512323"
+    },
+    {
+      "single": true,
+      "source": "https://www.amazon.com/dp/B09G9FYHP9",
+      "upcVisible": true,
+      "url": "https://www.dianxiaomi.com/web/amazon/edit?id=184807703391512509"
+    },
+    {
+      "single": true,
+      "source": "https://www.amazon.com/dp/B0GZW1693G",
+      "upcVisible": true,
+      "url": "https://www.dianxiaomi.com/web/amazon/edit?id=184807703391512683"
+    }
+  ],
+  "saved": false,
+  "published": false
+}

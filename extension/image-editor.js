@@ -27,8 +27,8 @@
       if(!panel())click(one(all('.crop_module .open').filter(visible),'裁剪/旋转'));
       await until(panel,'裁剪面板');
       // W and H are found by their suffix, never by the editor's dynamic IDs.
-      for(const axis of ['W','H']){input(field(axis),'400');await sleep(200);}
-      await until(()=>field('W').value==='400'&&field('H').value==='400','确认裁剪尺寸400×400');
+      for(const axis of ['W','H']){input(field(axis),'500');await sleep(200);}
+      await until(()=>field('W').value==='500'&&field('H').value==='500','确认裁剪尺寸500×500');
       click(one(all('.footer_btns button',panel()).filter(e=>visible(e)&&text(e)==='应用'),'应用裁剪'));
       await until(()=>!panel(),'裁剪应用完成');cropped=true;return {cropped:true};
     },

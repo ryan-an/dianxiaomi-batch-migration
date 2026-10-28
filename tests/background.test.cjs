@@ -26,7 +26,7 @@ async function imageScenario({apply=true,disconnect=false,ambiguous=false,alread
     sendMessage:async(id,m)=>{
       messages.push({id,...m});
       if(m.action==='prepareGermanNewImages'){opened=!alreadyDone;return {ok:true,data:{done:alreadyDone,opened,src:'old',removed:5}};}
-      if(m.action==='germanImageState')return {ok:true,data:{done:applied,src:applied?'new':'old',size:applied?'400 X 400':'1500 X 1493',count:1}};
+      if(m.action==='germanImageState')return {ok:true,data:{done:applied,src:applied?'new':'old',size:applied?'500 X 500':'1500 X 1493',count:1}};
       if(m.kind==='DXM_IMAGE_ACTION'){
         assert.equal(id,404,'only newly opened editor for this product is controlled');
         if(m.action==='ready')return {ok:true,data:{ready:!notReady}};
@@ -59,7 +59,7 @@ test('德国新品保存未应用或编辑器未就绪时失败，不重复保�
     assert.equal(messages.filter(m=>m.action==='save').length,options.notReady?0:1);assert.deepEqual(removed,[]);
   }
 });
-test('德国新品编辑器歧义时不裁剪，已是一张400×400时不重开',async()=>{
+test('德国新品编辑器歧义时不裁剪，已是一张500×500时不重开',async()=>{
   const a=await imageScenario({ambiguous:true});await assert.rejects(()=>a.b.images(a.record),/多个新标签/);assert.equal(a.messages.filter(m=>m.kind==='DXM_IMAGE_ACTION').length,0);
   const b=await imageScenario({alreadyDone:true});assert.equal((await b.b.images(b.record)).done,true);assert.equal(b.messages.length,1);
 });
@@ -176,6 +176,13 @@ test('后台硬性阻止移入结果未确认时刷新或跳转',async()=>{
   const b=boot({previous:{state:'review',pendingMove:{ids:['p1']},rows:[]}});await b.send({kind:'DXM_STATUS'});
   await assert.rejects(()=>b.open('https://www.dianxiaomi.com/web/amazon/pageList/offline'),e=>e.uncertain&&/已阻止刷新或跳转/.test(e.message));
   assert.equal(b.sent.length,0);
+});
+
+test('收到父产品移入结果后仅允许到待发布核对子变体，仍禁止其他跳转',async()=>{
+  const url='https://www.dianxiaomi.com/web/amazon/pageList/offline';
+  const b=boot({previous:{state:'running',tabId:101,pendingMove:{ids:['p1'],reconciling:true},rows:[]},navigation:{tabs:[{url,status:'complete'}],ready:[{url}]}});
+  await b.send({kind:'DXM_STATUS'});await b.open(url);assert.equal(b.sent.at(-1).action,'ready');
+  await assert.rejects(()=>b.open('https://www.dianxiaomi.com/web/amazon/pageList/draft'),e=>e.uncertain&&/已阻止/.test(e.message));
 });
 test('连续编辑相同路径的不同产品时，旧标签URL和旧表单都不能提前通过就绪',async()=>{
   const old='https://www.dianxiaomi.com/web/amazon/edit?id=184807703384602947',url='https://www.dianxiaomi.com/web/amazon/edit?id=184807703384602948';
