@@ -205,6 +205,11 @@
     const fields=[...new Set([id('form_item_number_of_boxes.0.value'),...all('[data-path="number_of_boxes.0.value"] input:not([type="hidden"])')].filter(Boolean))];
     return fields.length?one(fields,'箱子数量'):null;
   }
+  function searchTermsField(){
+    const items=shown('.ant-form-item').filter(e=>/^searchterms$/i.test(itemLabel(e)));
+    if(!items.length)return null;
+    return one(shown('textarea,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([role="combobox"])',one(items,'Search Terms')),'Search Terms');
+  }
   function germanImageState(){
     const cards=productImages(),main=imageInfo(cards[0]);
     return {...main,count:cards.length,done:cards.length===1&&!!main.src&&/^500\s*[xX×]\s*500$/.test(main.size)};
@@ -353,6 +358,8 @@
       try{
         checkIdentity(record);await settled();
         if(record.sellingMode==='single'){field='售卖形式';const sale=await commands.ensureSellingMode({record});checked.push(field);if(sale.changed)repaired.push(field);}
+        field='Search Terms';const terms=await commands.ensureSearchTerms();
+        if(terms.absent)skipped.push(field);else if(terms.value){checked.push(field);if(terms.changed)repaired.push(field);}
         if(C.sameSite(record.site,'美国')){
           for(const [key,ensure] of [['List Price Currency',ensureListPriceCurrency],['List Price',ensureListPrice]]){
             field=key;const result=await ensure(record);
@@ -391,10 +398,28 @@
         const field=option().querySelector('input');
         if(field.disabled)throw new Error('售卖形式单品选项被禁用');
         if(field.checked)return {changed,value:'单品'};
-        click(option());changed=true;await sleep(300);
+        // Label activation forwards a trusted click to its radio, which the
+        // running-page lock blocks. Click the input directly to keep the lock.
+        click(field);changed=true;await sleep(300);
         if(option().querySelector('input').checked)return {changed,value:'单品'};
       }
       throw new Error('售卖形式改为单品后未保留');
+    },
+    async ensureSearchTerms(){
+      const initial=searchTermsField();if(!initial)return {changed:false,absent:true};
+      if(!initial.closest('.ant-form-item')?.querySelector('.ant-form-item-required')&&initial.getAttribute('aria-required')!=='true'&&!initial.required)return {changed:false};
+      const title=()=>C.text(formItem('产品标题').querySelector('input,textarea')?.value);let changed=false;
+      for(let attempt=0;attempt<3;attempt++){
+        if(stopped)throw new Error('已停止');
+        const field=searchTermsField(),wanted=title();
+        if(!field)throw new Error('Search Terms字段在填写时消失');
+        if(!wanted)throw new Error('产品标题为空，无法填写Search Terms');
+        if(field.disabled||field.readOnly)throw new Error('Search Terms输入框被禁用或只读');
+        if(field.value!==wanted){input(field,wanted);changed=true;}
+        await sleep(200);if(stopped)throw new Error('已停止');
+        const currentTitle=title();if(currentTitle&&searchTermsField()?.value===currentTitle)return {changed,value:currentTitle};
+      }
+      throw new Error('Search Terms写入后未保留');
     },
     async ensureBoxCount(){
       const initial=boxCountField();if(!initial)return {changed:false,absent:true};
@@ -502,12 +527,38 @@
     },
     async closeProgress(){await closeProgress();return {};},
     async retry({ids}){
-      await selectRows(ids);await batchMenu('批量重试');
-      await until(()=>modal(),'重试提示');
-      const m=modal();if(!m.querySelector('#commonProgressBarStatus')){
-        const yes=exact('确定','button',m);if(yes.length===1)click(yes[0]);else throw new Error('重试弹窗结构变化，请人工核对');
-      }
-      await until(()=>modal()?.querySelector('#commonProgressBarStatus'),'重试进度');return {};
+      let submitted=false;
+      try{
+        if(rows().some(r=>ids.includes(r.id)&&/跳过采集|采集已经采集过/.test(r.text)))throw new Error('所选记录为跳过采集，需查找已有记录，不能批量重试');
+        await selectRows(ids);
+        const notices=()=>shown('.ant-message-notice-content,.ant-notification-notice-description,.el-message__content').map(e=>C.text(e.textContent));
+        const before=new Set(notices()),confirmed=new WeakSet();let previousMissing='',stable=0;
+        await batchMenu('批量重试');submitted=true;
+        return await until(()=>{
+          const progress=shown('.ant-modal').filter(e=>e.querySelector('#commonProgressBarStatus'));
+          if(progress.length){one(progress,'重试进度');return {submitted:true,mode:'modal'};}
+          const promptRoots=shown('.ant-modal,.ant-popconfirm,.ant-popover,.el-message-box').filter(e=>/重试|重采|重新采集/.test(e.textContent));
+          const prompts=promptRoots.filter(e=>!promptRoots.some(inner=>inner!==e&&e.contains(inner)));
+          if(prompts.length){
+            const prompt=one(prompts,'重试确认');
+            if(!confirmed.has(prompt)){
+              const yes=exact('确定','button',prompt);if(yes.length===1&&!yes[0].disabled){click(yes[0]);confirmed.add(prompt);}
+            }
+            return null;
+          }
+          for(const message of notices().filter(value=>!before.has(value))){
+            if(/请选择|没有.*(?:可重试|选中)|不能|不允许|失败|错误/.test(message)){
+              const error=new Error(`重试反馈：${message}`);if(/请选择|没有.*(?:可重试|选中)/.test(message))error.notSubmitted=true;throw error;
+            }
+            if(/重试(?:成功|已提交)|(?:已提交|已加入).*(?:重试|采集|队列)|开始(?:重试|采集)|正在(?:重试|采集)/.test(message))return {submitted:true,mode:'list',text:message};
+          }
+          if(shown('.vxe-loading.is--visible,.ant-spin-spinning,#dPageLoading').length){stable=0;return null;}
+          const current=new Set(rows().map(r=>r.id)),missing=ids.filter(id=>!current.has(id)),key=missing.join(',');
+          stable=key&&key===previousMissing?stable+1:0;previousMissing=key;
+          if(missing.length&&stable>=1)return {submitted:true,mode:'list',transitionedIds:missing};
+          return null;
+        },'重试反馈（确认弹窗、进度或列表变化）');
+      }catch(error){if(!submitted)error.notSubmitted=true;throw error;}
     },
     async claim({ids,shop,site}){
       await selectRows(ids);click(button('批量认领'));
@@ -622,6 +673,9 @@
           const result=await ensure(record);if(result.absent)skip(key);else written.push(key);
         });
       }
+      await attempt('Search Terms（必填时填写标题）',async()=>{
+        const terms=await commands.ensureSearchTerms();if(terms.absent)skip('Search Terms');else if(terms.value)written.push('Search Terms：当前标题');
+      });
       const title=C.text(formItem('产品标题').querySelector('input,textarea')?.value);
       return {written,skipped,warnings,title,titleUpdate};
       }catch(e){e.field=currentField;e.completedFields=[...written];e.message=`填写【${currentField}】失败：${e.message}`;throw e;}
@@ -631,6 +685,7 @@
         checkIdentity(record);
         if(record.sellingMode==='single')await commands.ensureSellingMode({record});
         if(C.shouldProcessImages(record)&&!germanImageState().done)throw new Error('商品图片尚未确认只保留一张500×500主图');
+        await commands.ensureSearchTerms();
         const target=await until(()=>shown('button').find(e=>clean(e.textContent)==='保存并发布'&&!e.disabled&&!e.classList.contains('ant-btn-loading')),'保存并发布按钮就绪',10000);
         checkIdentity(record);click(target);
       }catch(e){e.notSubmitted=true;throw e;}

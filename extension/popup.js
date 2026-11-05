@@ -1,6 +1,7 @@
 (function(){
   'use strict';
   const panel=globalThis.DXMPanel,root=panel?.root||document;
+  const imageContext=globalThis.DXMTarget?.imageEditorTab({url:location.href})||false;
   const $=id=>root.getElementById(id);
   let parsed=null,fileInfo=null,job=null,owner=false,reading=false,starting=false,refreshing=false,error='',connectionError='';
   let logSignature='',lastLogJob='',clearing=false,clearPending=false,resetSerial=0,notice='',uiEpoch=0,fileWrite=Promise.resolve();
@@ -21,8 +22,8 @@
   }
   function render(){
     const s=DXMUI.summary(job),valid=parsed?.rows.filter(r=>!r.error).length||0,locked=busy()||reading||starting||clearing;
-    $('upload').disabled=locked;$('start').disabled=locked||!valid||!!connectionError;
-    $('startLabel').textContent=starting?'正在准备…':busy()?'执行中':job?'继续执行':'开始执行';
+    $('upload').disabled=locked||imageContext;$('start').disabled=locked||imageContext||!valid||!!connectionError;
+    $('startLabel').textContent=starting?'正在准备…':busy()?'执行中':imageContext?'请返回商品页继续执行':job?'继续执行':'开始执行';
     $('stop').hidden=!busy();$('stop').disabled=s.stopping;$('stop').textContent=s.stopping?'停止中…':'停止';
     $('download').disabled=clearing||!job?.rows?.length;
     $('clearCache').disabled=locked;$('clearCache').textContent=clearing?'清空中…':'清空缓存';
@@ -41,12 +42,12 @@
     const message=error||connectionError||job?.error||'';$('message').hidden=!message;$('message').textContent=message;
     $('progress').hidden=!job;$('progressFill').style.width=`${s.percent}%`;$('progressBar').setAttribute('aria-valuenow',s.percent);
     $('progressText').textContent=`已处理 ${s.processed} / ${s.total} 条`;
-    $('resultText').replaceChildren('已发布 ',node('span',String(s.success),'published-count'),` · 待确认 ${s.pending} · 失败 `,node('span',String(s.failed+s.review),'failed-count'),s.skipped?` · 已跳过 ${s.skipped}`:'');
+    $('resultText').replaceChildren('已发布 ',node('span',String(s.success),'published-count'),` · 待确认 ${s.pending} · 待核对 ${s.review} · 失败 `,node('span',String(s.failed),'failed-count'),s.skipped?` · 已跳过 ${s.skipped}`:'');
     renderLogs();
     panel?.update({locked:(busy()&&owner)||starting,running:busy()||starting,summary:s});
   }
   async function importFile(file){
-    if(!file||busy()||starting||reading||clearing)return;
+    if(!file||imageContext||busy()||starting||reading||clearing)return;
     const epoch=++uiEpoch;notice='';
     if(!/\.xlsx?$/i.test(file.name)){error='请选择 .xls 或 .xlsx 表格。';render();return;}
     if(file.size>5*1024*1024){error='请使用 5 MB 以内的表格。';render();return;}
@@ -70,7 +71,7 @@
   $('dropzone').ondragleave=()=>$('dropzone').classList.remove('dragging');
   $('dropzone').ondrop=e=>{e.preventDefault();$('dropzone').classList.remove('dragging');importFile(e.dataTransfer.files[0]);};
   $('start').onclick=async()=>{
-    if(busy()||starting||clearing||!parsed?.rows.some(r=>!r.error))return;
+    if(imageContext||busy()||starting||clearing||!parsed?.rows.some(r=>!r.error))return;
     notice='';
     const epoch=uiEpoch;starting=true;error='';render();
     try{const r=await chrome.runtime.sendMessage({kind:'DXM_START',rows:parsed.rows,fileId:fileInfo?.id});if(epoch!==uiEpoch)return;if(!r?.ok)throw new Error(r?.error||'任务没有启动');await refresh();}

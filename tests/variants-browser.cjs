@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('playwright');
 (async()=>{
-  const browser=await chromium.launch({channel:'msedge',headless:true});
+  const browser=await chromium.launch({...(process.env.DXM_TEST_CHROMIUM?{executablePath:process.env.DXM_TEST_CHROMIUM}:{channel:'msedge'}),headless:true});
   try{
     const page=await browser.newPage();
     await page.route('**/*',route=>route.fulfill({body:'<html><body></body></html>',contentType:'text/html'}));
@@ -27,13 +27,35 @@ const {chromium}=require('playwright');
     assert.equal(result.value,'单品');assert.equal(result.changed,true);
     assert.equal(await page.locator('#form_item_saleType input[value="0"]').isChecked(),true);
     result=await page.evaluate(record=>DXMAdapter.commands.ensureSellingMode({record}),record);assert.equal(result.changed,false);
+    // Use the real running-page lock: a label forwards a trusted input click,
+    // while direct input.click() must still reach the form's change listener.
+    await page.evaluate(()=>{window.chrome={storage:{local:{get:async()=>({}),set:async()=>{}}},runtime:{onMessage:{addListener:()=>{}}}};});
+    for(const name of ['panel-layout.js','panel-view.js','overlay.js'])await page.addScriptTag({path:path.join(__dirname,'../extension',name)});
+    await restore();
+    const blocked=await page.evaluate(()=>{
+      DXMPanel.update({locked:true,running:true});const events=[];
+      const observe=event=>events.push({target:event.target.tagName,trusted:event.isTrusted});window.addEventListener('click',observe,true);
+      document.querySelector('#form_item_saleType input[value="0"]').closest('label').click();window.removeEventListener('click',observe,true);
+      return {events,checked:document.querySelector('#form_item_saleType input[value="0"]').checked};
+    });
+    assert.equal(blocked.checked,false);assert.deepEqual(blocked.events,[{target:'LABEL',trusted:false},{target:'INPUT',trusted:true}]);
+    await page.locator('#form_item_saleType input[value="0"]').evaluate(e=>e.focus());await page.keyboard.press('Space');
+    assert.equal(await page.locator('#form_item_saleType input[value="0"]').isChecked(),false);
+    result=await page.evaluate(record=>DXMAdapter.commands.ensureSellingMode({record}),record);assert.equal(result.changed,true);
+    result=await page.evaluate(record=>DXMAdapter.commands.ensureSellingMode({record}),record);assert.equal(result.changed,false);
     // Re-read after a reactive replacement resets the selection on the first click.
     await restore();await page.evaluate(()=>{let once=false;document.getElementById('form_item_saleType').addEventListener('change',e=>{if(once)return;once=true;const item=e.target.closest('.ant-form-item'),fresh=item.cloneNode(true);fresh.querySelector('input[value="0"]').checked=false;fresh.querySelector('input[value="1"]').checked=true;item.replaceWith(fresh);});});
     result=await page.evaluate(record=>DXMAdapter.commands.ensureSellingMode({record}),record);assert.equal(result.value,'单品');
+    await restore();await page.evaluate(()=>{
+      window.rejectSaleChange=event=>{if(event.target.closest('#form_item_saleType')){document.querySelector('#form_item_saleType input[value="0"]').checked=false;document.querySelector('#form_item_saleType input[value="1"]').checked=true;}};
+      document.addEventListener('change',rejectSaleChange);
+    });
+    await assert.rejects(page.evaluate(record=>DXMAdapter.commands.ensureSellingMode({record}),record),/售卖形式改为单品后未保留/);
+    await page.evaluate(()=>document.removeEventListener('change',rejectSaleChange));
     await restore();await page.locator('#form_item_saleType input[value="0"]').evaluate(e=>{e.disabled=true;});
     await assert.rejects(page.evaluate(record=>DXMAdapter.commands.ensureSellingMode({record}),record),/被禁用/);
     await restore();await assert.rejects(page.evaluate(record=>DXMAdapter.commands.ensureSellingMode({record:{...record,source:'https://amazon.com/dp/B0WRONG000'}}),record),/来源链接不匹配/);
     assert.equal(await page.locator('#form_item_saleType input[value="1"]').isChecked(),true);
-    console.log('真实四组父产品与28个变体、同标题不同来源、单品切换、重复执行、节点重绘、禁用及身份保护全部通过（离线）。');
+    console.log('真实四组父产品与28个变体、同标题不同来源、页面锁下单品切换、人工输入拦截、重复执行、节点重绘、拒绝保留、禁用及身份保护全部通过（离线）。');
   }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

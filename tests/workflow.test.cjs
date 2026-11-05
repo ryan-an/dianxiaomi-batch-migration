@@ -2,41 +2,53 @@ const {test}=require('node:test'),assert=require('node:assert/strict');global.DX
 const product=(i=1)=>({index:i-1,source:`https://www.amazon.com/dp/B0TEST000${i}`,shop:'万万欣UK',targetShop:'万万欣DE',site:'英国',data:{'Model Number':'/01'},title:'',status:'待执行',history:[],error:''});
 function scenario(records,options={}){
   const job={rows:records,logs:[],state:'running',options:{modelNameFromNumber:true}};
-  let path='',tab='',claimed=false,moved=false,retried=false,editorId='',movePolls=0,search='';const sent=[],sleeps=[],published=new Set();
+  let path='',tab='',claimed=false,moved=false,retried=false,editorId='',movePolls=0,search='',page=0,movingCount=0,visibleIds=new Set(),collectPolls=0,activePolls=0;const sent=[],sleeps=[],published=new Set(),claimedIds=new Set();
   const applies=key=>typeof options[key]==='function'?options[key](editorId):options[key];
   const titleFor=r=>options.title||`Title ${r.index}`;
   const crawl=r=>({id:`c${r.index}`,rowId:`row${r.index}`,source:r.source,title:titleFor(r),text:titleFor(r)});
   const listing=r=>({id:`p${r.index}`,source:r.source,title:options.listingTitle||titleFor(r),text:`Title ${r.index}「万万欣DE」${options.pageSite||'英国'}`,editUrl:`https://www.dianxiaomi.com/web/amazon/edit?id=p${r.index}`,links:[],variantIds:options.variantChildren?(path.endsWith('/offline')&&options.missingVariant?['101']:['101','102']):[]});
   const io={save:async()=>{},closeEditor:async r=>{assert.equal(r.status,'已发布');sent.push({a:'closeEditor',id:r.productId});},sleep:async ms=>{sleeps.push({ms,after:sent.at(-1)?.a});if(options.now)options.now.value+=ms;if(options.stopDuringWait&&ms===2000)job.stop=true;},waitEditor:async(u,r)=>{sent.push({a:'waitEditor',url:u});assert.equal(editorId,r.productId);},open:async u=>{assert.ok(!job.pendingMove||(job.pendingMove.reconciling&&u.endsWith('/offline')),'结果确认前不能跳转');assert.ok(!u.includes('/amazon/edit?'),'编辑页只能从列表点击进入');sent.push({a:'open',url:u});path=u;editorId=new URL(u).searchParams.get('id');},call:async(a,args={},risky=false)=>{
-    sent.push({a,args,risky});
+    sent.push({a,args,risky,...(a==='claim'?{tab}:{})});
+    if(a==='firstPage')page=0;
+    if(a==='nextPage')page++;
     if(a==='searchTitle')search=args.title;
     if(a==='editProduct'){assert.ok(path.endsWith('/offline'));editorId=args.record.productId;path=`https://www.dianxiaomi.com/web/amazon/edit?id=${editorId}`;return {url:path};}
-    if(a==='acquisitionTab'){tab=args.name;return {};}
+    if(a==='acquisitionTab'){tab=args.name;page=0;return {};}
     if(a==='snapshot'){
       let rows=[];
       if(path.includes('productCrawl')){
         if(tab==='全部')rows=options.existing?[crawl(records[0])]:[];
-        if(tab==='采集失败'&&options.retry&&!retried)rows=[crawl(records[0]),...(options.historicalFailure?[crawl(records[1]),{...crawl(product(9)),id:'foreign'}]:[])];
-        if(tab==='未认领'&&!claimed){rows=records.filter((r,i)=>!(options.retry&&!retried&&i===0)).map(crawl);if(options.crawlAmbiguous)rows.push({...crawl(records[0]),id:'c0-variant',...(options.differentTitle?{title:'Different title'}:{})});}
+        if(tab==='采集失败'&&options.retry&&(!retried||options.retryStillFails||options.retryNoChange)&&!options.noFailedMatch)rows=[crawl(records[0]),...(options.historicalFailure?[crawl(records[1]),{...crawl(product(9)),id:'foreign'}]:[])];
+        if(tab==='采集中'&&retried&&options.retryActivePolls&&activePolls++<options.retryActivePolls)rows=[crawl(records[0])];
+        if(tab==='未认领'){rows=records.filter((r,i)=>!(options.retry&&(!retried||options.retryStillFails||options.retryNoChange||activePolls<(options.retryActivePolls||0))&&i===0)&&!options.preclaimed?.includes(r.index)&&!options.missingCrawl?.includes(r.index)).map(crawl);if(options.crawlAmbiguous)rows.push({...crawl(records[0]),id:'c0-variant',...(options.differentTitle?{title:'Different title'}:{})});}
+        if(tab==='已认领'){rows=records.filter(r=>options.preclaimed?.includes(r.index)).map(crawl);if(options.claimedAmbiguous)rows.push({...crawl(records[0]),id:'c0-variant',...(options.differentTitle?{title:'Different title'}:{})});rows.push(...(options.extraClaimed||[]));}
+        if(tab==='未认领'||tab==='已认领')rows=rows.filter(row=>!claimedIds.has(row.id));
       }else if(path.endsWith('/draft'))rows=claimed&&!moved?records.map(listing):[];
       else if(path.endsWith('/offline'))rows=records.map(listing).filter(row=>!options.filterSearch||row.title.includes(search));
       else if(path.endsWith('/online'))rows=records.filter(r=>published.has(`p${r.index}`)).map(listing);
       if(options.ambiguous&&(path.endsWith('/draft')||path.endsWith('/offline')))rows.push({...listing(records[0]),id:'p0-variant',...(options.differentTitle?{title:'Different title'}:{})});
       if(options.reverseOffline&&path.endsWith('/offline'))rows.reverse();
-      return {rows,hasNext:false,signature:JSON.stringify(rows.map(r=>r.id))};
+      const paginated=path.includes('productCrawl')&&tab==='已认领'&&options.claimedPageSize,total=rows.length;
+      if(paginated)rows=rows.slice(page*options.claimedPageSize,(page+1)*options.claimedPageSize);
+      visibleIds=new Set(rows.map(r=>r.id));
+      return {rows,hasNext:!!paginated&&(page+1)*options.claimedPageSize<total,signature:JSON.stringify(rows.map(r=>r.id))};
     }
-    if(a==='claim'){assert.ok(args.ids.every(x=>x.startsWith('c')));assert.equal(args.shop,'万万欣DE');claimed=true;}
-    if(a==='move'){assert.ok(args.ids.every(x=>x.startsWith('p')));return {submitted:true,...(options.variantChildren?{expected:3,childIds:['101','102']}:{})};}
+    if(a==='claim'){assert.ok(args.ids.every(x=>x.startsWith('c')&&visibleIds.has(x)));assert.equal(args.shop,'万万欣DE');args.ids.forEach(id=>claimedIds.add(id));claimed=true;}
+    if(a==='move'){assert.ok(args.ids.every(x=>x.startsWith('p')));movingCount=args.ids.length;return {submitted:true,...(options.variantChildren?{expected:3,childIds:['101','102']}:{})};}
     if(a==='moveProgress'){
       movePolls++;
       if(options.moveDisconnected)throw new Error('进度连接中断');
       if(movePolls<(options.movePolls||1))return {done:false,text:`正在移入 ${movePolls}`};
       if(options.variantChildren){moved=true;return {done:true,success:1,failed:2,failures:['101','102'].map(id=>({id,reason:options.childError||'只能处在采集箱中的产品才能移入待发布！'})),text:'执行结果'};}
-      moved=true;return {done:true,success:records.length+(options.ambiguous&&!options.differentTitle?1:0)-(options.moveFailed||0),failed:options.moveFailed||0,text:'执行结果'};
+      moved=true;return {done:true,success:movingCount-(options.moveFailed||0),failed:options.moveFailed||0,text:'执行结果'};
     }
-    if(a==='retry')retried=true;
+    if(a==='retry'){
+      job.intent={action:'retry',ids:args.ids};
+      if(options.retryError){const error=new Error(options.retryError);if(options.retryNotSubmitted)error.notSubmitted=true;else error.uncertain=true;throw error;}
+      retried=true;if(options.noModal)return {mode:'list',text:'已加入采集队列'};
+    }
     if(a==='ensureSellingMode'&&options.saleError)throw new Error('售卖形式单品选项被禁用');
-    if(a==='progress')return {done:true,text:'已完成',...(options.unknownCounts?{}:{failed:options.retry&&!retried?1:0})};
+    if(a==='progress')return {done:claimed||retried||++collectPolls>=(options.collectionPolls||1),text:'已完成',skipped:options.collectSkipped||0,...(options.unknownCounts?{}:{failed:options.retry&&(!retried||options.retryStillFails)?1:0})};
     if(a==='fill'){assert.equal(args.modelName,'/01');assert.equal(args.continueOnError,true);if(applies('fieldError')){const e=new Error('填写【配送渠道】失败：选项未展开');e.field='配送渠道';e.completedFields=['库存数量清空'];throw e;}return {written:['UPC','FBA'],skipped:options.skipped||[],warnings:options.fieldWarnings||[],...(options.filledTitle===undefined?{}:{title:options.filledTitle,titleUpdate:options.titleUpdate})};}
     if(a==='germanNewImages'){if(applies('imageError'))throw new Error('图片保存后未确认应用500×500主图');return {done:!options.imageIncomplete,count:1,size:'500 X 500',src:'new-image'};}
     if(a==='preflight'){assert.equal(sleeps.at(-1)?.ms,2000);if(applies('preflightError')){const e=new Error('提交前检查【Model Name】失败：型号名称仍为空');e.field='Model Name';throw e;}return {checked:['制造商','Model Number','Model Name'],repaired:options.repaired||[]};}
@@ -89,12 +101,115 @@ test('开始后直接提交整组链接，不在采集前扫描历史或跳过�
   assert.ok(s.job.rows.every(r=>r.status==='已发布'));
   assert.ok(!s.job.logs.some(x=>/已有采集记录|未重复采集/.test(x.message)));
 });
+test('采集跳过后优先复用未认领记录，不查询已认领或再次采集',async()=>{
+  const s=scenario([product()],{collectSkipped:1});await s.run();
+  assert.equal(s.job.rows[0].status,'已发布');assert.equal(s.job.rows[0].collectorTab,'未认领');
+  assert.equal(s.sent.filter(x=>x.a==='collect').length,1);assert.ok(!s.sent.some(x=>x.a==='retry'||x.a==='acquisitionTab'&&x.args.name==='已认领'));
+  assert.equal(s.sent.find(x=>x.a==='claim').tab,'未认领');
+});
+test('采集跳过且未认领没有时，从已认领查找并认领到目标店铺',async()=>{
+  const s=scenario([product()],{collectSkipped:1,preclaimed:[0]});await s.run();
+  assert.equal(s.job.rows[0].status,'已发布');assert.equal(s.job.rows[0].collectorTab,'已认领');
+  const tabs=s.sent.filter(x=>x.a==='acquisitionTab').map(x=>x.args.name);assert.deepEqual(tabs,['未认领','已认领','已认领']);
+  assert.deepEqual(s.sent.filter(x=>x.a==='claim').map(x=>({tab:x.tab,ids:x.args.ids})),[{tab:'已认领',ids:['c0']}]);
+  assert.equal(s.sent.filter(x=>x.a==='collect').length,1);assert.ok(!s.sent.some(x=>x.a==='retry'));
+});
+test('未认领及已认领都没有才标记该来源失败，不认领其他来源',async()=>{
+  const s=scenario([product()],{collectSkipped:1,missingCrawl:[0],extraClaimed:[{id:'c-foreign',source:product(9).source,title:'Unrelated title'}]});await s.run();
+  assert.equal(s.job.rows[0].status,'失败');assert.match(s.job.rows[0].error,/未认领和已认领.*未找到/);
+  assert.deepEqual(s.sent.filter(x=>x.a==='acquisitionTab').map(x=>x.args.name),['未认领','已认领']);
+  assert.ok(!s.sent.some(x=>['claim','retry','move','fill','publish'].includes(x.a)));
+});
+test('同批未认领和已认领分别认领，缺失来源失败后其他来源继续',async()=>{
+  const s=scenario([product(1),product(2),product(3)],{collectSkipped:2,preclaimed:[1],missingCrawl:[2]});await s.run();
+  assert.deepEqual(s.job.rows.map(r=>r.status),['已发布','已发布','失败']);
+  assert.deepEqual(s.sent.filter(x=>x.a==='claim').map(x=>({tab:x.tab,ids:x.args.ids})),[{tab:'未认领',ids:['c0']},{tab:'已认领',ids:['c1']}]);
+  assert.deepEqual(s.sent.find(x=>x.a==='move').args.ids,['p0','p1']);
+  assert.deepEqual(s.sent.filter(x=>x.a==='publish').map(x=>x.args.record.productId),['p0','p1']);
+});
+test('已认领按来源匹配并翻页查找，按实际分页认领全部本批次ID',async()=>{
+  const s=scenario([product(1),product(2)],{collectSkipped:2,preclaimed:[0,1],claimedPageSize:1});await s.run();
+  assert.ok(s.job.rows.every(r=>r.status==='已发布'&&r.collectorTab==='已认领'));
+  assert.deepEqual(s.sent.filter(x=>x.a==='claim').map(x=>x.args.ids),[['c0'],['c1']]);
+  assert.ok(s.sent.some(x=>x.a==='nextPage'));
+});
+test('已认领同来源同标题的全部记录均认领，不同或空标题仍阻止处理',async()=>{
+  const same=scenario([product()],{preclaimed:[0],claimedAmbiguous:true});await same.run();
+  assert.equal(same.job.rows[0].status,'已发布');assert.deepEqual(same.job.rows[0].collectorIds,['c0','c0-variant']);
+  assert.deepEqual(same.sent.find(x=>x.a==='claim').args.ids,['c0','c0-variant']);
+  for(const options of [{claimedAmbiguous:true,differentTitle:true},{title:' '}]){
+    const s=scenario([product()],{preclaimed:[0],...options});await s.run();
+    assert.equal(s.job.rows[0].status,'失败');assert.match(s.job.rows[0].error,/不同或空标题/);
+    assert.ok(!s.sent.some(x=>['claim','move','publish'].includes(x.a)));
+  }
+});
+test('两处都有同来源时优先使用未认领，不混入已认领的历史不同标题',async()=>{
+  const record=product(),s=scenario([record,product(2)],{preclaimed:[1],extraClaimed:[{id:'c-history',source:record.source,title:'Historical different title'}]});await s.run();
+  assert.ok(s.job.rows.every(r=>r.status==='已发布'));assert.equal(record.collectorTab,'未认领');assert.deepEqual(record.collectorIds,['c0']);
+  assert.ok(s.sent.filter(x=>x.a==='claim').every(x=>!x.args.ids.includes('c-history')));
+});
+test('采集失败与已认领跳过混合时，只重试真正缺失的本批次记录',async()=>{
+  const s=scenario([product(1),product(2)],{retry:true,historicalFailure:true,collectSkipped:1,preclaimed:[1]});await s.run();
+  assert.ok(s.job.rows.every(r=>r.status==='已发布'));assert.equal(s.job.rows[1].retryCount,undefined);
+  assert.deepEqual(s.sent.filter(x=>x.a==='retry').map(x=>x.args.ids),[['c0']]);
+  assert.deepEqual(s.sent.filter(x=>x.a==='claim').map(x=>({tab:x.tab,ids:x.args.ids})),[{tab:'未认领',ids:['c0']},{tab:'已认领',ids:['c1']}]);
+});
 test('采集后同来源不同标题仍记录失败，不认领、移动或发布',async()=>{
   const s=scenario([product()],{crawlAmbiguous:true,differentTitle:true});await s.run();
   assert.equal(s.job.rows[0].status,'失败');assert.match(s.job.rows[0].error,/采集链接和标题映射/);
   assert.equal(s.sent.filter(x=>['claim','move','fill','publish'].includes(x.a)).length,0);
 });
 test('采集失败只重试一次',async()=>{const s=scenario([product()],{retry:true});await s.run();assert.equal(s.sent.filter(x=>x.a==='retry').length,1);assert.equal(s.job.rows[0].retryCount,1);});
+test('中途已有失败仍等整组结束，重试后确认成功再认领',async()=>{
+  const s=scenario([product(1),product(2)],{retry:true,collectionPolls:3,noModal:true,retryActivePolls:2});await s.run();
+  const firstTab=s.sent.findIndex(x=>x.a==='acquisitionTab');assert.equal(s.sent.slice(0,firstTab).filter(x=>x.a==='progress').length,3);
+  assert.ok(s.job.rows.every(r=>r.status==='已发布'));assert.equal(s.sent.filter(x=>x.a==='retry').length,1);assert.ok(s.sent.some(x=>x.a==='acquisitionTab'&&x.args.name==='采集中'));
+});
+test('21条中1条重试超时只留1条待核对，其他20条继续且保存点可恢复',async()=>{
+  const s=scenario(Array.from({length:21},(_,i)=>product(i+1)),{retry:true,retryError:'等待超时：重试反馈'});await s.run();
+  assert.equal(s.job.state,'done');assert.equal(s.job.rows.filter(r=>r.status==='已发布').length,20);assert.equal(s.job.rows.filter(r=>r.status==='待人工核对').length,1);
+  assert.equal(s.job.rows[0].retryUncertain,true);assert.equal(s.job.rows[0].checkpoint,'retry_review');assert.equal(s.job.pendingStage,null);assert.equal(s.job.intent,null);
+  assert.equal(s.sent.filter(x=>x.a==='retry').length,1);assert.equal(s.sent.filter(x=>x.a==='publish').length,20);
+});
+test('明确未提交及重试后仍失败仅标记该条失败，其他采集成功记录继续',async()=>{
+  for(const options of [{retryError:'没有可重试产品',retryNotSubmitted:true},{retryStillFails:true}]){
+    const s=scenario([product(1),product(2)],{retry:true,...options});await s.run();
+    assert.equal(s.job.rows[0].status,'失败');assert.equal(s.job.rows[0].retryUncertain,undefined);assert.equal(s.job.rows[1].status,'已发布');assert.equal(s.sent.filter(x=>x.a==='retry').length,1);
+  }
+});
+test('无弹窗确认但来源始终未进入采集中或成功，不把旧失败当新结果',async()=>{
+  const realNow=Date.now,now={value:0};Date.now=()=>now.value;
+  try{const s=scenario([product(1),product(2)],{retry:true,noModal:true,retryNoChange:true,now});await s.run();assert.equal(s.job.rows[0].status,'待人工核对');assert.equal(s.job.rows[1].status,'已发布');assert.equal(s.sent.filter(x=>x.a==='retry').length,1);assert.ok(now.value>=20000);}finally{Date.now=realNow;}
+});
+test('失败数与可定位失败项不一致时隔离未确认来源，保留已采集成功的记录',async()=>{
+  const s=scenario([product(1),product(2)],{retry:true,noFailedMatch:true});await s.run();
+  assert.equal(s.job.rows[0].status,'待人工核对');assert.equal(s.job.rows[1].status,'已发布');assert.ok(!s.sent.some(x=>x.a==='retry'));
+});
+test('待核对重试恢复只查已有记录，找到则继续，找不到也不重新采集重试',async()=>{
+  for(const missing of [false,true]){
+    const r=product();Object.assign(r,{collectorId:'c0',retryCount:1,retryUncertain:true,checkpoint:'retry_review'});
+    const s=scenario([r],{missingCrawl:missing?[0]:[]});await s.run();
+    assert.equal(r.status,missing?'待人工核对':'已发布');assert.equal(r.retryUncertain,missing?true:undefined);assert.ok(!s.sent.some(x=>['collect','retry'].includes(x.a)));
+  }
+});
+test('重试提交前持久化核对保存点，提交后停止也不会恢复为重新采集',async()=>{
+  const r={...product(),collectorId:'c0'},job={rows:[r],logs:[],state:'running'};let saved=false;
+  const io={save:async()=>{if(r.retryUncertain&&r.checkpoint==='retry_review')saved=true;},call:async action=>{
+    if(action==='snapshot')return {rows:[{id:'c0'}],hasNext:false};
+    if(action==='retry'){assert.ok(saved);job.stop=true;return {mode:'list'};}return {};
+  }};
+  await assert.rejects(()=>new Workflow(job,io).pageBatches([r],'collectorId','retry'),/用户已停止/);
+  r.status='待执行';const s=scenario([r]);await s.run();assert.equal(r.status,'已发布');assert.ok(!s.sent.some(x=>['collect','retry'].includes(x.a)));
+});
+test('部分失败统计扣除已确认失败，不能把暂未出现的成功来源也判失败',async()=>{
+  const records=[0,1,2].map(i=>({...product(i+1),collectorId:'c'+i,status:'待执行'}));let pass=0,tab='';
+  const io={save:async()=>{},sleep:async()=>{},call:async(a,args={})=>{
+    if(a==='acquisitionTab'){tab=args.name;if(tab==='未认领')pass++;}
+    if(a==='snapshot')return {rows:tab==='未认领'&&pass>=2?[{id:'c2',source:records[2].source,title:'Title 2'}]:tab==='采集失败'?records.map(r=>({id:r.collectorId,source:r.source,text:'真实采集失败'})):[],hasNext:false,signature:tab};return {};
+  }};
+  await new Workflow({logs:[]},io).verifyRetry(records,{done:true,failed:2,transitionedIds:['c0']});
+  assert.deepEqual(records.map(r=>r.status),['失败','失败','采集完成']);assert.ok(!records[2].retryUncertain);
+});
 test('全部成功时不进入失败列表，也不提交重试',async()=>{
   const s=scenario([product(1),product(2)]);await s.run();
   assert.ok(!s.sent.some(x=>x.a==='retry'||x.a==='acquisitionTab'&&x.args.name==='采集失败'));
@@ -247,6 +362,12 @@ test('从采集完成的保存点继续，只认领后续步骤',async()=>{
   const r=product();Object.assign(r,{collectorId:'c0',title:'Title 0',checkpoint:'collected'});
   const s=scenario([r]);await s.run();assert.equal(r.status,'已发布');
   assert.ok(!s.sent.some(x=>x.a==='collect'));assert.equal(s.sent.filter(x=>x.a==='claim').length,1);
+});
+test('已认领记录保存点恢复后仍从已认领认领，不重新采集',async()=>{
+  const r=product();Object.assign(r,{collectorId:'c0',collectorIds:['c0'],collectorTab:'已认领',title:'Title 0',checkpoint:'collected'});
+  const s=scenario([r],{preclaimed:[0]});await s.run();assert.equal(r.status,'已发布');
+  assert.ok(!s.sent.some(x=>x.a==='collect'));assert.equal(s.sent.find(x=>x.a==='claim').tab,'已认领');
+  assert.deepEqual(s.sent.filter(x=>x.a==='acquisitionTab').map(x=>x.args.name),['已认领']);
 });
 test('已经上线再次继续不会重复发布或采集',async()=>{
   const s=scenario([product()]);await s.run();const n=s.sent.length;await s.run();

@@ -3,12 +3,13 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const {chromium}=require('playwright'),root=path.resolve(__dirname,'..');
 const read=name=>fs.readFileSync(path.join(root,'docs/evidence',name),'utf8');
 (async()=>{
-  const browser=await chromium.launch({channel:'msedge',headless:true});
+  const browser=await chromium.launch({...(process.env.DXM_TEST_CHROMIUM?{executablePath:process.env.DXM_TEST_CHROMIUM}:{channel:'msedge'}),headless:true});
   try{
-    const page=await browser.newPage();await page.route('**/*',route=>route.abort());
+    const page=await browser.newPage(),editorUrl='https://www.dianxiaomi.com/api/meituv2/editor.htm';
+    await page.route('**/*',route=>route.request().url()===editorUrl?route.fulfill({body:'<html><body></body></html>',contentType:'text/html'}):route.abort());
     const editorHtml=read('german-new-image-crop.html');
     async function editor({floating=false,stop=false,disabled=false}={}){
-      await page.setContent(editorHtml);await page.addScriptTag({path:path.join(root,'extension/image-editor.js')});
+      await page.goto(editorUrl);await page.setContent(editorHtml);await page.addScriptTag({path:path.join(root,'extension/image-editor.js')});
       await page.evaluate(({floating,stop,disabled})=>{
         window.events=[];const panel=document.querySelector('.crop_module .parameter');panel.style.display='none';
         document.querySelector('.crop_module .open').onclick=()=>{panel.style.display='block';events.push('open');};

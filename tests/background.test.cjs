@@ -17,27 +17,70 @@ function boot({failSave=false,noTabs=false,rejectRun=false,previous=null,navigat
 }
 const rows=()=>[1,2].map(i=>({source:`https://www.amazon.com/dp/B0TEST000${i}`,shop:'万万欣UK',site:'英国',targetShop:'旧的错误映射',data:{},error:'',status:'待执行'}));
 
-async function imageScenario({apply=true,disconnect=false,ambiguous=false,alreadyDone=false,notReady=false,noNewTab=false,pending=false,site='DE',newProduct='是'}={}){
-  const record={site,data:{'新品':newProduct},productId:'p1'},messages=[],removed=[];let opened=false,applied=false;
+test('旧批次重试锁只绑定实际重试记录，其他记录继续时先查已有采集',async()=>{
+  const records=rows();records.forEach(r=>{r.status='待人工核对';r.error='等待超时：重试提示';});Object.assign(records[0],{retryCount:1,collectorId:'c0'});
+  const b=boot({previous:{state:'review',rows:records,logs:[],error:'等待超时：重试提示',intent:{action:'retry'},pendingStage:'采集'}});
+  const job=(await b.send({kind:'DXM_STATUS'})).job;assert.equal(job.intent,null);assert.equal(job.pendingStage,null);assert.equal(job.rows[0].retryUncertain,true);assert.equal(job.rows[1].checkpoint,'collect_lookup');
+  assert.equal((await b.send({kind:'DXM_START',rows:records})).ok,true);assert.equal(b.data.dxmJob.rows[0].checkpoint,'retry_review');assert.equal(b.data.dxmJob.rows[0].status,'待执行');assert.equal(b.tasks.length,1);
+});
+test('续执行重试待核对记录只安排只读核对，不把它恢复成采集新链接',async()=>{
+  const records=rows().slice(0,1);Object.assign(records[0],{status:'待人工核对',retryUncertain:true,checkpoint:'retry_review',error:'结果未确认'});
+  const b=boot({previous:{state:'done',rows:records,logs:[]}});assert.equal((await b.send({kind:'DXM_START',rows:records})).ok,true);assert.equal(b.data.dxmJob.rows[0].checkpoint,'retry_review');assert.equal(b.data.dxmJob.rows[0].retryUncertain,true);
+});
+
+async function imageScenario({apply=true,disconnect=false,ambiguous=false,alreadyDone=false,notReady=false,noNewTab=false,pending=false,site='DE',newProduct='是',missingReceiver=false,recoveryError='',cropDisconnect=false,editorNavigated=false}={}){
+  const record={site,data:{'新品':newProduct},productId:'p1'},messages=[],removed=[],injected=[];let opened=false,applied=false,connected=!missingReceiver;
   const product={id:202,url:'https://www.dianxiaomi.com/web/amazon/edit?id=p1'},url='https://www.dianxiaomi.com/web/newImageEditor';
   const b=boot({clock:{value:0},previous:{state:'done',tabId:202,rows:[record]},tabsApi:{
     query:async()=>[product,{id:303,url,openerTabId:202},...(opened&&!noNewTab?[{id:404,url:pending?'about:blank':url,...(pending?{pendingUrl:url+'/'}:{}),openerTabId:202},{id:405,url,openerTabId:999},...(ambiguous?[{id:406,url,openerTabId:202}]:[])]:[])],
-    get:async id=>({id,url:id===202?product.url:url}),remove:async id=>removed.push(id),
+    get:async id=>({id,url:id===202?product.url:editorNavigated?'https://example.test/':url}),remove:async id=>removed.push(id),
     sendMessage:async(id,m)=>{
       messages.push({id,...m});
       if(m.action==='prepareGermanNewImages'){opened=!alreadyDone;return {ok:true,data:{done:alreadyDone,opened,src:'old',removed:5}};}
       if(m.action==='germanImageState')return {ok:true,data:{done:applied,src:applied?'new':'old',size:applied?'500 X 500':'1500 X 1493',count:1}};
       if(m.kind==='DXM_IMAGE_ACTION'){
         assert.equal(id,404,'only newly opened editor for this product is controlled');
+        if(!connected){if(missingReceiver==='empty')return;throw new Error('Could not establish connection. Receiving end does not exist.');}
         if(m.action==='ready')return {ok:true,data:{ready:!notReady}};
+        if(m.action==='crop'&&cropDisconnect)throw new Error('Receiving end does not exist');
         if(m.action==='save'){applied=apply;if(disconnect)throw new Error('message port closed');}
         return {ok:true,data:{}};
       }
       throw new Error('Unexpected message '+m.action);
     }
-  }});
-  await b.send({kind:'DXM_STATUS'});return {b,record,messages,removed};
+  },scriptingApi:{executeScript:async args=>{injected.push(args);if(recoveryError)throw new Error(recoveryError);connected=true;return [];}}});
+  await b.send({kind:'DXM_STATUS'});return {b,record,messages,removed,injected};
 }
+
+test('美图接收端缺失时仅恢复当前编辑器所有帧，连接后正常裁剪保存',async()=>{
+  for(const missingReceiver of [true,'empty']){
+    const {b,record,messages,injected}=await imageScenario({missingReceiver});assert.equal((await b.images(record)).done,true);
+    assert.equal(injected.length,1);assert.deepEqual(JSON.parse(JSON.stringify(injected[0])),{target:{tabId:404,allFrames:true},files:['image-editor.js']});
+    assert.deepEqual(messages.filter(m=>['crop','save'].includes(m.action)).map(m=>m.action),['crop','save']);
+  }
+});
+test('美图注入失败保留具体原因，不裁剪保存；编辑器已离站时不注入',async()=>{
+  const denied=await imageScenario({missingReceiver:true,recoveryError:'模拟无注入权限'});
+  await assert.rejects(()=>denied.b.images(denied.record),/脚本恢复失败.*无注入权限/);
+  assert.ok(denied.injected.length>0&&denied.injected.length<60);assert.ok(!denied.messages.some(m=>['crop','save'].includes(m.action)));
+  const foreign=await imageScenario({missingReceiver:true,editorNavigated:true});await assert.rejects(()=>foreign.b.images(foreign.record),/未就绪/);assert.equal(foreign.injected.length,0);
+});
+test('裁剪或保存阶段断线不补注入、不重复提交操作',async()=>{
+  const crop=await imageScenario({cropDisconnect:true});await assert.rejects(()=>crop.b.images(crop.record),/Receiving end/);
+  assert.equal(crop.injected.length,0);assert.equal(crop.messages.filter(m=>m.action==='crop').length,1);assert.ok(!crop.messages.some(m=>m.action==='save'));
+  const saved=await imageScenario({disconnect:true});assert.equal((await saved.b.images(saved.record)).done,true);assert.equal(saved.injected.length,0);assert.equal(saved.messages.filter(m=>m.action==='save').length,1);
+});
+test('美图页是当前任务的控制面板，但不能从美图页启动批次',async()=>{
+  const image={id:404,url:'https://www.dianxiaomi.com/web/newImageEditor'};
+  const b=boot({previous:{state:'done',tabId:202,listTabId:101,imageTabId:404,rows:rows()}});
+  assert.equal((await b.send({kind:'DXM_STATUS'},image)).owner,true);assert.equal((await b.send({kind:'DXM_STATUS'},{id:405})).owner,false);
+  assert.match((await b.send({kind:'DXM_START',rows:rows()},image)).error,/返回商品页/);assert.equal(b.tasks.length,0);
+});
+test('在美图页点击图标恢复本页面板，不跳到其他商品页',async()=>{
+  const image={id:404,url:'https://www.dianxiaomi.com/web/newImageEditor'},injected=[];let ready=false;
+  const b=boot({tabsApi:{sendMessage:async()=>{if(!ready)throw Error('Receiving end does not exist');return {ok:true};}},scriptingApi:{executeScript:async args=>{injected.push(args);if(args.func)return [{result:false}];ready=true;return [];}}});
+  await b.click(image);assert.deepEqual(b.updates,[{id:404,active:true}]);assert.ok(injected.every(x=>x.target.tabId===404));assert.equal(injected.length,2);assert.equal(injected[1].world,undefined);assert.equal(b.badges.at(-1).text,'');
+});
 test('美图未产生新标签时不误接管已有标签，返回可区分的打开失败提示',async()=>{
   const {b,record,messages,removed}=await imageScenario({noNewTab:true});
   await assert.rejects(()=>b.images(record),/未检测到新标签.*可能.*拦截/);

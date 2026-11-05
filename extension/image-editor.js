@@ -1,14 +1,41 @@
 /* Small DOM-only driver for the public 小秘美图 iframe. */
 (function(root){
   'use strict';
+  // Recovery injects into all frames. Only this public editor document owns
+  // the driver; reinjection must preserve stop/crop/save state and listeners.
+  if(location.origin!=='https://www.dianxiaomi.com'||location.pathname!=='/api/meituv2/editor.htm'||root.DXMImageEditor)return;
   let stopped=false,cropped=false,saving=false,running=false;
   const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const visible=e=>!!e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden';
   const all=(selector,scope=document)=>[...scope.querySelectorAll(selector)];
   const text=e=>(e?.textContent||'').replace(/\s+/g,'');
   function one(nodes,label){if(nodes.length!==1)throw new Error(`${label}：找到${nodes.length}个控件`);return nodes[0];}
+  const available=e=>visible(e)&&!e.disabled&&e.getAttribute('aria-disabled')!=='true';
+  const guides=()=>all('button').filter(e=>visible(e)&&text(e)==='跳过');
+  const cropCards=()=>all('button.adjust_card').filter(e=>text(e.querySelector('.adjust_card_name'))==='裁剪/旋转'&&visible(e));
+  function cropPanel(){const nodes=all('.crop_module .parameter').filter(visible);return nodes.length?one(nodes,'裁剪面板'):null;}
   function click(e){if(stopped)throw new Error('已停止');if(!e||e.disabled||e.getAttribute('aria-disabled')==='true')throw new Error('图片控件不可点击');e.click();}
   async function until(fn,label,timeout=20000){const end=Date.now()+timeout;while(Date.now()<end){if(stopped)throw new Error('已停止');const value=fn();if(value)return value;await sleep(200);}throw new Error(`等待超时：${label}`);}
+  async function openCropPanel(){
+    let candidate=null,clicked=null;const dismissed=new WeakSet();
+    return until(()=>{
+      const skip=guides();
+      if(skip.length){
+        const button=one(skip,'引导跳过');if(available(button)&&!dismissed.has(button)){click(button);dismissed.add(button);}
+        candidate=clicked=null;return null;
+      }
+      const panel=cropPanel();if(panel)return panel;
+      const legacy=all('.crop_module .open').filter(visible),nodes=legacy.length?legacy:cropCards();
+      if(!nodes.length){candidate=clicked=null;return null;}
+      const entry=one(nodes,'裁剪/旋转');
+      if(!available(entry)){candidate=clicked=null;return null;}
+      // Require the same visible node on two polls, then re-query after its
+      // click. A rerender can replace it; a slow opening must not toggle twice.
+      if(candidate!==entry){candidate=entry;return null;}
+      if(clicked!==entry){click(entry);clicked=entry;}
+      return cropPanel();
+    },'裁剪/旋转按钮可见且裁剪面板展开');
+  }
   function field(axis){return one(all('.crop_module .link_input .el-input').filter(e=>text(e.querySelector('.el-input__suffix-inner'))===axis).map(e=>e.querySelector('input')).filter(Boolean),`裁剪${axis}`);}
   function input(e,value){
     if(stopped)throw new Error('已停止');if(e.disabled||e.readOnly)throw new Error('裁剪尺寸不可填写');
@@ -18,19 +45,17 @@
   const commands={
     async ready(){
       const image=document.querySelector('img.selected');
-      return {ready:!!document.querySelector('.crop_module .open')&&!!image&&image.complete&&image.naturalWidth>0};
+      const controls=all('.crop_module .open').some(available)||cropCards().some(available)||all('.crop_module .parameter').some(visible)||guides().some(available);
+      return {ready:controls&&!!image&&image.complete&&image.naturalWidth>0};
     },
     async crop(){
       if(cropped)return {cropped:true};
-      const skip=all('button').filter(e=>visible(e)&&text(e)==='跳过');if(skip.length)click(one(skip,'引导跳过'));
-      const panel=()=>all('.crop_module .parameter').find(visible);
-      if(!panel())click(one(all('.crop_module .open').filter(visible),'裁剪/旋转'));
-      await until(panel,'裁剪面板');
+      await openCropPanel();
       // W and H are found by their suffix, never by the editor's dynamic IDs.
       for(const axis of ['W','H']){input(field(axis),'500');await sleep(200);}
       await until(()=>field('W').value==='500'&&field('H').value==='500','确认裁剪尺寸500×500');
-      click(one(all('.footer_btns button',panel()).filter(e=>visible(e)&&text(e)==='应用'),'应用裁剪'));
-      await until(()=>!panel(),'裁剪应用完成');cropped=true;return {cropped:true};
+      click(one(all('.footer_btns button',cropPanel()).filter(e=>visible(e)&&text(e)==='应用'),'应用裁剪'));
+      await until(()=>!cropPanel(),'裁剪应用完成');cropped=true;return {cropped:true};
     },
     async save(){
       if(!cropped)throw new Error('裁剪尚未应用，禁止保存');

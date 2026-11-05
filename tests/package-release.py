@@ -21,7 +21,9 @@ for call in re.findall(r'importScripts\(([^)]*)\)', (extension / manifest['backg
     required.update(re.findall(r'''["']([^"']+)["']''', call))
 with ZipFile(output, 'w', ZIP_DEFLATED) as archive:
     for file in sorted(files):
-        if not file.resolve().is_relative_to(extension.resolve()):
+        try:
+            file.resolve().relative_to(extension.resolve())
+        except ValueError:
             raise RuntimeError(f'File outside extension: {file}')
         archive.write(file, file.relative_to(extension).as_posix())
 with ZipFile(output) as archive:

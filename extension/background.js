@@ -5,7 +5,7 @@ chrome.action.onClicked.addListener(async tab=>{
   if(panelOpening)return;
   panelOpening=true;
   try{
-    let target=DXMTarget.allowedTab(tab)?tab:null;
+    let target=DXMTarget.allowedTab(tab)||(Number.isInteger(tab?.id)&&DXMTarget.imageEditorTab(tab))?tab:null;
     if(!target){try{target=await DXMTarget.resolve(chrome);}catch{await chrome.tabs.create({url:'https://www.dianxiaomi.com/web/productCrawl/dataAcquisition',active:true});return;}}
     await chrome.tabs.update(target.id,{active:true});
     let result;
@@ -37,6 +37,21 @@ async function load(){
   if(loadPromise)return loadPromise;
   loadPromise=(async()=>{job=(await chrome.storage.local.get('dxmJob')).dxmJob||null;
   let migrated=false;for(const r of job?.rows||[])if(r.status==='已提交待确认'){r.status='已发布';r.checkpoint='published';r.step='完成';r.error='';migrated=true;}
+  // Older retries left a global submission lock and marked all rows for review.
+  // Bind that uncertainty to retry IDs; other rows resume by read-only lookup.
+  if(job?.intent?.action==='retry'&&!job.pendingMove){
+    const ids=job.intent.ids,affected=job.rows.filter(r=>(!r.checkpoint||r.checkpoint==='retry_review')&&(ids?.length?ids.includes(r.collectorId):r.retryCount===1&&r.collectorId));
+    if(affected.length){
+      for(const r of job.rows){
+        if(affected.includes(r)){r.retryUncertain=true;r.checkpoint='retry_review';r.status='待人工核对';r.error='采集重试结果未确认，续执行时先核对已有记录，不重复提交';}
+        else if(!r.publishUncertain&&!['已发布','已上线','失败','发布失败','数据错误','已跳过'].includes(r.status)&&affected.some(a=>a.targetShop===r.targetShop&&DXMCore.sameSite(a.site,r.site))){
+          if(!r.checkpoint)r.checkpoint='collect_lookup';r.status='已停止';r.error='';
+        }
+      }
+      job.intent=null;if(job.pendingStage==='采集')job.pendingStage=null;
+      job.state='review';job.error='采集重试结果待核对，可以继续处理其他记录；不会自动重复重试';migrated=true;
+    }
+  }
   if(migrated)await save();
   if(job?.state==='running'){
     job.state='review';job.error='浏览器或后台曾中断，请核对页面。为避免重复发布，不自动重跑。';
@@ -86,9 +101,23 @@ async function germanNewImages(record){
     }
     if(!editor)throw new Error(DXMTarget.imageEditorOpenError(observedTabs,[...before],productTabId));
     job.imageTabId=editor.id;await save();await chrome.tabs.update(editor.id,{active:true});
-    const readyEnd=Date.now()+60000;let ready=false,lastError;
+    const readyEnd=Date.now()+60000;let ready=false,lastError,nextRecovery=0,recoveryError;
     while(Date.now()<readyEnd){
-      guard();try{if((await send('ready'))?.ready){ready=true;break;}}catch(error){lastError=error;}
+      guard();try{const state=await send('ready');lastError=recoveryError=null;if(state?.ready){ready=true;break;}}catch(error){
+        const disconnected=/Receiving end does not exist|Could not establish connection|message (?:port|channel) closed|接收端不存在|图片编辑器没有返回结果/i.test(error.message);
+        lastError=disconnected&&recoveryError?recoveryError:error;
+        if(disconnected&&Date.now()>=nextRecovery){
+          nextRecovery=Date.now()+1000;
+          try{
+            guard();const current=await chrome.tabs.get(editor.id);
+            if(DXMTarget.imageEditorTab({url:current.url})){
+              // The file rejects the outer page/unrelated frames and is
+              // idempotent. Recover only readiness, never Crop or Save.
+              await chrome.scripting.executeScript({target:{tabId:editor.id,allFrames:true},files:['image-editor.js']});
+            }
+          }catch(injectionError){recoveryError=lastError=new Error(`编辑器脚本恢复失败：${injectionError.message}`);}
+        }
+      }
       await pause(300);
     }
     if(!ready)throw new Error(`小秘美图未就绪：${lastError?.message||'图片未加载'}`);
@@ -125,7 +154,7 @@ const io={save,sleep:pause,
     if(action==='germanNewImages')return germanNewImages(args.record);
     let beforeTabs;
     if(action==='editProduct'){job.listTabId=job.tabId;beforeTabs=(await chrome.tabs.query({})).map(t=>t.id);await save();}
-    if(risky){job.intent={action,time:new Date().toISOString()};await save();}
+    if(risky){job.intent={action,time:new Date().toISOString(),...(action==='retry'?{ids:args.ids}:{})};await save();}
     try{const data=await raw(action,args);job.intent=null;await save();return action==='editProduct'?{...data,beforeTabs}:data;}
     catch(e){if(risky&&!e.notSubmitted)e.uncertain=true;throw e;}
   },
@@ -181,7 +210,7 @@ const io={save,sleep:pause,
 chrome.runtime.onMessage.addListener((m,s,reply)=>{
   (async()=>{
     await load();
-    if(m.kind==='DXM_STATUS')return {ok:true,job,owner:!!job&&(s.tab?.id===job.tabId||s.tab?.id===job.listTabId)};
+    if(m.kind==='DXM_STATUS')return {ok:true,job,owner:!!job&&(s.tab?.id===job.tabId||s.tab?.id===job.listTabId||s.tab?.id===job.imageTabId)};
     if(m.kind==='DXM_CLEAR_CACHE')return clearCache();
     if(m.kind==='DXM_IMPORT'){
       if(busy||resetting)throw new Error('请先停止执行，再更换表格');
@@ -204,6 +233,7 @@ chrome.runtime.onMessage.addListener((m,s,reply)=>{
     if(m.kind==='DXM_START'){
       if(resetting)throw new Error('正在清空缓存，请稍候再开始');
       if(busy)throw new Error('已有批次正在执行');
+      if(DXMTarget.imageEditorTab(s.tab))throw new Error('请返回商品页继续执行，美图页仅用于查看进度和停止任务');
       busy=true;
       try {
       if(!Array.isArray(m.rows)||!m.rows.length)throw new Error('没有有效数据');
@@ -217,10 +247,11 @@ chrome.runtime.onMessage.addListener((m,s,reply)=>{
       for(let i=0;i<rows.length;i++){
         const r=rows[i];if(!continuing)r.history=[];
         if(continuing&&r.publishUncertain){r.status='待人工核对';continue;}
+        if(continuing&&r.retryUncertain){r.status='待执行';r.error='';r.checkpoint='retry_review';continue;}
         if(continuing){if(!['数据错误','已上线','已发布','已提交待确认','发布失败','已跳过'].includes(r.status)){r.error='';r.status='待执行';}}
         if(!r.error){DXMCore.sourceKey(r.source);r.site=DXMCore.normalizeSite(r.site);r.targetShop=DXMCore.shopForSite(r.shop,r.site);if(!continuing)r.status='待执行';}
       }
-      if(!rows.some(r=>!r.error))throw new Error(rows.some(r=>r.publishUncertain)?'剩余产品的发布结果待核对，已保留编辑页，不自动重复提交':'表格中没有可执行的产品，请检查原表数据');
+      if(!rows.some(r=>!r.error))throw new Error(rows.some(r=>r.retryUncertain)?'剩余产品的采集重试结果待核对，不自动重复重试':rows.some(r=>r.publishUncertain)?'剩余产品的发布结果待核对，已保留编辑页，不自动重复提交':'表格中没有可执行的产品，请检查原表数据');
       const nextJob={...(continuing?job:{}),id:crypto.randomUUID(),fileId:storedFile?.id,state:'running',rows,logs:continuing?job.logs:[],options,tabId:tab.id,imageTabId:null,startedAt:continuing?job.startedAt:new Date().toISOString(),step:continuing?'继续执行':'准备',stop:false,intent:null,error:'',resuming:continuing};
       await chrome.storage.local.set({dxmJob:nextJob});job=nextJob;
       setTimeout(()=>new DXMWorkflow(job,io).run().catch(async e=>{

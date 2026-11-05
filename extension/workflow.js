@@ -50,8 +50,20 @@
             const expected=ids.length;
             await this.log(`本页处理 ${ids.length} 行，包含 ${expected} 个产品/变体`,members);
             if(command==='move'){this.job.pendingMove={ids,startedAt:new Date().toISOString()};await this.io.save();}
+            if(command==='retry'){
+              for(const r of members){r.retryUncertain=true;r.checkpoint='retry_review';}
+              await this.io.save();
+              try{
+                const result=await this.io.call(command,{ids,...extra},true);
+                const progress=result.mode==='list'?result:await this.progress(members);
+                await this.verifyRetry(members,progress);
+              }catch(error){this.guard();await this.retryProblem(members.filter(r=>r.checkpoint==='retry_review'),error);}
+              if(this.job.intent?.action==='retry')this.job.intent=null;
+              await this.io.save();await this.io.call('acquisitionTab',{name:'采集失败'});
+              for(const value of ids)pending.delete(value);found=true;break;
+            }
             const result=await this.io.call(command,{ids,...extra,...(command==='move'?{waitMode:'poll'}:{})},true);
-            if(command==='claim'||command==='retry')await this.progress(members);
+            if(command==='claim')await this.progress(members);
             else if(command==='move'){
               await this.log(`已提交 ${expected} 个产品/变体移入，等待店小秘处理完成，请勿刷新页面`,members);
               const moved=await this.progress(members,'move',result.expected||expected,result.childIds||[]);
@@ -73,8 +85,54 @@
           }
           if(!snap.hasNext)break;await this.io.call('nextPage');
         }
-        if(!found)throw new Error(`本批次还有 ${pending.size} 条在当前列表无法定位，请核对状态`);
+        if(!found){
+          const error=new Error(`本批次还有 ${pending.size} 条在当前列表无法定位，请核对状态`);
+          if(command!=='retry')throw error;
+          error.notSubmitted=true;await this.retryProblem(records.filter(r=>idsFor(r).some(id=>pending.has(id))),error);return;
+        }
       }
+    }
+    async retryProblem(records,error){
+      for(const r of records){
+        if(error.notSubmitted){this.fail(r,error);delete r.retryUncertain;r.checkpoint='collect_lookup';}
+        else{r.status='待人工核对';r.retryUncertain=true;r.checkpoint='retry_review';r.error=`采集重试结果待核对，禁止重复提交：${error.message||error}`;}
+      }
+      if(this.job.intent?.action==='retry')this.job.intent=null;
+      await this.log(`本次重试仅影响 ${records.length} 条，其他已采集记录继续：${error.message||error}`,records);
+    }
+    async verifyRetry(records,progress){
+      const pending=new Set(records),started=new Set(records.filter(r=>progress.transitionedIds?.includes(r.collectorId))),end=Date.now()+15*60*1000,idleEnd=Date.now()+20000;let verifiedFailures=0;
+      while(pending.size&&Date.now()<end){
+        this.guard();
+        for(const name of ['未认领','已认领']){
+          await this.io.call('acquisitionTab',{name});const list=await this.scan();
+          for(const r of pending)if(list.some(x=>this.same(x.source,r.source))){
+            try{await this.mapCollected(r,name==='未认领'?list:[],name==='已认领'?list:[]);}
+            catch(error){this.fail(r,error);delete r.retryUncertain;r.checkpoint='collect_lookup';await this.log(r.error,[r]);}
+            pending.delete(r);
+          }
+          if(!pending.size)return;
+        }
+        await this.io.call('acquisitionTab',{name:'采集中'});const collecting=await this.scan();
+        const active=new Set([...pending].filter(r=>collecting.some(x=>this.same(x.source,r.source))));for(const r of active)started.add(r);
+        await this.io.call('acquisitionTab',{name:'采集失败'});const failed=await this.scan();
+        for(const r of pending){
+          const matches=failed.filter(x=>this.same(x.source,r.source)&&!/跳过采集|采集已经采集过/.test(x.text));
+          if(!active.has(r)&&matches.length===1&&(started.has(r)||(progress.done&&progress.failed-verifiedFailures===pending.size)||(r.retryOriginalText&&matches[0].text!==r.retryOriginalText))){
+            this.fail(r,new Error(`采集重试后仍失败：${matches[0].text||'平台未采集成功'}`));delete r.retryUncertain;r.checkpoint='collect_lookup';pending.delete(r);verifiedFailures++;await this.log(r.error,[r]);
+          }else if(!started.has(r)&&Date.now()>=idleEnd){await this.retryProblem([r],new Error('重试反馈后未确认该来源进入采集中或采集成功'));pending.delete(r);}
+        }
+        if(pending.size)await this.io.sleep(1500);
+      }
+      if(pending.size)await this.retryProblem([...pending],new Error('采集重试15分钟仍未确认完成'));
+    }
+    async mapCollected(r,crawled,alreadyClaimed){
+      const unclaimed=crawled.filter(x=>this.same(x.source,r.source)),collectorTab=unclaimed.length?'未认领':'已认领';
+      const found=unclaimed.length?unclaimed:alreadyClaimed.filter(x=>this.same(x.source,r.source));if(!found.length)return false;
+      const matches=this.sameTitleGroup(found,'采集链接和标题映射'),m=matches[0];
+      r.collectorIds=[...new Set(matches.map(x=>x.id))];r.collectorId=m.id;r.collectorTab=collectorTab;r.title=m.title;r.collectedTitle=m.title;r.collectedQuantity=C.extractProductQuantity(m.title);r.status='采集完成';r.checkpoint='collected';r.error='';delete r.retryUncertain;
+      await this.log(`在${collectorTab}找到同链接同标题共 ${r.collectorIds.length} 条，全部认领`,[r]);
+      await this.log(`已对应标题：${r.title}；原标题数量：${r.collectedQuantity||'空'}；表格产品数量：${r.targetQuantity||'空'}`,[r]);return true;
     }
     fail(r,e){r.status='失败';r.error=e.message||String(e);if(e.field)r.failedField=e.field;if(e.completedFields)r.completedFields=e.completedFields;}
     async warn(r,stage,e){
@@ -92,6 +150,18 @@
     }
     async runGroup(group){
       const pending=group.filter(r=>r.status==='待执行');if(!pending.length)return;
+      const lookup=pending.filter(r=>['retry_review','collect_lookup'].includes(r.checkpoint));
+      if(lookup.length){
+        await this.step('先核对已有采集记录，不重复提交重试',lookup);
+        await this.io.open('https://www.dianxiaomi.com/web/productCrawl/dataAcquisition');
+        await this.io.call('acquisitionTab',{name:'未认领'});const unclaimed=await this.scan();
+        let claimed=[];if(lookup.some(r=>!unclaimed.some(x=>this.same(x.source,r.source)))){await this.io.call('acquisitionTab',{name:'已认领'});claimed=await this.scan();}
+        for(const r of lookup){
+          try{if(!await this.mapCollected(r,unclaimed,claimed))await this.retryProblem([r],new Error('续执行核对时，未认领和已认领均未找到该来源'));
+          }catch(error){this.fail(r,error);}
+        }
+        await this.io.save();
+      }
       // Older saved batches already have product IDs but no explicit checkpoint.
       const legacy=pending.filter(r=>r.productId&&!r.checkpoint);
       if(legacy.length){
@@ -106,25 +176,35 @@
       this.job.pendingStage='采集';await this.io.save();
       await this.io.call('collect',{sources:work.map(r=>r.source)},true);const collected=await this.progress(work);
       if(!Number.isInteger(collected.failed)||collected.failed<0)throw new Error('无法读取本次采集失败数量，已停止，不自动重试');
+      await this.io.call('acquisitionTab',{name:'未认领'});let crawled=await this.scan(),alreadyClaimed=[];
+      const missing=work.filter(r=>!crawled.some(x=>this.same(x.source,r.source)));
+      if(missing.length){
+        await this.step(`未认领未找到 ${missing.length} 条来源链接，继续到已认领查找`,missing);
+        await this.io.call('acquisitionTab',{name:'已认领'});alreadyClaimed=await this.scan();
+      }
+      // Persist successful records before submitting any failed retry.
+      for(const r of work){try{await this.mapCollected(r,crawled,alreadyClaimed);}catch(error){this.fail(r,error);}}
+      this.job.pendingStage=null;await this.io.save();
       if(collected.failed>0){
-      await this.io.call('acquisitionTab',{name:'未认领'});const successful=await this.scan();
+      const successful=[...crawled,...alreadyClaimed];
       await this.io.call('acquisitionTab',{name:'采集失败'});
       const failed=await this.scan(),retry=[];
-      for(const r of work.filter(r=>!successful.some(x=>this.same(x.source,r.source)))){
-        const matches=failed.filter(x=>this.same(x.source,r.source));
-        if(matches.length===1){r.collectorId=matches[0].id;r.retryCount=1;retry.push(r);}
+      const unresolved=work.filter(r=>r.status==='待执行'&&!successful.some(x=>this.same(x.source,r.source)));
+      for(const r of unresolved){
+        const matches=failed.filter(x=>this.same(x.source,r.source)&&!/跳过采集|采集已经采集过/.test(x.text));
+        if(matches.length===1){r.collectorId=matches[0].id;r.retryOriginalText=matches[0].text;r.retryCount=1;retry.push(r);}
         else if(matches.length>1)this.fail(r,new Error('采集失败列表中来源重复，不能确定要重试的条目'));
       }
-      if(retry.length!==collected.failed)throw new Error('本批次失败数量与可定位记录不一致，已停止，不重试历史记录');
-      if(retry.length){await this.step(`批量重试 ${retry.length} 条，每条只重试一次`,retry);await this.pageBatches(retry,'collectorId','retry');}
-      }else await this.log('本次采集失败 0 条，直接进入认领',work);
-      await this.io.call('acquisitionTab',{name:'未认领'});const crawled=await this.scan();
-      for(const r of work.filter(r=>r.status!=='失败')){
+      if(retry.length!==collected.failed)await this.retryProblem(unresolved.filter(r=>r.status!=='失败'),new Error('本批次失败数量与可定位记录不一致，不重试历史记录'));
+      else if(retry.length){
+        await this.step(`批量重试 ${retry.length} 条，每条只重试一次`,retry);await this.pageBatches(retry,'collectorId','retry');
+        await this.io.call('acquisitionTab',{name:'未认领'});crawled=await this.scan();
+        await this.io.call('acquisitionTab',{name:'已认领'});alreadyClaimed=await this.scan();
+      }
+      }else await this.log('本次采集失败 0 条，按找到的采集记录继续认领',work);
+      for(const r of work.filter(r=>r.status==='待执行')){
         try{
-          const matches=this.sameTitleGroup(crawled.filter(x=>this.same(x.source,r.source)),'采集链接和标题映射'),m=matches[0];
-          r.collectorIds=[...new Set(matches.map(x=>x.id))];r.collectorId=m.id;r.title=m.title;r.collectedTitle=m.title;r.collectedQuantity=C.extractProductQuantity(m.title);r.status='采集完成';r.checkpoint='collected';
-          await this.log(`同链接同标题共 ${r.collectorIds.length} 条，全部认领`,[r]);
-          await this.log(`已对应标题：${r.title}；原标题数量：${r.collectedQuantity||'空'}；表格产品数量：${r.targetQuantity||'空'}`,[r]);
+          if(!await this.mapCollected(r,crawled,alreadyClaimed))throw new Error('未认领和已认领列表均未找到该来源链接');
         }catch(e){this.fail(r,e);}
       }
       this.job.pendingStage=null;await this.io.save();
@@ -133,9 +213,12 @@
       if(good.length){
       await this.step(`批量认领到 [${good[0].site}]${good[0].targetShop}`,good);
       await this.io.open('https://www.dianxiaomi.com/web/productCrawl/dataAcquisition');
-      await this.io.call('acquisitionTab',{name:'未认领'});
       this.job.pendingStage='认领';await this.io.save();
-      await this.pageBatches(good,'collectorId','claim',{shop:good[0].targetShop,site:good[0].site});
+      for(const name of ['未认领','已认领']){
+        const records=good.filter(r=>(r.collectorTab==='已认领'?'已认领':'未认领')===name);if(!records.length)continue;
+        await this.io.call('acquisitionTab',{name});
+        await this.pageBatches(records,'collectorId','claim',{shop:good[0].targetShop,site:good[0].site});
+      }
       await this.io.open('https://www.dianxiaomi.com/web/amazon/pageList/draft');const draft=await this.scan();
       for(const r of good){try{const matches=this.sameTitleGroup(this.matchingProducts(draft,r),'认领产品映射');r.productIds=[...new Set(matches.map(x=>x.id))];r.productId=matches[0].id;r.status='已认领';r.checkpoint='claimed';await this.log(`已认领 ${matches.length} 个产品组，包含全部子变体，全部移入待发布`,[r]);}catch(e){this.fail(r,e);}}
       this.job.pendingStage=null;await this.io.save();
