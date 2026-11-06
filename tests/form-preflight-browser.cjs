@@ -1,6 +1,7 @@
 // Replay captured form DOM offline; no live products or requests are used.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('playwright'),workspace=path.resolve(__dirname,'..');
+const saleType=JSON.parse(fs.readFileSync(path.join(workspace,'docs/evidence/us-sale-type-before.json'),'utf8'));
 (async()=>{
   const browser=await chromium.launch({channel:'msedge',headless:true});
   try{
@@ -11,7 +12,7 @@ const {chromium}=require('playwright'),workspace=path.resolve(__dirname,'..');
       const type=path.extname(file)==='.html'?'text/html; charset=utf-8':path.extname(file)==='.js'?'text/javascript; charset=utf-8':path.extname(file)==='.json'?'application/json':'text/plain; charset=utf-8';
       await route.fulfill({body:fs.readFileSync(file),contentType:type});
     });
-    async function setup(){await page.goto('http://migration.test/tests/fixture.html');await page.waitForFunction(()=>document.getElementById('result').textContent.startsWith('DOM 已加载'));}
+    async function setup(){await page.goto('http://migration.test/tests/fixture.html');await page.waitForFunction(()=>document.getElementById('result').textContent.startsWith('DOM 已加载'));await page.evaluate(html=>document.getElementById('app').insertAdjacentHTML('beforeend',html),saleType);}
     async function fill(){return page.evaluate(async()=>{
       const result=await DXMAdapter.commands.fill({record,modelName:record.data['Model Number']});
       // Captured HTML has a currency error; the fixture has no Vue validator.
@@ -89,7 +90,7 @@ const {chromium}=require('playwright'),workspace=path.resolve(__dirname,'..');
         const result=await DXMAdapter.commands[action](args);if(action==='fill')filledAt=performance.now();return result;
       }};
       await new DXMWorkflow(job,io).run();return {state:job.state,row,logs:job.logs,clicks,waited:checkedAt-filledAt};
-    });assert.equal(flow.state,'done');assert.equal(flow.row.status,'已发布');assert.equal(flow.clicks,1);assert.ok(flow.waited>=1950);assert.ok(flow.row.warnings.some(e=>e.stage==='填写'));assert.ok(flow.row.warnings.some(e=>e.stage==='提交前检查'));
+    });assert.equal(flow.state,'done');assert.equal(flow.row.status,'已发布',JSON.stringify({error:flow.row.error,warnings:flow.row.warnings,logs:flow.logs.slice(-5)}));assert.equal(flow.clicks,1);assert.ok(flow.waited>=1950);assert.ok(flow.row.warnings.some(e=>e.stage==='填写'));assert.ok(flow.row.warnings.some(e=>e.stage==='提交前检查'));
     // A success popup wins over stale error nodes; genuine platform errors still fail.
     let status=await page.evaluate(()=>DXMAdapter.commands.publishStatus());assert.equal(status.submitted,true);
     status=await page.evaluate(async()=>{document.querySelectorAll('.ant-modal').forEach(e=>e.remove());return DXMAdapter.commands.publishStatus();});assert.equal(status.failed,true);assert.match(status.text,/含税价目表/);

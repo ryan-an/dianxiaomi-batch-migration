@@ -1,6 +1,6 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),X=require('../extension/vendor/xlsx.full.min.js');
 const m=JSON.parse(fs.readFileSync('extension/manifest.json','utf8'));assert.equal(m.manifest_version,3);
-assert.equal(m.version,'0.4.43');assert.equal(m.action.default_popup,undefined);assert.ok(!fs.existsSync('extension/panel-window.js'));assert.ok(m.permissions.includes('scripting'));
+assert.equal(m.version,'0.4.48');assert.equal(m.action.default_popup,undefined);assert.ok(!fs.existsSync('extension/panel-window.js'));assert.ok(m.permissions.includes('scripting'));
 for(const size of [16,32,48,128]){assert.equal(m.action.default_icon[size],m.icons[size]);const icon=fs.readFileSync(path.join('extension',m.icons[size]));assert.equal(icon.toString('hex',0,8),'89504e470d0a1a0a');assert.equal(icon.readUInt32BE(16),size);assert.equal(icon.readUInt32BE(20),size);}
 assert.ok(m.content_scripts.some(entry=>entry.all_frames&&entry.js.includes('image-editor.js')&&entry.matches.includes('https://www.dianxiaomi.com/api/meituv2/editor.htm*')));
 assert.ok(m.content_scripts.some(entry=>entry.js.includes('overlay.js')&&entry.js.includes('popup.js')&&entry.matches.includes('https://www.dianxiaomi.com/web/newImageEditor*')));

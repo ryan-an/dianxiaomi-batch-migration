@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-06",
+  "page": "https://www.dianxiaomi.com/web/amazon/pageList/draft",
+  "rowId": "184807703406156183",
+  "source": "https://www.amazon.com/dp/B0DRNKNK7V",
+  "viewportWidth": 826,
+  "documentWidth": 1350,
+  "afterVerticalRowScroll": {
+    "scrollX": 0,
+    "scrollY": 1778.6666259765625,
+    "rowTop": 172.6666717529297,
+    "operationCellLeft": 1189,
+    "operationCellRight": 1289,
+    "remainingSkeletons": 1,
+    "loadedColumns": ["source", "title", "country", "createdAt"]
+  },
+  "afterHorizontalDocumentScroll": {
+    "scrollX": 532,
+    "scrollY": 1778.6666259765625,
+    "operationCellLeft": 657,
+    "operationCellRight": 757,
+    "remainingSkeletons": 0,
+    "operationText": "移入待发布\n编辑\n发布\n更多"
+  },
+  "verification": "Observed through DOM and native browser scrolling; no collect, claim, move, edit or publish submission was performed."
+}

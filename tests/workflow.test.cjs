@@ -2,7 +2,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict');global.DX
 const product=(i=1)=>({index:i-1,source:`https://www.amazon.com/dp/B0TEST000${i}`,shop:'万万欣UK',targetShop:'万万欣DE',site:'英国',data:{'Model Number':'/01'},title:'',status:'待执行',history:[],error:''});
 function scenario(records,options={}){
   const job={rows:records,logs:[],state:'running',options:{modelNameFromNumber:true}};
-  let path='',tab='',claimed=false,moved=false,retried=false,editorId='',movePolls=0,search='',page=0,movingCount=0,visibleIds=new Set(),collectPolls=0,activePolls=0;const sent=[],sleeps=[],published=new Set(),claimedIds=new Set();
+  let path='',tab='',claimed=!!options.initialClaimed,moved=false,retried=false,editorId='',movePolls=0,search='',page=0,movingCount=0,visibleIds=new Set(),collectPolls=0,activePolls=0,prepareAttempts=0,claimAttempts=0,draftReads=0;const sent=[],sleeps=[],published=new Set(),claimedIds=new Set();
   const applies=key=>typeof options[key]==='function'?options[key](editorId):options[key];
   const titleFor=r=>options.title||`Title ${r.index}`;
   const crawl=r=>({id:`c${r.index}`,rowId:`row${r.index}`,source:r.source,title:titleFor(r),text:titleFor(r)});
@@ -15,6 +15,7 @@ function scenario(records,options={}){
     if(a==='editProduct'){assert.ok(path.endsWith('/offline'));editorId=args.record.productId;path=`https://www.dianxiaomi.com/web/amazon/edit?id=${editorId}`;return {url:path};}
     if(a==='acquisitionTab'){tab=args.name;page=0;return {};}
     if(a==='snapshot'){
+      if(path.endsWith('/draft')&&++draftReads<=(options.draftLoadFailures||0)){const error=new Error('等待超时：加载完整列表行 p0 第9列');error.listIncomplete=true;throw error;}
       let rows=[];
       if(path.includes('productCrawl')){
         if(tab==='全部')rows=options.existing?[crawl(records[0])]:[];
@@ -33,7 +34,19 @@ function scenario(records,options={}){
       visibleIds=new Set(rows.map(r=>r.id));
       return {rows,hasNext:!!paginated&&(page+1)*options.claimedPageSize<total,signature:JSON.stringify(rows.map(r=>r.id))};
     }
-    if(a==='claim'){assert.ok(args.ids.every(x=>x.startsWith('c')&&visibleIds.has(x)));assert.equal(args.shop,'万万欣DE');args.ids.forEach(id=>claimedIds.add(id));claimed=true;}
+    if(a==='prepareClaim'){
+      prepareAttempts++;
+      if(options.stopOnPrepare)job.stop=true;
+      if(prepareAttempts<=(options.prepareFailures||0)||options.prepareErrorFor?.(args)){
+        const error=new Error('等待超时：店铺加载');error.notSubmitted=true;error.retryable=!options.preparePermanent;throw error;
+      }
+    }
+    if(a==='claim'){
+      claimAttempts++;
+      if(options.claimAfterClickError)throw new Error('点击确定后进度连接断开');
+      if(claimAttempts<=(options.claimNotSubmittedFailures||0)){const error=new Error('认领店铺选择已变化');error.notSubmitted=true;error.retryable=true;throw error;}
+      assert.ok(args.prepared);assert.ok(args.ids.every(x=>x.startsWith('c')&&visibleIds.has(x)));assert.equal(args.shop,'万万欣DE');args.ids.forEach(id=>claimedIds.add(id));claimed=true;
+    }
     if(a==='move'){assert.ok(args.ids.every(x=>x.startsWith('p')));movingCount=args.ids.length;return {submitted:true,...(options.variantChildren?{expected:3,childIds:['101','102']}:{})};}
     if(a==='moveProgress'){
       movePolls++;
@@ -59,6 +72,54 @@ function scenario(records,options={}){
   return {job,sent,sleeps,run:()=>new Workflow(job,io).run()};
 }
 test('分组批量认领和移动，只提交本批次ID，以发布成功弹窗完成',async()=>{const s=scenario([product(1),product(2)]);await s.run();assert.equal(s.job.state,'done');assert.ok(s.job.rows.every(r=>r.status==='已发布'));assert.equal(s.sent.filter(x=>x.a==='collect').length,1);assert.equal(s.sent.find(x=>x.a==='claim').args.ids.length,2);});
+
+test('店铺加载准备超时自动重试，准备阶段不标记风险且最终仅提交一次',async()=>{
+  const s=scenario([product(1),product(2)],{prepareFailures:2});await s.run();assert.equal(s.job.state,'done');assert.ok(s.job.rows.every(r=>r.status==='已发布'));
+  assert.equal(s.sent.filter(x=>x.a==='prepareClaim').length,3);assert.ok(s.sent.filter(x=>x.a==='prepareClaim').every(x=>!x.risky));assert.equal(s.sent.filter(x=>x.a==='claim').length,1);assert.equal(s.job.pendingClaim,null);assert.equal(s.job.pendingStage,null);
+});
+test('提交前店铺选择重绘丢值可重新准备，点击确定后的错误不能自动重新提交',async()=>{
+  const before=scenario([product()],{claimNotSubmittedFailures:1});await before.run();assert.equal(before.job.rows[0].status,'已发布');assert.equal(before.sent.filter(x=>x.a==='prepareClaim').length,2);
+  const after=scenario([product()],{claimAfterClickError:true});await after.run();assert.equal(after.job.state,'review');assert.equal(after.sent.filter(x=>x.a==='claim').length,1);assert.ok(after.job.pendingClaim);
+});
+test('店铺始终未加载时仅该店铺未提交，另一店铺继续，不误报提交不确定',async()=>{
+  const records=[{...product(1),targetShop:'BadShop'},product(2)],s=scenario(records,{prepareErrorFor:args=>args.shop==='BadShop'});await s.run();
+  assert.equal(records[0].status,'失败');assert.match(records[0].error,/尚未提交/);assert.equal(records[1].status,'已发布');assert.equal(s.job.state,'done');assert.equal(s.sent.filter(x=>x.a==='prepareClaim').length,4);assert.equal(s.sent.filter(x=>x.a==='claim').length,1);
+});
+test('永久缺少店铺不盲目重试，准备阶段停止后从采集保存点恢复',async()=>{
+  const missing=scenario([product()],{prepareFailures:5,preparePermanent:true});await missing.run();assert.equal(missing.sent.filter(x=>x.a==='prepareClaim').length,1);assert.ok(!missing.sent.some(x=>x.a==='claim'));assert.equal(missing.job.pendingClaim,null);
+  const options={stopOnPrepare:true},s=scenario([product()],options);await s.run();assert.equal(s.job.state,'stopped');assert.equal(s.job.pendingClaim.phase,'preparing');assert.ok(!s.sent.some(x=>x.a==='claim'));
+  const start=s.sent.length;options.stopOnPrepare=false;s.job.stop=false;s.job.rows[0].status='待执行';await s.run();assert.equal(s.job.rows[0].status,'已发布');assert.ok(!s.sent.slice(start).some(x=>x.a==='collect'));
+});
+test('同来源分两页认领后页未提交时保留前页ID，恢复仅提交剩余ID',async()=>{
+  const record={collectorId:'c1',collectorIds:['c1','c2'],checkpoint:'collected',history:[]},job={rows:[record],logs:[]},claims=[];let page=0,rejectSecond=true;
+  const io={save:async()=>{},sleep:async()=>{},call:async(action,args={})=>{
+    if(action==='firstPage')page=0;if(action==='nextPage')page++;
+    if(action==='snapshot')return {rows:[{id:page?'c2':'c1'}],hasNext:page===0};
+    if(action==='prepareClaim'&&args.ids.includes('c2')&&rejectSecond){const error=new Error('未找到目标店铺');error.retryable=false;throw error;}
+    if(action==='claim')claims.push(...args.ids);if(action==='progress')return {done:true};return {};
+  }};
+  await new Workflow(job,io).pageBatches([record],'collectorId','claim',{});assert.deepEqual(claims,['c1']);assert.deepEqual(record.claimedCollectorIds,['c1']);assert.equal(record.status,'失败');assert.equal(job.pendingClaim,null);
+  rejectSecond=false;record.status='待执行';await new Workflow(job,io).pageBatches([record],'collectorId','claim',{});assert.deepEqual(claims,['c1','c2']);assert.equal(record.checkpoint,'claim_lookup');
+});
+test('认领已返回已提交后，后续读取错误即使带未提交标记也不能重提',async()=>{
+  const record={collectorId:'c1',history:[]},job={rows:[record],logs:[]};let claims=0;
+  const io={save:async()=>{},call:async action=>{if(action==='claim')claims++;if(action==='progress'){const error=new Error('结果读取失败');error.notSubmitted=true;throw error;}return {};}};
+  await assert.rejects(()=>new Workflow(job,io).claimPage([record],['c1'],{}),error=>error.uncertain);assert.equal(claims,1);assert.ok(job.pendingClaim);
+});
+test('认领成功后列表短暂未加载自动只读重试，不重复采集或认领',async()=>{
+  const s=scenario([product(1),product(2)],{draftLoadFailures:2});await s.run();assert.equal(s.job.state,'done');assert.ok(s.job.rows.every(r=>r.status==='已发布'));
+  assert.equal(s.sent.filter(e=>e.a==='collect').length,1);assert.equal(s.sent.filter(e=>e.a==='claim').length,1);assert.equal(s.job.logs.filter(e=>e.message.includes('列表内容仍在加载')).length,2);
+});
+test('21条认领成功后列表始终未加载，只待核对不记商品失败，恢复不重采重认领',async()=>{
+  const records=Array.from({length:21},(_,i)=>({...product(i+1),source:'https://amazon.com/dp/B0CELL'+String(i).padStart(4,'0')})),options={draftLoadFailures:Infinity},s=scenario(records,options);await s.run();
+  assert.equal(s.job.state,'review');assert.ok(records.every(r=>r.status==='待人工核对'&&r.checkpoint==='claim_lookup'));assert.ok(!s.job.logs.some(e=>e.message==='本批次结束，可以下载结果表'));assert.equal(s.sent.filter(e=>e.a==='claim').length,1);
+  const start=s.sent.length;options.draftLoadFailures=0;records.forEach(r=>{r.status='待执行';r.error='';});await s.run();assert.ok(records.every(r=>r.status==='已发布'));assert.equal(s.job.state,'done');assert.ok(!s.sent.slice(start).some(e=>['collect','claim'].includes(e.a)));
+});
+test('列表读取重试兼容旧超时消息，普通业务错误不自动重试',async()=>{
+  let reads=0;const job={logs:[]},io={save:async()=>{},sleep:async()=>{},call:async()=>{if(++reads===1)throw new Error('等待超时：加载完整列表行 123（未完成时禁止使用部分列表）');return {rows:[{id:'123'}]};}};
+  assert.deepEqual((await new Workflow(job,io).readPage()).rows,[{id:'123'}]);assert.equal(reads,2);
+  let other=0;await assert.rejects(()=>new Workflow({logs:[]},{call:async()=>{other++;throw new Error('身份不符');}}).readPage(),/身份不符/);assert.equal(other,1);
+});
 
 test('所有站点新品及美国全部商品在发布前处理图片',async()=>{
   for(const [site,value,expected] of [['DE','是',1],['德国','是',1],['英国','是',1],['UK','是',1],['美国','是',1],['US','否',1],['美国','',1],['US',undefined,1],['DE','',0],['德国','否',0],['英国','否',0]]){
@@ -133,13 +194,14 @@ test('已认领按来源匹配并翻页查找，按实际分页认领全部本�
   assert.deepEqual(s.sent.filter(x=>x.a==='claim').map(x=>x.args.ids),[['c0'],['c1']]);
   assert.ok(s.sent.some(x=>x.a==='nextPage'));
 });
-test('已认领同来源同标题的全部记录均认领，不同或空标题仍阻止处理',async()=>{
+test('已认领同来源只认领第一条，其余标题不影响；第一条空标题仍报错',async()=>{
   const same=scenario([product()],{preclaimed:[0],claimedAmbiguous:true});await same.run();
-  assert.equal(same.job.rows[0].status,'已发布');assert.deepEqual(same.job.rows[0].collectorIds,['c0','c0-variant']);
-  assert.deepEqual(same.sent.find(x=>x.a==='claim').args.ids,['c0','c0-variant']);
-  for(const options of [{claimedAmbiguous:true,differentTitle:true},{title:' '}]){
+  assert.equal(same.job.rows[0].status,'已发布');assert.deepEqual(same.job.rows[0].collectorIds,['c0']);
+  assert.deepEqual(same.sent.find(x=>x.a==='claim').args.ids,['c0']);
+  const different=scenario([product()],{preclaimed:[0],claimedAmbiguous:true,differentTitle:true});await different.run();assert.equal(different.job.rows[0].status,'已发布');
+  for(const options of [{title:' '}]){
     const s=scenario([product()],{preclaimed:[0],...options});await s.run();
-    assert.equal(s.job.rows[0].status,'失败');assert.match(s.job.rows[0].error,/不同或空标题/);
+    assert.equal(s.job.rows[0].status,'失败');assert.match(s.job.rows[0].error,/第一条标题为空/);
     assert.ok(!s.sent.some(x=>['claim','move','publish'].includes(x.a)));
   }
 });
@@ -154,10 +216,10 @@ test('采集失败与已认领跳过混合时，只重试真正缺失的本批�
   assert.deepEqual(s.sent.filter(x=>x.a==='retry').map(x=>x.args.ids),[['c0']]);
   assert.deepEqual(s.sent.filter(x=>x.a==='claim').map(x=>({tab:x.tab,ids:x.args.ids})),[{tab:'未认领',ids:['c0']},{tab:'已认领',ids:['c1']}]);
 });
-test('采集后同来源不同标题仍记录失败，不认领、移动或发布',async()=>{
+test('采集后同来源不同标题取第一条，不再因其他历史标题中断',async()=>{
   const s=scenario([product()],{crawlAmbiguous:true,differentTitle:true});await s.run();
-  assert.equal(s.job.rows[0].status,'失败');assert.match(s.job.rows[0].error,/采集链接和标题映射/);
-  assert.equal(s.sent.filter(x=>['claim','move','fill','publish'].includes(x.a)).length,0);
+  assert.equal(s.job.rows[0].status,'已发布');assert.equal(s.job.rows[0].collectedTitle,'Title 0');
+  assert.deepEqual(s.sent.find(x=>x.a==='claim').args.ids,['c0']);
 });
 test('采集失败只重试一次',async()=>{const s=scenario([product()],{retry:true});await s.run();assert.equal(s.sent.filter(x=>x.a==='retry').length,1);assert.equal(s.job.rows[0].retryCount,1);});
 test('中途已有失败仍等整组结束，重试后确认成功再认领',async()=>{
@@ -224,34 +286,45 @@ test('失败数量未知时不猜测重试',async()=>{
   const s=scenario([product()],{unknownCounts:true});await s.run();
   assert.ok(!s.sent.some(x=>x.a==='retry'));assert.match(s.job.rows[0].error,/失败数量/);
 });
-test('同链接同标题的全部采集变体认领，全部移入，仅编辑第一条并切换单品',async()=>{
+test('同链接多条只认领、移入、编辑第一个父产品并切换单品',async()=>{
   const s=scenario([product()],{crawlAmbiguous:true,ambiguous:true});await s.run();
   assert.equal(s.job.rows[0].status,'已发布');
-  assert.deepEqual(s.sent.find(x=>x.a==='claim').args.ids,['c0','c0-variant']);
-  assert.deepEqual(s.sent.find(x=>x.a==='move').args.ids,['p0','p0-variant']);
+  assert.deepEqual(s.sent.find(x=>x.a==='claim').args.ids,['c0']);
+  assert.deepEqual(s.sent.find(x=>x.a==='move').args.ids,['p0']);
+  assert.deepEqual(s.job.rows[0].productIds,['p0']);
   assert.equal(s.sent.filter(x=>x.a==='editProduct').length,1);assert.equal(s.sent.find(x=>x.a==='editProduct').args.record.productId,'p0');
   assert.equal(s.sent.filter(x=>x.a==='publish').length,1);
   assert.equal(s.sent.find(x=>x.a==='ensureSellingMode').args.record.sellingMode,'single');
   assert.ok(s.sent.findIndex(x=>x.a==='ensureSellingMode')<s.sent.findIndex(x=>x.a==='fill'));
 });
 
-test('待发布按当前列表顺序仅编辑首条，同标题不同来源分别处理',async()=>{
+test('待发布顺序变化仍编辑之前选定的首个父产品，同标题不同来源分别处理',async()=>{
   const s=scenario([product()],{ambiguous:true,reverseOffline:true});await s.run();assert.equal(s.job.rows[0].status,'已发布');
-  assert.equal(s.sent.find(x=>x.a==='editProduct').args.record.productId,'p0-variant');
+  assert.equal(s.sent.find(x=>x.a==='editProduct').args.record.productId,'p0');
   const separate=scenario([product(1),product(2)],{title:'Same title'});await separate.run();
   assert.deepEqual(separate.sent.filter(x=>x.a==='editProduct').map(x=>x.args.record.source),separate.job.rows.map(r=>r.source));
 });
 
-test('父行带子变体移入重复提示后，必须在待发布核对全部子变体才允许填写',async()=>{
-  const s=scenario([product()],{variantChildren:true});await s.run();assert.equal(s.job.rows[0].status,'已发布');
-  assert.deepEqual(s.sent.find(x=>x.a==='moveProgress').args,{expected:3});
-  assert.deepEqual(s.sent.find(x=>x.a==='closeMoveProgress').args.duplicateChildIds,['101','102']);
-  assert.ok(s.job.logs.some(x=>x.message.includes('2 个子变体全部齐全')));assert.equal(s.job.pendingMove,null);
-  const missing=scenario([product()],{variantChildren:true,missingVariant:true});await missing.run();
-  assert.equal(missing.job.state,'review');assert.equal(missing.job.rows[0].status,'待人工核对');
-  assert.ok(!missing.sent.some(x=>['fill','publish'].includes(x.a)));assert.ok(missing.job.pendingMove);
-  const wrong=scenario([product()],{variantChildren:true,childError:'属性异常'});await wrong.run();
-  assert.equal(wrong.job.state,'review');assert.ok(!wrong.sent.some(x=>x.a==='closeMoveProgress'||x.a==='fill'));
+test('父产品移入成功后继续单品流程，不核对子变体数量、ID或错误',async()=>{
+  for(const options of [{},{missingVariant:true},{childError:'属性异常',missingVariant:true}]){
+    const s=scenario([product()],{variantChildren:true,...options});await s.run();assert.equal(s.job.rows[0].status,'已发布');
+    assert.deepEqual(s.sent.find(x=>x.a==='moveProgress').args,{parentIds:['p0']});
+    assert.deepEqual(s.sent.find(x=>x.a==='closeMoveProgress').args,{parentIds:['p0']});
+    assert.ok(!s.job.logs.some(x=>/子变体全部齐全|正在待发布列表核对全部子变体/.test(x.message)));assert.equal(s.job.pendingMove,null);
+    const after=s.sent.slice(s.sent.findIndex(x=>x.a==='closeMoveProgress')+1);assert.equal(after[0].a,'open');assert.match(after[0].url,/\/offline$/);assert.equal(after[1].a,'searchTitle');
+  }
+});
+
+test('旧保存点记录多组历史产品时，继续只移入和编辑第一组',async()=>{
+  const record={...product(),title:'Title 0',checkpoint:'claimed',productId:'p0',productIds:['p0','p0-variant','historical-p0']};
+  const s=scenario([record],{initialClaimed:true,ambiguous:true,reverseOffline:true});await s.run();assert.equal(record.status,'已发布');
+  assert.deepEqual(s.sent.find(x=>x.a==='move').args.ids,['p0']);assert.deepEqual(record.productIds,['p0']);assert.deepEqual(record.movedProductIds,['p0']);
+  assert.equal(s.sent.find(x=>x.a==='editProduct').args.record.productId,'p0');assert.ok(!s.sent.some(x=>['collect','claim'].includes(x.a)));
+});
+
+test('分页重复父产品保留首次遇到的记录，不依赖后续页的子变体',async()=>{
+  let page=0;const workflow=new Workflow({logs:[]},{call:async action=>{if(action==='firstPage')page=0;if(action==='nextPage')page++;return action==='snapshot'?{rows:[{id:'p1',title:page?'Later':'First',variantIds:page?['c2']:['c1']}],hasNext:page===0,signature:String(page)}:{};}});
+  assert.deepEqual(await workflow.scan(),[{id:'p1',title:'First',variantIds:['c1']}]);
 });
 
 test('单品切换失败阻止该条填写与发布',async()=>{

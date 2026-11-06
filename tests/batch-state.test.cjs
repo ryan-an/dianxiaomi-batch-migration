@@ -26,3 +26,23 @@ test('只允许本组子变体的重复移入提示进入待发布核对，其�
   assert.equal(B.movedChildren({...result,success:0},['101','102']),false);
   assert.equal(B.movedChildren({...result,failures:[{id:'101',reason:'其他错误'},{id:'102',reason:'只能处在采集箱中的产品才能移入待发布！'}]},['101','102']),false);
 });
+test('旧版已进入子变体核对的保存点可从最终结果恢复ID，不能放行未知移入',()=>{
+  const job={pendingMove:{ids:['p1'],reconciling:true},pendingStage:'移入待发布',logs:[{message:'执行结果\n执行成功：1个\n执行失败：2\n产品：101\u2003失败原因：只能处在采集箱中的产品才能移入待发布！\n产品：102\u2003失败原因：只能处在采集箱中的产品才能移入待发布！'},{message:'父产品已移入；正在待发布列表核对全部子变体，禁止重复移入'}]};
+  assert.deepEqual(B.moveReconciliation(job).childIds,['101','102']);
+  for(const patch of [{pendingMove:{ids:['p1']}},{intent:{action:'publish'}},{pendingStage:'认领'},{logs:[]}])assert.equal(B.moveReconciliation({...job,...patch}),null);
+  assert.ok(B.moveReconciliation({...job,pendingMove:{ids:['p1'],reconciling:true,childIds:[]}}));
+  assert.equal(B.moveReconciliation({...job,logs:job.logs.map(e=>({message:e.message.replace('产品：102','产品：101')}))}),null);
+});
+
+test('父产品模式按最终结果结束，不要求统计数量与子变体数量相等',()=>{
+  const result=B.move(final(1,28));assert.equal(result.done,true);
+  assert.equal(B.move(final(0,0)).done,false);assert.equal(B.move({...final(1,28),loading:true}).done,false);
+  assert.equal(B.movedParents(B.move(final(29,0)),['p1']),true);
+});
+
+test('父产品全部成功即可继续，非父产品失败不依赖事先记录的子ID或原因',()=>{
+  const result={done:true,success:2,failed:2,failures:[{id:'child-unseen-1',reason:'属性异常'},{id:'child-unseen-2',reason:'只能处在采集箱中的产品才能移入待发布！'}]};
+  assert.equal(B.movedParents(result,['p1','p2']),true);
+  for(const patch of [{done:false},{success:1},{failed:3},{failures:[]},{failures:[{id:'p2'},{id:'child-unseen-2'}]},{failures:[{id:'same'},{id:'same'}]}])assert.equal(B.movedParents({...result,...patch},['p1','p2']),false);
+  assert.equal(B.movedParents(result,[]),false);
+});

@@ -37,6 +37,14 @@ async function load(){
   if(loadPromise)return loadPromise;
   loadPromise=(async()=>{job=(await chrome.storage.local.get('dxmJob')).dxmJob||null;
   let migrated=false;for(const r of job?.rows||[])if(r.status==='已提交待确认'){r.status='已发布';r.checkpoint='published';r.step='完成';r.error='';migrated=true;}
+  // This legacy error occurred before the shop checkbox or confirmation click.
+  if(job?.intent?.action==='claim'&&job.pendingStage==='认领'&&!job.pendingMove&&!job.pendingClaim&&job.error==='等待超时：店铺加载'){
+    for(const r of job.rows)if(r.checkpoint==='collected'&&r.collectorId&&!r.publishUncertain){
+      if(r.history?.some(entry=>/认领执行完成/.test(entry.message)&&/失败\s*[：:]?\s*0(?:\D|$)/.test(entry.message)))r.checkpoint='claim_lookup';
+      r.status='已停止';r.error='';
+    }
+    job.intent=null;job.pendingStage=null;job.state='stopped';job.error='上次停在店铺加载，尚未提交认领；可以继续等待并选择店铺';migrated=true;
+  }
   // Older retries left a global submission lock and marked all rows for review.
   // Bind that uncertainty to retry IDs; other rows resume by read-only lookup.
   if(job?.intent?.action==='retry'&&!job.pendingMove){
@@ -80,7 +88,7 @@ function allowed(url){const u=new URL(url);return u.origin==='https://www.dianxi
 async function raw(action,args={}){
   if(job.stop&&action!=='stop')throw new Error('用户已停止');
   const result=await chrome.tabs.sendMessage(job.tabId,{kind:'DXM_ACTION',action,args,runId:job.id});
-  if(!result?.ok){const e=new Error(result?.error||'页面没有返回执行结果');e.field=result?.field;e.completedFields=result?.completedFields;e.notSubmitted=result?.notSubmitted;throw e;}return result.data;
+  if(!result?.ok){const e=new Error(result?.error||'页面没有返回执行结果');e.field=result?.field;e.completedFields=result?.completedFields;e.notSubmitted=result?.notSubmitted;e.retryable=result?.retryable;e.listIncomplete=result?.listIncomplete;throw e;}return result.data;
 }
 async function germanNewImages(record){
   if(!DXMCore.shouldProcessImages(record))throw new Error('本条既非美国站，也未标记为新品');
@@ -154,9 +162,9 @@ const io={save,sleep:pause,
     if(action==='germanNewImages')return germanNewImages(args.record);
     let beforeTabs;
     if(action==='editProduct'){job.listTabId=job.tabId;beforeTabs=(await chrome.tabs.query({})).map(t=>t.id);await save();}
-    if(risky){job.intent={action,time:new Date().toISOString(),...(action==='retry'?{ids:args.ids}:{})};await save();}
-    try{const data=await raw(action,args);job.intent=null;await save();return action==='editProduct'?{...data,beforeTabs}:data;}
-    catch(e){if(risky&&!e.notSubmitted)e.uncertain=true;throw e;}
+    if(risky){job.intent={action,time:new Date().toISOString(),...(['retry','claim'].includes(action)?{ids:args.ids}:{}),...(action==='claim'?{phase:'submitting'}:{})};if(action==='claim'){job.pendingClaim={ids:args.ids,shop:args.shop,site:args.site,phase:'submitting'};job.pendingStage='认领';}await save();}
+    try{const data=await raw(action,args);job.intent=null;if(action==='claim'&&job.pendingClaim)job.pendingClaim.phase='submitted';await save();return action==='editProduct'?{...data,beforeTabs}:data;}
+    catch(e){if(risky&&!e.notSubmitted)e.uncertain=true;if(action==='claim'&&e.notSubmitted){job.intent=null;job.pendingStage=null;if(job.pendingClaim)job.pendingClaim.phase='preparing';await save();}throw e;}
   },
   async waitEditor(url,record,beforeTabs=[]){
     if(!beforeTabs.length)return this.open(url,record,false);
@@ -242,17 +250,19 @@ chrome.runtime.onMessage.addListener((m,s,reply)=>{
       const storedFile=(await chrome.storage.local.get('dxmFile')).dxmFile;
       if(m.fileId&&storedFile?.id!==m.fileId)throw new Error('表格已更换，请刷新面板');
       const continuing=!!job;
-      if(continuing&&(job.intent||job.pendingMove||job.pendingStage))throw new Error('上次提交的结果尚未确认，已保留进度。请先核对店小秘结果，避免重复提交');
+      const moveRecovery=continuing?DXMBatchState.moveReconciliation(job):null;
+      if(continuing&&(job.intent||job.pendingMove||job.pendingStage||(job.pendingClaim&&!['preparing','prepared'].includes(job.pendingClaim.phase)))&&!moveRecovery)throw new Error('上次提交的结果尚未确认，已保留进度。请先核对店小秘结果，避免重复提交');
       const rows=structuredClone(continuing?job.rows:m.rows);
       for(let i=0;i<rows.length;i++){
         const r=rows[i];if(!continuing)r.history=[];
         if(continuing&&r.publishUncertain){r.status='待人工核对';continue;}
         if(continuing&&r.retryUncertain){r.status='待执行';r.error='';r.checkpoint='retry_review';continue;}
+        if(moveRecovery&&r.checkpoint==='collected')r.checkpoint='claim_lookup';
         if(continuing){if(!['数据错误','已上线','已发布','已提交待确认','发布失败','已跳过'].includes(r.status)){r.error='';r.status='待执行';}}
         if(!r.error){DXMCore.sourceKey(r.source);r.site=DXMCore.normalizeSite(r.site);r.targetShop=DXMCore.shopForSite(r.shop,r.site);if(!continuing)r.status='待执行';}
       }
       if(!rows.some(r=>!r.error))throw new Error(rows.some(r=>r.retryUncertain)?'剩余产品的采集重试结果待核对，不自动重复重试':rows.some(r=>r.publishUncertain)?'剩余产品的发布结果待核对，已保留编辑页，不自动重复提交':'表格中没有可执行的产品，请检查原表数据');
-      const nextJob={...(continuing?job:{}),id:crypto.randomUUID(),fileId:storedFile?.id,state:'running',rows,logs:continuing?job.logs:[],options,tabId:tab.id,imageTabId:null,startedAt:continuing?job.startedAt:new Date().toISOString(),step:continuing?'继续执行':'准备',stop:false,intent:null,error:'',resuming:continuing};
+      const nextJob={...(continuing?job:{}),...(moveRecovery?{pendingMove:moveRecovery}:{}),id:crypto.randomUUID(),fileId:storedFile?.id,state:'running',rows,logs:continuing?job.logs:[],options,tabId:tab.id,imageTabId:null,startedAt:continuing?job.startedAt:new Date().toISOString(),step:continuing?'继续执行':'准备',stop:false,intent:null,error:'',resuming:continuing};
       await chrome.storage.local.set({dxmJob:nextJob});job=nextJob;
       setTimeout(()=>new DXMWorkflow(job,io).run().catch(async e=>{
         job.state='review';job.stop=true;job.error=`后台执行中断，请核对当前产品：${e.message}`;

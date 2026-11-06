@@ -98,6 +98,59 @@
     }
     throw new Error('List Price写入后未保留');
   }
+  const spreadsheetAttributes={
+    'Number of Items':{paths:['number_of_items.0.value'],labels:['Number of Items','Number of Items(产品数量)'],columns:['产品数量'],requiredOnly:true},
+    'Size':{paths:['size.0.value','size_name.0.value'],labels:['Size','Size(尺码)','尺码'],columns:['商品尺寸:长（cm）'],requiredOnly:true},
+    'Color':{paths:['color.0.value','color_name.0.value'],labels:['Color','Color(颜色)','Colour','Colour(颜色)','颜色'],columns:['Color','Colour','颜色']}
+  };
+  const textFieldSelector='input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([role="combobox"]),textarea';
+  function spreadsheetAttributeField(key){
+    const spec=spreadsheetAttributes[key],labelKey=value=>clean(C.norm(value));
+    const items=shown('.ant-form-item').filter(item=>spec.labels.some(label=>labelKey(itemLabel(item))===labelKey(label)));
+    const candidates=[...new Set([
+      ...spec.paths.map(path=>id('form_item_'+path)),
+      ...spec.paths.flatMap(path=>all(`[data-path="${path}"]`).flatMap(scope=>shown(textFieldSelector,scope))),
+      ...items.flatMap(item=>shown(textFieldSelector,item))
+    ].filter(field=>field&&visible(field)&&field.matches(textFieldSelector)&&!field.closest('.ant-select')))];
+    if(candidates.length)return one(candidates,key);
+    if(items.length)throw new Error(`${key}字段存在，但未找到可填写的文本框`);
+    return null;
+  }
+  function requiredAttribute(field){
+    const item=field.closest('.ant-form-item');
+    return !!field.required||field.getAttribute('aria-required')==='true'||!!item?.querySelector('.ant-form-item-required,[aria-required="true"]')||/^[＊*]/.test(item?.querySelector('.ant-form-item-label')?.textContent?.trim()||'');
+  }
+  function spreadsheetAttributeValue(record,key){
+    const data=record.data||{},columnKey=value=>clean(C.norm(value));
+    for(const column of spreadsheetAttributes[key].columns){
+      const actual=Object.keys(data).find(header=>columnKey(header)===columnKey(column)&&C.text(data[header]));
+      if(actual!==undefined)return C.text(data[actual]);
+    }
+    return '';
+  }
+  async function ensureSpreadsheetAttribute(record,key){
+    const spec=spreadsheetAttributes[key],initial=spreadsheetAttributeField(key);
+    if(!initial)return {absent:true};
+    if(spec.requiredOnly&&!requiredAttribute(initial))return {optional:true};
+    const wanted=spreadsheetAttributeValue(record,key);
+    if(!wanted){
+      if(requiredAttribute(initial))throw new Error(`${key}为必填，但表格“${spec.columns[0]}”为空，无法如实补填`);
+      return {missing:true};
+    }
+    let changed=false;
+    for(let attempt=0;attempt<3;attempt++){
+      if(stopped)throw new Error('已停止');
+      const field=spreadsheetAttributeField(key);if(!field)throw new Error(`${key}字段在填写时消失`);
+      if(spec.requiredOnly&&!requiredAttribute(field))return {optional:true,changed};
+      if(C.text(field.value)!==wanted){
+        if(field.disabled||field.readOnly)throw new Error(`${key}输入框被禁用或只读`);
+        input(field,wanted);changed=true;
+      }
+      await sleep(200);if(stopped)throw new Error('已停止');
+      if(C.text(spreadsheetAttributeField(key)?.value)===wanted)return {value:wanted,changed};
+    }
+    throw new Error(`${key}写入后未保留`);
+  }
   const productFields={
     '制造商':{ids:['form_item_manufacturer','form_item_manufacturer.0.value'],labels:['制造商','Manufacturer','Manufacturer(制造商)'],selectors:'input[placeholder="请输入制造商"],input[name="manufacturer"]'},
     'Model Number':{ids:['form_item_model_number.0.value'],labels:['Model Number','Model Number(型号)','型号'],selectors:'input[placeholder="请输入型号"]'},
@@ -279,7 +332,32 @@
     await until(()=>!shown('.vxe-loading.is--visible,.ant-spin-spinning,#dPageLoading').length,'列表加载');
     await sleep(300);
   }
+  async function loadListRows(){
+    const scrolls=new Map(),remember=e=>{if(e&&!scrolls.has(e))scrolls.set(e,{top:e.scrollTop,left:e.scrollLeft});};
+    try{
+      for(let pass=0;pass<20000;pass++){
+        if(stopped)throw new Error('已停止');
+        const pending=shown('.vxe-table--main-wrapper tr.vxe-body--row').find(row=>shown('.dxm-skeleton',row).length);
+        if(!pending)return;
+        const skeleton=shown('.dxm-skeleton',pending)[0],cell=skeleton.closest('td'),rowId=pending.getAttribute('rowid'),columnId=cell?.getAttribute('colid'),columnIndex=cell?.cellIndex;
+        if(!cell)throw new Error(`列表占位内容无法对应单元格：${rowId}`);
+        await until(()=>{
+          const row=all('.vxe-table--main-wrapper tr.vxe-body--row').find(e=>e.getAttribute('rowid')===rowId);
+          const current=row&&([...row.cells].find(e=>columnId&&e.getAttribute('colid')===columnId)||row.cells[columnIndex]);if(!current)return null;
+          if(!shown('.dxm-skeleton',current).length)return true;
+          for(let e=current.parentElement;e;e=e.parentElement)if(e.scrollHeight>e.clientHeight||e.scrollWidth>e.clientWidth)remember(e);
+          remember(document.scrollingElement);
+          current.scrollIntoView({block:'center',inline:'center',behavior:'instant'});return null;
+        },`加载完整列表行 ${rowId} 第${columnIndex+1}列（未完成时禁止使用部分列表）`);
+      }
+      throw new Error('列表单元格滚动加载超过20000次，禁止使用部分列表');
+    }catch(error){if(!stopped){error.listIncomplete=true;error.retryable=true;}throw error;
+    }finally{
+      for(const [element,position] of [...scrolls].reverse())element.scrollTo({top:position.top,left:position.left,behavior:'instant'});
+    }
+  }
   async function selectRows(ids){
+    await loadListRows();
     const current=rows();
     ids.forEach(value=>one(current.filter(r=>r.id===value),`本页产品 ${value}`));
     // Clear previous selection in all rendered copies, then select only requested rows.
@@ -298,6 +376,12 @@
     }
   }
   async function closeProgress(){const m=modal();if(m){const b=exact('关闭','button',m);if(b.length===1)click(b[0]);await sleep(250);}}
+  function claimDialog(){return oneOrNull(shown('.ant-modal').filter(m=>clean(m.querySelector('.ant-modal-title')?.textContent)==='选择店铺-认领到采集箱'));}
+  function selectedCrawlIds(){return rows().filter(r=>shown(`tr[rowid="${CSS.escape(r.rowId)}"] input[type="checkbox"]`)[0]?.checked).map(r=>r.id);}
+  function sameIds(a,b){return a.length===b.length&&a.every(id=>b.includes(id));}
+  function claimShop(m,shop,site){
+    return shown('.shop-div[name="amazon"] label',m).filter(e=>{const parts=/^\[([^\]]+)\](.*)$/.exec(clean(e.textContent));return parts&&C.sameSite(parts[1],site)&&clean(parts[2])===clean(shop);});
+  }
   async function batchMenu(name){
     const trigger=one(shown('button').filter(e=>clean(e.textContent).startsWith('批量操作')),'批量操作');
     click(trigger);
@@ -311,14 +395,14 @@
     click(item);
   }
   function oneOrNull(es){if(es.length>1)throw new Error('批量菜单存在多个同名操作，请人工核对');return es[0];}
-  function moveState(expected){
-    if(!Number.isInteger(expected)||expected<1)throw new Error('移入产品数量无效');
+  function moveState(parentIds){
+    if(!Array.isArray(parentIds)||!parentIds.length||parentIds.some(id=>typeof id!=='string'||!id)||new Set(parentIds).size!==parentIds.length)throw new Error('移入父产品ID无效，请重新加载扩展并刷新页面');
     const m=modal();
     return root.DXMBatchState.move({
       title:C.text(m?.querySelector('.ant-modal-title')?.textContent),text:C.text(m?.innerText),
       state:C.text(m?.querySelector('#commonProgressBarStatus')?.textContent),
       loading:!!m&&shown('.ant-spin-spinning,.ant-progress-status-active',m).length>0
-    },expected);
+    });
   }
   async function clearGuides(){
     for(const e of shown('.notice-list-modal__header-close'))click(e);
@@ -386,9 +470,31 @@
         if(condition.value){checked.push(field);if(condition.changed)repaired.push(field);}
         field='箱子数量';const boxes=await commands.ensureBoxCount();
         if(boxes.absent)skipped.push(field);else if(boxes.value){checked.push(field);if(boxes.changed)repaired.push(field);}
+        field='产品数量、尺码和颜色';
+        try{const attributes=await commands.ensureSpreadsheetAttributes({record});checked.push(...attributes.checked);repaired.push(...attributes.repaired);skipped.push(...attributes.skipped);}
+        catch(error){field=error.field||field;throw error;}
         field='页面必填项';const errors=requiredFieldErrors();if(errors.length)throw new Error(errors.join('；'));
         return {checked,repaired,skipped};
       }catch(e){e.field=field;e.completedFields=checked;e.message=`提交前检查【${field}】失败：${e.message}`;throw e;}
+    },
+    async ensureSpreadsheetAttributes({record}={}){
+      checkIdentity(record);const repaired=new Set(),keys=Object.keys(spreadsheetAttributes);let unstable;
+      for(let attempt=0;attempt<3;attempt++){
+        const checked=[],skipped=[];
+        for(const key of keys){
+          try{
+            const result=await ensureSpreadsheetAttribute(record,key);
+            if(result.absent||result.missing)skipped.push(key);else if(result.value){checked.push(key);if(result.changed)repaired.add(key);}
+          }catch(error){error.field=key;throw error;}
+        }
+        unstable=keys.find(key=>{
+          const field=spreadsheetAttributeField(key);if(!field)return checked.includes(key);
+          if(spreadsheetAttributes[key].requiredOnly&&!requiredAttribute(field))return false;
+          const wanted=spreadsheetAttributeValue(record,key);return !!wanted&&C.text(field.value)!==wanted;
+        });
+        if(!unstable)return {checked,repaired:[...repaired],skipped};
+      }
+      const error=new Error(`${unstable}在表单更新后未保留`);error.field=unstable;throw error;
     },
     async ensureSellingMode({record}={}){
       checkIdentity(record);
@@ -497,7 +603,7 @@
       click(edit);
       return {url:item.editUrl};
     },
-    async snapshot(){await settled();return {rows:rows(),hasNext:!disabled(pagerButton('下一页')),signature:signature()};},
+    async snapshot(){await settled();await loadListRows();return {rows:rows(),hasNext:!disabled(pagerButton('下一页')),signature:signature()};},
     async firstPage(){const b=pagerButton('首页');if(!disabled(b)){click(b);await sleep(500);await settled();}return {};},
     async nextPage(){const b=pagerButton('下一页'),before=signature();if(disabled(b))return {end:true};click(b);await until(()=>signature()!==before,'下一页');await settled();return {};},
     async acquisitionTab({name}){
@@ -560,27 +666,66 @@
         },'重试反馈（确认弹窗、进度或列表变化）');
       }catch(error){if(!submitted)error.notSubmitted=true;throw error;}
     },
-    async claim({ids,shop,site}){
-      await selectRows(ids);click(button('批量认领'));
-      const m=await until(()=>{const e=modal();return e?.textContent.includes('选择店铺-认领到采集箱')?e:null;},'认领店铺弹窗');
-      await until(()=>all('.shop-div[name="amazon"] label',m).length,'店铺加载');
-      const labels=all('.shop-div[name="amazon"] label',m),target=one(labels.filter(e=>{const parts=/^\[([^\]]+)\](.*)$/.exec(clean(e.textContent));return parts&&C.sameSite(parts[1],site)&&clean(parts[2])===clean(shop);}),`店铺 [${site}]${shop}`);
-      for(const e of all('.shop-div input[type="checkbox"]',m))if(e.checked)checked(e,false);
-      checked(target.querySelector('input'),true);click(button('确定',m));
-      await until(()=>{const x=modal();return x?.textContent.includes('认领到采集箱')&&x.querySelector('#commonProgressBarStatus');},'认领进度');
-      return {};
+    async prepareClaim({ids,shop,site,reopen=false}){
+      try{
+        let existing=claimDialog();
+        if(existing&&(reopen||!sameIds(selectedCrawlIds(),ids))){click(button('关闭',existing));await until(()=>!claimDialog(),'关闭未提交的认领弹窗');existing=null;}
+        if(!existing){
+          if(modal())throw new Error('当前存在其他操作弹窗，不能准备新的认领');
+          await selectRows(ids);click(button('批量认领'));await until(()=>claimDialog(),'认领店铺弹窗',30000);
+        }
+        const activated=new WeakSet();let lastSignature='',stable=0;
+        const locate=()=>{
+          const m=claimDialog();if(!m)return null;
+          const search=m.querySelector('input[placeholder="搜索店铺名称"]');
+          if(search?.value){input(search,'');const searchButton=search.closest('.ant-input-search')?.querySelector('button');if(searchButton)click(searchButton);return null;}
+          const channel=shown('.platform-btn[name="amazon"]',m)[0];
+          if(channel&&!channel.classList.contains('active')&&!activated.has(channel)){activated.add(channel);click(channel);return null;}
+          const group=shown('.shop-div[name="amazon"]',m)[0];if(!group)return null;
+          group.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});
+          const skeletons=shown('.render-skeleton,.dxm-skeleton',group);if(skeletons.length){skeletons[0].scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});stable=0;return null;}
+          const matches=claimShop(m,shop,site);
+          if(matches.length>1)throw new Error(`店铺 [${site}]${shop}：匹配到多个控件，请核对`);
+          if(matches.length===1){if(matches[0].querySelector('input')?.disabled)throw new Error(`店铺 [${site}]${shop} 已禁用`);return {m,target:matches[0]};}
+          const signature=shown('.shop-div[name="amazon"] label',m).map(e=>clean(e.textContent)).join('|');
+          stable=signature&&signature===lastSignature?stable+1:0;lastSignature=signature;
+          if(stable>=4&&!shown('.ant-spin-spinning',m).length)throw new Error(`已加载店铺列表，但没有找到 [${site}]${shop}`);
+          return null;
+        };
+        for(let attempt=0;attempt<3;attempt++){
+          const {m,target}=await until(locate,`店铺加载 [${site}]${shop}（尚未提交认领，自动等待）`,90000);
+          for(const e of all('.shop-div input[type="checkbox"]',m))if(e.checked)checked(e,false);
+          checked(target.querySelector('input'),true);await sleep(200);
+          const current=claimDialog(),matches=current?claimShop(current,shop,site):[],selected=current?all('.shop-div input[type="checkbox"]',current).filter(e=>e.checked):[];
+          if(matches.length===1&&selected.length===1&&matches[0].querySelector('input')===selected[0]&&sameIds(selectedCrawlIds(),ids))return {prepared:true};
+        }
+        throw new Error('认领弹窗重绘后店铺选择未保留，尚未提交');
+      }catch(error){error.notSubmitted=true;error.retryable=/等待超时|重绘/.test(error.message);throw error;}
+    },
+    async claim({ids,shop,site,prepared=false}){
+      let submitted=false;
+      try{
+        if(!prepared)await commands.prepareClaim({ids,shop,site});
+        const m=claimDialog();if(!m)throw new Error('认领店铺弹窗已变化，尚未提交');
+        const matches=claimShop(m,shop,site),selected=all('.shop-div input[type="checkbox"]',m).filter(e=>e.checked);
+        if(matches.length!==1||selected.length!==1||selected[0]!==matches[0].querySelector('input')||!sameIds(selectedCrawlIds(),ids))throw new Error('认领产品或店铺选择已变化，尚未提交');
+        const yes=button('确定',m);if(yes.disabled||stopped)throw new Error('认领确定按钮不可点击，尚未提交');
+        submitted=true;click(yes);
+        await until(()=>{const x=modal();return x?.textContent.includes('认领到采集箱')&&x.querySelector('#commonProgressBarStatus');},'认领进度（已点击确定，仅等待结果）',60000);
+        return {submitted:true};
+      }catch(error){if(!submitted){error.notSubmitted=true;error.retryable=error.retryable??/已变化/.test(error.message);}throw error;}
     },
     async move({ids,waitMode}){
       if(waitMode!=='poll')throw new Error('扩展文件版本不一致，请重新加载扩展并刷新页面后再执行');
-      const selected=rows().filter(r=>ids.includes(r.id)),childIds=selected.flatMap(r=>r.variantIds||[]);
+      await loadListRows();
       await selectRows(ids);await batchMenu('批量移入待发布');
       const m=await until(()=>modal(),'移入提示');if(!m.textContent.includes('移入待发布'))throw new Error('移入提示内容变化');click(button('确定',m));
-      return {submitted:true,expected:ids.length+childIds.length,childIds};
+      return {submitted:true};
     },
-    async moveProgress({expected}){return moveState(expected);},
-    async closeMoveProgress({expected,duplicateChildIds=[]}){
-      const result=moveState(expected);
-      if(!result.done||((result.failed||result.success!==expected)&&!root.DXMBatchState.movedChildren(result,duplicateChildIds)))throw new Error('移入结果尚未全部成功，保留当前弹窗');
+    async moveProgress({parentIds}){return moveState(parentIds);},
+    async closeMoveProgress({parentIds}){
+      const result=moveState(parentIds);
+      if(!root.DXMBatchState.movedParents(result,parentIds))throw new Error('父产品移入结果尚未确认成功，保留当前弹窗');
       const m=one(shown('.ant-modal').filter(e=>e.querySelector('.ant-modal-title')?.textContent.includes('执行结果')),'移入最终结果');
       click(button('关闭',m));await until(()=>!visible(m),'关闭移入最终结果');return result;
     },
@@ -607,7 +752,9 @@
       const delivery=()=>optionalItem('配送渠道')?.querySelector('[role="combobox"]');
       await attempt('配送渠道（清空库存数量后选择FBA）',async()=>{
       if(delivery()){
-        await select(delivery(),'FBM');await sleep(200);const quantity=document.querySelector('input[placeholder="请输入产品数量"]');
+        await select(delivery(),'FBM');await sleep(200);
+        const quantities=shown('input[placeholder="请输入产品数量"]').filter(field=>!field.closest('#attrInfo,[data-path="number_of_items.0.value"]')&&field.id!=='form_item_number_of_items.0.value');
+        const quantity=quantities.length?one(quantities,'库存数量'):null;
         if(quantity){input(quantity,'');written.push('库存数量清空');}else skip('库存数量');
         await select(delivery(),'FBA');written.push('配送渠道FBA');
       }else skip('配送渠道');});
@@ -625,7 +772,6 @@
         });
       }
       await attempt('List Price',async()=>{const result=await ensureListPrice(record);if(result.absent)skip('List Price');else if(!result.missing)written.push('List Price');});
-      put('Color',id('form_item_color.0.value'));
       await attempt('容量',async()=>{if(record.data['容量']){
         const attributes=all('.ant-form-item');
         const candidates=attributes.filter(e=>/容量|Capacity|Item Volume/i.test(itemLabel(e))&&!/单位|Unit/i.test(itemLabel(e)));
@@ -676,6 +822,9 @@
       await attempt('Search Terms（必填时填写标题）',async()=>{
         const terms=await commands.ensureSearchTerms();if(terms.absent)skip('Search Terms');else if(terms.value)written.push('Search Terms：当前标题');
       });
+      for(const key of Object.keys(spreadsheetAttributes))await attempt(key,async()=>{
+        const result=await ensureSpreadsheetAttribute(record,key);if(result.absent||result.missing)skip(key);else if(result.value)written.push(key);
+      });
       const title=C.text(formItem('产品标题').querySelector('input,textarea')?.value);
       return {written,skipped,warnings,title,titleUpdate};
       }catch(e){e.field=currentField;e.completedFields=[...written];e.message=`填写【${currentField}】失败：${e.message}`;throw e;}
@@ -686,6 +835,7 @@
         if(record.sellingMode==='single')await commands.ensureSellingMode({record});
         if(C.shouldProcessImages(record)&&!germanImageState().done)throw new Error('商品图片尚未确认只保留一张500×500主图');
         await commands.ensureSearchTerms();
+        await commands.ensureSpreadsheetAttributes({record});
         const target=await until(()=>shown('button').find(e=>clean(e.textContent)==='保存并发布'&&!e.disabled&&!e.classList.contains('ant-btn-loading')),'保存并发布按钮就绪',10000);
         checkIdentity(record);click(target);
       }catch(e){e.notSubmitted=true;throw e;}
@@ -711,7 +861,7 @@
     chrome.runtime.onMessage.addListener((m,s,reply)=>{
       if(m.kind!=='DXM_ACTION')return;
       if(!commands[m.action]){reply({ok:false,error:'未知页面操作'});return;}
-      commands[m.action]({...m.args,runId:m.runId}).then(data=>reply({ok:true,data}),e=>reply({ok:false,error:e.message,field:e.field,completedFields:e.completedFields,notSubmitted:e.notSubmitted}));return true;
+      commands[m.action]({...m.args,runId:m.runId}).then(data=>reply({ok:true,data}),e=>reply({ok:false,error:e.message,field:e.field,completedFields:e.completedFields,notSubmitted:e.notSubmitted,retryable:e.retryable,listIncomplete:e.listIncomplete}));return true;
     });
   }
 })(globalThis);

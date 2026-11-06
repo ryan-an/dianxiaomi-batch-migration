@@ -11,27 +11,38 @@
     }
     guard(){if(this.job.stop)throw new Error('用户已停止');}
     async step(name,rs){this.guard();this.job.step=name;for(const r of rs)r.step=name;await this.log(name,rs);}
+    async readPage(){
+      for(let attempt=0;attempt<3;attempt++){
+        this.guard();
+        try{return await this.io.call('snapshot');}
+        catch(error){
+          this.guard();
+          if(!error.listIncomplete&&!/^等待超时：加载完整列表行/.test(error.message))throw error;
+          error.listIncomplete=true;if(attempt===2)throw error;
+          await this.log(`列表内容仍在加载，自动滚动重试 ${attempt+2}/3，保留已完成步骤：${error.message}`);await this.io.sleep(600*(attempt+1));
+        }
+      }
+    }
     async scan(){
       await this.io.call('firstPage');const collected=new Map(),seen=new Set();
       for(let page=0;page<500;page++){
-        this.guard();const s=await this.io.call('snapshot');
+        this.guard();const s=await this.readPage();
         if(seen.has(s.signature)&&s.hasNext)throw new Error('分页没有前进，已停止扫描');seen.add(s.signature);
-        for(const r of s.rows)collected.set(r.id,r);
+        for(const r of s.rows)if(!collected.has(r.id))collected.set(r.id,r);
         if(!s.hasNext)return [...collected.values()];
         await this.io.call('nextPage');
       }
       throw new Error('列表超过500页，请缩小筛选范围');
     }
-    async progress(rs,operation='common',expected=rs.length,childIds=[]){
-      const moving=operation==='move',args=moving?{expected}:{},end=Date.now()+15*60*1000;let previous='';
+    async progress(rs,operation='common',parentIds=[]){
+      const moving=operation==='move',args=moving?{parentIds}:{},end=Date.now()+15*60*1000;let previous='';
       try{
         while(Date.now()<end){
           this.guard();const p=await this.io.call(moving?'moveProgress':'progress',args);
           if(p.text&&p.text!==previous){await this.log(p.text,rs);previous=p.text;}
           if(p.done){
-            const duplicateChildren=moving&&root.DXMBatchState?.movedChildren(p,childIds);
-            if(moving&&(p.failed||p.success!==expected)&&!duplicateChildren)throw new Error(`移入结果需要核对：成功 ${p.success}，失败 ${p.failed}；已保留当前页面，不自动重试`);
-            await this.io.call(moving?'closeMoveProgress':'closeProgress',{...args,...(duplicateChildren?{duplicateChildIds:childIds}:{})});return {...p,duplicateChildren};
+            if(moving&&!root.DXMBatchState.movedParents(p,parentIds))throw new Error(`父产品移入结果需要核对：成功 ${p.success}，失败 ${p.failed}；已保留当前页面，不自动重试`);
+            await this.io.call(moving?'closeMoveProgress':'closeProgress',args);return p;
           }
           await this.io.sleep(1500);
         }
@@ -39,17 +50,17 @@
       }catch(e){if(moving&&!this.job.stop)e.uncertain=true;throw e;}
     }
     async pageBatches(records,idField,command,extra={}){
-      const idsFor=r=>r[idField+'s']?.length?r[idField+'s']:[r[idField]];
-      const pending=new Set(records.flatMap(idsFor).filter(Boolean));
+      const idsFor=r=>command==='move'?[this.firstProduct(r)]:r[idField+'s']?.length?r[idField+'s']:[r[idField]];
+      const pending=new Set(records.flatMap(r=>idsFor(r).filter(id=>(command!=='move'||!r.movedProductIds?.includes(id))&&(command!=='claim'||!r.claimedCollectorIds?.includes(id)))).filter(Boolean));
       while(pending.size){
         this.guard();await this.io.call('firstPage');let found=false;
         for(let n=0;n<500;n++){
-          const snap=await this.io.call('snapshot'),ids=snap.rows.map(r=>r.id).filter(k=>pending.has(k));
+          const snap=await this.readPage(),ids=snap.rows.map(r=>r.id).filter(k=>pending.has(k));
           if(ids.length){
             const members=records.filter(r=>idsFor(r).some(id=>ids.includes(id)));
             const expected=ids.length;
-            await this.log(`本页处理 ${ids.length} 行，包含 ${expected} 个产品/变体`,members);
-            if(command==='move'){this.job.pendingMove={ids,startedAt:new Date().toISOString()};await this.io.save();}
+            await this.log(`本页处理 ${ids.length} 行${command==='move'?'，每条来源仅移入首个父产品':''}`,members);
+            if(command==='move'){this.job.pendingStage='移入待发布';this.job.pendingMove={ids,startedAt:new Date().toISOString()};await this.io.save();}
             if(command==='retry'){
               for(const r of members){r.retryUncertain=true;r.checkpoint='retry_review';}
               await this.io.save();
@@ -62,22 +73,16 @@
               await this.io.save();await this.io.call('acquisitionTab',{name:'采集失败'});
               for(const value of ids)pending.delete(value);found=true;break;
             }
+            if(command==='claim'){
+              const completed=await this.claimPage(members,ids,extra);
+              for(const value of completed?ids:members.flatMap(idsFor))pending.delete(value);found=true;break;
+            }
             const result=await this.io.call(command,{ids,...extra,...(command==='move'?{waitMode:'poll'}:{})},true);
-            if(command==='claim')await this.progress(members);
-            else if(command==='move'){
-              await this.log(`已提交 ${expected} 个产品/变体移入，等待店小秘处理完成，请勿刷新页面`,members);
-              const moved=await this.progress(members,'move',result.expected||expected,result.childIds||[]);
-              if(moved.duplicateChildren){
-                await this.log('父产品已移入；正在待发布列表核对全部子变体，禁止重复移入',members);
-                this.job.pendingMove.reconciling=true;await this.io.save();
-                await this.io.open('https://www.dianxiaomi.com/web/amazon/pageList/offline');const offline=await this.scan();
-                const parents=offline.filter(x=>ids.includes(x.id)),actual=new Set(parents.flatMap(x=>[x.id,...(x.variantIds||[])]));
-                if(ids.some(id=>!actual.has(id))||(result.childIds||[]).some(id=>!actual.has(id))){const e=new Error('移入后未找到完整父产品和子变体，需人工核对，禁止重复移入');e.uncertain=true;throw e;}
-                await this.log(`待发布已核对 ${ids.length} 个父产品及 ${result.childIds.length} 个子变体全部齐全`,members);
-                this.job.pendingMove=null;await this.io.save();
-                await this.io.open('https://www.dianxiaomi.com/web/amazon/pageList/draft');
-              }
-              this.job.pendingMove=null;await this.io.save();
+            if(command==='move'){
+              await this.log(`已提交 ${expected} 个父产品移入，等待店小秘处理完成，请勿刷新页面`,members);
+              await this.progress(members,'move',ids);
+              this.markMoved(members,ids);
+              this.job.pendingMove=null;this.job.pendingStage=null;await this.io.save();
             }
             else if(result.text)await this.log(result.text,members);
             for(const value of ids)pending.delete(value);
@@ -91,6 +96,54 @@
           error.notSubmitted=true;await this.retryProblem(records.filter(r=>idsFor(r).some(id=>pending.has(id))),error);return;
         }
       }
+    }
+    async claimPage(records,ids,extra){
+      for(let attempt=0;attempt<3;attempt++){
+        this.guard();this.job.pendingClaim={ids,shop:extra.shop,site:extra.site,phase:'preparing'};
+        await this.log(`加载并核对店铺 [${extra.site}]${extra.shop}，第 ${attempt+1}/3 次准备；尚未提交认领，加载最多等待90秒`,records);
+        let submissionAttempted=false,submitted=false;
+        try{
+          await this.io.call('prepareClaim',{ids,...extra,reopen:attempt>0});this.guard();
+          this.job.pendingClaim.phase='prepared';await this.io.save();
+          submissionAttempted=true;await this.io.call('claim',{ids,...extra,prepared:true},true);submitted=true;await this.progress(records);
+          for(const r of records){const all=r.collectorIds?.length?r.collectorIds:[r.collectorId];r.claimedCollectorIds=[...new Set([...(r.claimedCollectorIds||[]),...all.filter(id=>ids.includes(id))])];if(all.every(id=>r.claimedCollectorIds.includes(id)))r.checkpoint='claim_lookup';}
+          this.job.pendingClaim=null;this.job.pendingStage=null;this.job.intent=null;await this.io.save();return true;
+        }catch(error){
+          this.guard();
+          if(submitted||(submissionAttempted&&!error.notSubmitted)){error.uncertain=true;throw error;}
+          this.job.intent=null;this.job.pendingStage=null;
+          if(error.retryable!==false&&attempt<2){await this.log(`店铺准备尚未完成，自动重新打开并加载，不重复提交：${error.message}`,records);await this.io.sleep(1500*(attempt+1));continue;}
+          if(error.listIncomplete){this.job.pendingClaim=null;throw error;}
+          for(const r of records)this.fail(r,new Error(`认领尚未提交：${error.message}`));
+          this.job.pendingClaim=null;await this.log(`本页认领未提交，保留采集结果；其他可执行记录继续：${error.message}`,records);return false;
+        }
+      }
+    }
+    firstProduct(record){return record.productIds?.[0]||record.productId;}
+    markMoved(records,ids){
+      for(const r of records){
+        const all=[this.firstProduct(r)].filter(Boolean);
+        r.movedProductIds=[...new Set([...(r.movedProductIds||[]),...all.filter(id=>ids.includes(id))])];
+        if(all.every(id=>r.movedProductIds.includes(id)))r.checkpoint='offline';
+      }
+    }
+    async reconcileMove(){
+      const fail=message=>{const error=new Error(message);error.uncertain=true;throw error;};
+      const plan=root.DXMBatchState.moveReconciliation(this.job);if(!plan)fail('移入保存点缺少可验证的父产品ID和最终结果，保留待核对，禁止重复移入');
+      const records=this.job.rows.filter(r=>(r.productIds||[r.productId]).some(id=>plan.ids.includes(id)));
+      if(plan.ids.some(id=>!records.some(r=>(r.productIds||[r.productId]).includes(id))))fail('移入保存点无法对应本批次产品，禁止重复移入');
+      const ids=plan.ids.filter(id=>records.some(r=>this.firstProduct(r)===id));
+      this.job.pendingMove=plan;await this.io.save();
+      await this.log('恢复已移入的父产品；只查父产品，不核对子变体，不重复移入',records);
+      let offline;
+      try{if(ids.length){await this.io.open('https://www.dianxiaomi.com/web/amazon/pageList/offline');offline=await this.scan();}else offline=[];}
+      catch(error){if(!this.job.stop)error.uncertain=true;throw error;}
+      const parents=offline.filter(x=>ids.includes(x.id));
+      const missingParents=ids.filter(id=>!parents.some(parent=>parent.id===id));
+      const wrong=parents.filter(parent=>!records.some(r=>(r.productIds||[r.productId]).includes(parent.id)&&this.matchingProducts([parent],r).length));
+      if(missingParents.length||wrong.length)fail(`移入后父产品待核对：缺父产品 ${missingParents.join('、')||'无'}；来源/标题/店铺/站点不符 ${wrong.map(r=>r.id).join('、')||'无'}。保留保存点，禁止重复移入`);
+      this.markMoved(records,ids);this.job.pendingMove=null;if(this.job.pendingStage==='移入待发布')this.job.pendingStage=null;if(this.job.intent?.action==='move')this.job.intent=null;
+      await this.log(`已恢复 ${ids.length} 个已移入父产品；不核对子变体，继续后续流程`,records);
     }
     async retryProblem(records,error){
       for(const r of records){
@@ -129,9 +182,9 @@
     async mapCollected(r,crawled,alreadyClaimed){
       const unclaimed=crawled.filter(x=>this.same(x.source,r.source)),collectorTab=unclaimed.length?'未认领':'已认领';
       const found=unclaimed.length?unclaimed:alreadyClaimed.filter(x=>this.same(x.source,r.source));if(!found.length)return false;
-      const matches=this.sameTitleGroup(found,'采集链接和标题映射'),m=matches[0];
-      r.collectorIds=[...new Set(matches.map(x=>x.id))];r.collectorId=m.id;r.collectorTab=collectorTab;r.title=m.title;r.collectedTitle=m.title;r.collectedQuantity=C.extractProductQuantity(m.title);r.status='采集完成';r.checkpoint='collected';r.error='';delete r.retryUncertain;
-      await this.log(`在${collectorTab}找到同链接同标题共 ${r.collectorIds.length} 条，全部认领`,[r]);
+      const m=this.firstMatch(found,'采集链接和标题映射');
+      r.collectorIds=[m.id];r.collectorId=m.id;r.collectorTab=collectorTab;r.title=m.title;r.collectedTitle=m.title;r.collectedQuantity=C.extractProductQuantity(m.title);r.status='采集完成';r.checkpoint='collected';r.error='';delete r.retryUncertain;
+      await this.log(`在${collectorTab}找到同链接 ${found.length} 条，只取第一条认领`,[r]);
       await this.log(`已对应标题：${r.title}；原标题数量：${r.collectedQuantity||'空'}；表格产品数量：${r.targetQuantity||'空'}`,[r]);return true;
     }
     fail(r,e){r.status='失败';r.error=e.message||String(e);if(e.field)r.failedField=e.field;if(e.completedFields)r.completedFields=e.completedFields;}
@@ -143,13 +196,27 @@
     same(a,b){try{return C.sourceKey(a)===C.sourceKey(b);}catch{return false;}}
     sameTitle(title,r){return [r.title,r.collectedTitle].some(value=>C.text(value)&&C.norm(title)===C.norm(value));}
     matchingProducts(list,r){return list.filter(x=>this.same(x.source,r.source)&&this.sameTitle(x.title,r)&&x.text.includes(`「${r.targetShop}」`)&&C.siteInText(x.text,r.site));}
-    sameTitleGroup(list,label){
+    firstMatch(list,label){
       if(!list.length)throw new Error(`${label}：匹配到 0 条`);
-      if(list.some(x=>!C.text(x.title))||new Set(list.map(x=>C.norm(x.title))).size!==1)throw new Error(`${label}：同一来源存在不同或空标题，请核对`);
-      return list;
+      if(!C.text(list[0].title))throw new Error(`${label}：第一条标题为空，请核对`);
+      return list[0];
     }
     async runGroup(group){
       const pending=group.filter(r=>r.status==='待执行');if(!pending.length)return;
+      const claimLookup=pending.filter(r=>r.checkpoint==='claim_lookup');
+      if(claimLookup.length){
+        await this.step('恢复认领映射：只查已有产品，不重复认领',claimLookup);
+        await this.io.open('https://www.dianxiaomi.com/web/amazon/pageList/draft');const draft=await this.scan();
+        let offline=[];if(claimLookup.some(r=>!this.matchingProducts(draft,r).length)){await this.io.open('https://www.dianxiaomi.com/web/amazon/pageList/offline');offline=await this.scan();}
+        for(const r of claimLookup){
+          try{
+            const inDraft=this.matchingProducts(draft,r),first=this.firstMatch(inDraft.length?inDraft:this.matchingProducts(offline,r),'恢复认领产品映射');
+            r.productIds=[first.id];r.productId=first.id;r.checkpoint=inDraft.length?'claimed':'offline';r.status='已认领';r.error='';
+            if(!inDraft.length)r.movedProductIds=[...r.productIds];
+            await this.log(`恢复首个已有父产品 ${first.id}，继续后续流程，不重复认领`,[r]);
+          }catch(error){r.status='待人工核对';r.error=`认领结果待核对，不重复认领：${error.message}`;await this.log(r.error,[r]);}
+        }
+      }
       const lookup=pending.filter(r=>['retry_review','collect_lookup'].includes(r.checkpoint));
       if(lookup.length){
         await this.step('先核对已有采集记录，不重复提交重试',lookup);
@@ -213,20 +280,18 @@
       if(good.length){
       await this.step(`批量认领到 [${good[0].site}]${good[0].targetShop}`,good);
       await this.io.open('https://www.dianxiaomi.com/web/productCrawl/dataAcquisition');
-      this.job.pendingStage='认领';await this.io.save();
       for(const name of ['未认领','已认领']){
         const records=good.filter(r=>(r.collectorTab==='已认领'?'已认领':'未认领')===name);if(!records.length)continue;
         await this.io.call('acquisitionTab',{name});
         await this.pageBatches(records,'collectorId','claim',{shop:good[0].targetShop,site:good[0].site});
       }
       await this.io.open('https://www.dianxiaomi.com/web/amazon/pageList/draft');const draft=await this.scan();
-      for(const r of good){try{const matches=this.sameTitleGroup(this.matchingProducts(draft,r),'认领产品映射');r.productIds=[...new Set(matches.map(x=>x.id))];r.productId=matches[0].id;r.status='已认领';r.checkpoint='claimed';await this.log(`已认领 ${matches.length} 个产品组，包含全部子变体，全部移入待发布`,[r]);}catch(e){this.fail(r,e);}}
+      for(const r of good.filter(r=>r.status!=='失败')){try{const first=this.firstMatch(this.matchingProducts(draft,r),'认领产品映射');r.productIds=[first.id];r.productId=first.id;r.status='已认领';r.checkpoint='claimed';await this.log(`只取首个父产品 ${first.id} 移入并编辑，不核对子变体`,[r]);}catch(e){this.fail(r,e);r.checkpoint='claim_lookup';}}
       this.job.pendingStage=null;await this.io.save();
       }
       const claimed=pending.filter(r=>r.checkpoint==='claimed'&&r.status!=='失败');
       if(claimed.length){
       if(!good.length)await this.io.open('https://www.dianxiaomi.com/web/amazon/pageList/draft');
-      this.job.pendingStage='移入待发布';await this.io.save();
       await this.step('将本批次产品批量移入待发布',claimed);await this.pageBatches(claimed,'productId','move');
       for(const r of claimed)r.checkpoint='offline';this.job.pendingStage=null;await this.io.save();
       }
@@ -242,7 +307,7 @@
           for(const title of titles){
             await this.io.call('searchTitle',{title});await this.io.call('firstPage');
             for(let page=0;page<500;page++){
-              this.guard();const snap=await this.io.call('snapshot');
+              this.guard();const snap=await this.readPage();
               const allowed=new Set(r.productIds?.length?r.productIds:[r.productId]);
               const matches=this.matchingProducts(snap.rows,r).filter(x=>allowed.has(x.id));
               if(matches.length){const first=matches[0];r.productId=first.id;r.listingTitle=first.title;found=true;break;}
@@ -295,6 +360,7 @@
           try{await this.io.closeEditor(r);}catch(e){await this.log(`本条已发布，关闭编辑标签未完成：${e.message}`,[r]);}
         }catch(e){
           if(this.job.stop)throw e;
+          if(e.listIncomplete)throw e;
           if(!e.notSubmitted&&(e.uncertain||this.job.pendingStage===`发布 ${r.productId}`)){
             r.status='待人工核对';r.publishUncertain=true;r.error=e.message||String(e);
             this.job.pendingStage=null;this.job.intent=null;
@@ -316,11 +382,25 @@
           if(r.status==='待执行'){try{if(C.usesTranslatedContent(r.site)){C.planProductTitle(r);r.targetQuantity='';}else r.targetQuantity=C.parseTargetProductQuantity(r.data?.['产品数量']);}catch(e){this.fail(r,e);}}
         }
         for(const r of this.job.rows)if(r.status==='已提交待确认'){r.status='已发布';r.checkpoint='published';r.step='完成';r.error='';}
-        const groups=new Map();for(const r of this.job.rows.filter(r=>r.status==='待执行')){const k=`${r.targetShop}|${r.site}`;if(!groups.has(k))groups.set(k,[]);groups.get(k).push(r);}
-        for(const group of groups.values()){
-          try{await this.runGroup(group);}catch(e){if(e.uncertain||this.job.stop)throw e;for(const r of group)if(!['失败','已跳过','已提交待确认','已上线','已发布'].includes(r.status))this.fail(r,e);await this.log(`本店铺批次中止：${e.message}`,group);}
+        if(this.job.pendingMove)await this.reconcileMove();
+        for(const r of this.job.rows.filter(r=>r.status==='待执行')){
+          if(r.collectorIds?.length){r.collectorIds=r.collectorIds.slice(0,1);r.collectorId=r.collectorIds[0];}
+          const first=this.firstProduct(r);if(first){r.productId=first;r.productIds=[first];if(r.movedProductIds?.includes(first)&&r.checkpoint==='claimed')r.checkpoint='offline';}
         }
-        this.job.state='done';await this.log('本批次结束，可以下载结果表');
+        await this.io.save();
+        const groups=new Map();let waitingForList=false;for(const r of this.job.rows.filter(r=>r.status==='待执行')){const k=`${r.targetShop}|${r.site}`;if(!groups.has(k))groups.set(k,[]);groups.get(k).push(r);}
+        for(const group of groups.values()){
+          try{await this.runGroup(group);}catch(e){
+            if(e.uncertain||this.job.stop)throw e;
+            if(e.listIncomplete){
+              waitingForList=true;this.job.error=e.message;
+              for(const r of group)if(!['失败','已跳过','已提交待确认','已上线','已发布'].includes(r.status)){r.status='待人工核对';r.error=`列表尚未加载完整，已保留已完成步骤：${e.message}`;}
+              await this.log('本店铺列表读取暂未完成，保留原保存点；继续执行时恢复核对，其他店铺继续',group);continue;
+            }
+            for(const r of group)if(!['失败','已跳过','已提交待确认','已上线','已发布'].includes(r.status))this.fail(r,e);await this.log(`本店铺批次中止：${e.message}`,group);
+          }
+        }
+        this.job.state=waitingForList?'review':'done';if(!waitingForList)this.job.error='';await this.log(waitingForList?'仍有列表等待加载核对，已完成步骤保留，可继续执行':'本批次结束，可以下载结果表');
       }catch(e){
         this.job.state=e.uncertain?'review':this.job.stop?'stopped':'error';this.job.error=e.message;
         for(const r of this.job.rows)if(!['未执行','数据错误','失败','已跳过','已上线','已发布','已提交待确认','发布失败'].includes(r.status)){r.status=e.uncertain?'待人工核对':'已停止';r.error=e.message;}

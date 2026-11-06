@@ -13,9 +13,50 @@ function boot({failSave=false,noTabs=false,rejectRun=false,previous=null,navigat
   if(scriptingApi)context.chrome.scripting=scriptingApi;
   context.importScripts=(...names)=>{for(const name of names){if(name==='workflow.js'){context.DXMWorkflow=class{constructor(job){this.job=job;}async run(){if(rejectRun)throw new Error('存储失败');this.job.state=this.job.stop?'stopped':'done';}};}else vm.runInContext(fs.readFileSync(path.join('extension',name),'utf8'),context,{filename:name});}};
   vm.runInContext(fs.readFileSync('extension/background.js','utf8'),context,{filename:'background.js'});
-  return {data,tasks,sent,badges,created,updates,clears,syncData,sessionData,images:record=>vm.runInContext('io',context).call('germanNewImages',{record}),closeEditor:record=>vm.runInContext('io',context).closeEditor(record),waitEditor:(url,record,before)=>vm.runInContext('io',context).waitEditor(url,record,before),open:(url,record)=>vm.runInContext('io',context).open(url,record),click:tab=>action(tab),send:(m,tab)=>new Promise(resolve=>listener(m,tab?{tab}:{},r=>resolve(structuredClone(r))))};
+  return {data,tasks,sent,badges,created,updates,clears,syncData,sessionData,call:(...args)=>vm.runInContext('io',context).call(...args),images:record=>vm.runInContext('io',context).call('germanNewImages',{record}),closeEditor:record=>vm.runInContext('io',context).closeEditor(record),waitEditor:(url,record,before)=>vm.runInContext('io',context).waitEditor(url,record,before),open:(url,record)=>vm.runInContext('io',context).open(url,record),click:tab=>action(tab),send:(m,tab)=>new Promise(resolve=>listener(m,tab?{tab}:{},r=>resolve(structuredClone(r))))};
 }
 const rows=()=>[1,2].map(i=>({source:`https://www.amazon.com/dp/B0TEST000${i}`,shop:'万万欣UK',site:'英国',targetShop:'旧的错误映射',data:{},error:'',status:'待执行'}));
+
+test('旧版店铺加载超时确认未提交，解除误锁并保留采集保存点',async()=>{
+  const records=rows();records.forEach((r,i)=>Object.assign(r,{collectorId:'c'+i,checkpoint:'collected',status:'待人工核对',error:'等待超时：店铺加载'}));
+  const b=boot({previous:{state:'review',rows:records,logs:[],error:'等待超时：店铺加载',intent:{action:'claim'},pendingStage:'认领'}});
+  const job=(await b.send({kind:'DXM_STATUS'})).job;assert.equal(job.intent,null);assert.equal(job.pendingStage,null);assert.ok(job.rows.every(r=>r.checkpoint==='collected'));
+  assert.equal((await b.send({kind:'DXM_START',rows:records})).ok,true);assert.ok(b.data.dxmJob.rows.every(r=>r.status==='待执行'&&r.checkpoint==='collected'));
+});
+test('旧版后页店铺加载失败时，前页已有认领完成日志的记录只恢复映射',async()=>{
+  const records=rows();records.forEach((r,i)=>Object.assign(r,{collectorId:'c'+i,checkpoint:'collected',status:'待人工核对'}));records[0].history=[{message:'Amazon采集认领执行完成，成功 1 条，失败 0 条'}];
+  const b=boot({previous:{state:'review',rows:records,logs:[],error:'等待超时：店铺加载',intent:{action:'claim'},pendingStage:'认领'}});
+  const job=(await b.send({kind:'DXM_STATUS'})).job;assert.equal(job.rows[0].checkpoint,'claim_lookup');assert.equal(job.rows[1].checkpoint,'collected');assert.equal(job.intent,null);
+});
+test('认领提交后的进度超时仍保留保护，准备阶段中断可以继续',async()=>{
+  for(const phase of ['preparing','prepared','submitting','submitted']){
+    const records=rows(),b=boot({previous:{state:'review',rows:records,logs:[],pendingClaim:{ids:['c0'],phase},...(phase==='submitting'||phase==='submitted'?{pendingStage:'认领'}:{})}});
+    const result=await b.send({kind:'DXM_START',rows:records});assert.equal(result.ok,['preparing','prepared'].includes(phase));
+  }
+  const b=boot({previous:{state:'review',rows:rows(),logs:[],error:'等待超时：认领进度',intent:{action:'claim'},pendingStage:'认领'}});assert.equal((await b.send({kind:'DXM_START',rows:rows()})).ok,false);
+});
+test('后台在提交前保存风险阶段，未点击的明确错误可重试，断线仍保留提交锁',async()=>{
+  for(const notSubmitted of [true,false]){
+    let b;const previous={state:'done',rows:rows(),logs:[],tabId:101,pendingClaim:{ids:['c0'],phase:'prepared'}};
+    b=boot({previous,tabsApi:{sendMessage:async(id,message)=>{
+      assert.equal(message.action,'claim');assert.equal(b.data.dxmJob.pendingClaim.phase,'submitting');assert.equal(b.data.dxmJob.intent.phase,'submitting');assert.equal(b.data.dxmJob.pendingStage,'认领');
+      return {ok:false,error:'模拟连接变化',...(notSubmitted?{notSubmitted:true,retryable:true}:{})};
+    }}});
+    await b.send({kind:'DXM_STATUS'});await assert.rejects(()=>b.call('claim',{ids:['c0'],shop:'Shop',site:'美国',prepared:true},true),error=>notSubmitted?error.notSubmitted&&error.retryable&&!error.uncertain:error.uncertain);
+    assert.equal(b.data.dxmJob.pendingClaim.phase,notSubmitted?'preparing':'submitting');assert.equal(!!b.data.dxmJob.intent,!notSubmitted);
+  }
+});
+test('列表未加载标记传回工作流，读取失败不建立提交风险锁',async()=>{
+  const b=boot({previous:{state:'done',rows:rows(),logs:[],tabId:101},tabsApi:{sendMessage:async()=>({ok:false,error:'列表未加载',listIncomplete:true,retryable:true})}});await b.send({kind:'DXM_STATUS'});
+  await assert.rejects(()=>b.call('snapshot'),error=>error.listIncomplete&&error.retryable&&!error.uncertain);assert.ok(!b.data.dxmJob.intent);
+});
+
+test('已完成父产品移入的核对保存点允许只读恢复，旧认领漏映射不再次认领',async()=>{
+  const records=rows();Object.assign(records[0],{productId:'p1',checkpoint:'claimed',status:'待人工核对'});Object.assign(records[1],{collectorId:'c2',checkpoint:'collected',status:'失败',error:'认领产品映射：匹配到 0 条'});
+  const b=boot({previous:{state:'review',rows:records,logs:[],pendingMove:{ids:['p1'],childIds:['101','102'],reconciling:true},pendingStage:'移入待发布'}});
+  assert.equal((await b.send({kind:'DXM_START',rows:records})).ok,true);const saved=b.data.dxmJob;
+  assert.equal(saved.pendingMove.reconciling,true);assert.deepEqual(saved.pendingMove.childIds,['101','102']);assert.equal(saved.pendingStage,'移入待发布');assert.equal(saved.rows[0].checkpoint,'claimed');assert.equal(saved.rows[1].checkpoint,'claim_lookup');assert.equal(b.tasks.length,1);
+});
 
 test('旧批次重试锁只绑定实际重试记录，其他记录继续时先查已有采集',async()=>{
   const records=rows();records.forEach(r=>{r.status='待人工核对';r.error='等待超时：重试提示';});Object.assign(records[0],{retryCount:1,collectorId:'c0'});
